@@ -1,0 +1,992 @@
+<style>
+	* {
+		margin: 0px;
+		padding: 0px;
+	}
+
+	body {
+		background: #f0f1f2;
+		font: 12px "Open Sans", sans-serif;
+	}
+
+	#view-code {
+		color: #89a2b5;
+		opacity: 0.7;
+		font-size: 14px;
+		text-transform: uppercase;
+		font-weight: 700;
+		text-decoration: none;
+		position: absolute;
+		top: 660px;
+		left: 50%;
+		margin-left: -50px;
+		z-index: 200;
+	}
+
+	#view-code:hover {
+		opacity: 1;
+	}
+
+	#chatbox {
+		width: 290px;
+		background: #fff;
+		border-radius: 6px;
+		overflow: hidden;
+		height: 484px;
+		position: absolute;
+		top: 120%;
+		right: 0%;
+		margin-left: -155px;
+	}
+
+	#friendslist {
+		position: absolute;
+		top: 0;
+		left: 0;
+		width: 290px;
+		height: 484px;
+	}
+
+	#topmenu {
+		height: 69px;
+		width: 290px;
+		border-bottom: 1px solid #d8dfe3;
+	}
+
+	#topmenu span {
+		float: left;
+		width: 96px;
+		height: 70px;
+		background: url("https://s3-us-west-2.amazonaws.com/s.cdpn.io/245657/top-menu.png") -3px -118px no-repeat;
+	}
+
+	#topmenu span.friends {
+		margin-bottom: -1px;
+	}
+
+	#topmenu span.chats {
+		background-position: -95px 25px;
+		cursor: pointer;
+	}
+
+	#topmenu span.chats:hover {
+		background-position: -95px -46px;
+		cursor: pointer;
+	}
+
+	#topmenu span.history {
+		background-position: -190px 24px;
+		cursor: pointer;
+	}
+
+	#topmenu span.history:hover {
+		background-position: -190px -47px;
+		cursor: pointer;
+	}
+
+	.friend {
+		height: 70px;
+		border-bottom: 1px solid #e7ebee;
+		position: relative;
+	}
+
+	.friend:hover {
+		background: #f1f4f6;
+		cursor: pointer;
+	}
+
+	.friend img {
+		width: 40px;
+		border-radius: 50%;
+		margin: 15px;
+		float: left;
+	}
+
+	.floatingImg {
+		width: 40px;
+		border-radius: 50%;
+		position: absolute;
+		top: 0;
+		left: 12px;
+		border: 3px solid #fff;
+	}
+
+	.friend p {
+		padding: 15px 0 0 0;
+		float: left;
+		width: 220px;
+	}
+
+	.friend p strong {
+		font-weight: 600;
+		font-size: 15px;
+		color: #597a96;
+
+	}
+
+	.friend p span {
+		font-size: 13px;
+		font-weight: 400;
+		color: #aab8c2;
+	}
+
+	.friend .status {
+		background: #26c281;
+		border-radius: 50%;
+		width: 9px;
+		height: 9px;
+		position: absolute;
+		top: 31px;
+		right: 17px;
+	}
+
+	.friend .status.away {
+		background: #ffce54;
+	}
+
+	.friend .status.inactive {
+		background: #eaeef0;
+	}
+
+	#search {
+		background: #e3e9ed url("https://s3-us-west-2.amazonaws.com/s.cdpn.io/245657/search.png") -11px 0 no-repeat;
+		height: 60px;
+		width: 290px;
+		position: absolute;
+		bottom: 0;
+		left: 0;
+	}
+
+	#searchfield {
+		background: #e3e9ed;
+		margin: 21px 0 0 55px;
+		border: none;
+		padding: 0;
+		font-size: 14px;
+		font-family: "Open Sans", sans-serif;
+		font-weight: 400px;
+		color: #8198ac;
+	}
+
+	#searchfield:focus {
+		outline: 0;
+	}
+
+	#chatview {
+		width: 290px;
+		height: 484px;
+		position: absolute;
+		top: 0;
+		left: 0;
+		display: none;
+		background: #fff;
+	}
+
+	#profile {
+		height: 153px;
+		overflow: hidden;
+		text-align: center;
+		color: #fff;
+	}
+
+	.p1 #profile {
+		background: #fff url("https://s3-us-west-2.amazonaws.com/s.cdpn.io/245657/timeline1.png") 0 0 no-repeat;
+	}
+
+	#profile .avatar {
+		width: 68px;
+		border: 3px solid #fff;
+		margin: 23px 0 0;
+		border-radius: 50%;
+	}
+
+	#profile p {
+		font-weight: 600;
+		font-size: 15px;
+		margin: 118px 0 -1px;
+		opacity: 0;
+		-webkit-transition: all 200ms cubic-bezier(0.000, 0.995, 0.990, 1.000);
+		-moz-transition: all 200ms cubic-bezier(0.000, 0.995, 0.990, 1.000);
+		-ms-transition: all 200ms cubic-bezier(0.000, 0.995, 0.990, 1.000);
+		-o-transition: all 200ms cubic-bezier(0.000, 0.995, 0.990, 1.000);
+		transition: all 200ms cubic-bezier(0.000, 0.995, 0.990, 1.000);
+	}
+
+	#profile p.animate {
+		margin-top: 97px;
+		opacity: 1;
+		-webkit-transition: all 200ms cubic-bezier(0.000, 0.995, 0.990, 1.000);
+		-moz-transition: all 200ms cubic-bezier(0.000, 0.995, 0.990, 1.000);
+		-ms-transition: all 200ms cubic-bezier(0.000, 0.995, 0.990, 1.000);
+		-o-transition: all 200ms cubic-bezier(0.000, 0.995, 0.990, 1.000);
+		transition: all 200ms cubic-bezier(0.000, 0.995, 0.990, 1.000);
+	}
+
+	#profile span {
+		font-weight: 400;
+		font-size: 11px;
+	}
+
+	.friend {
+		display: flex;
+		justify-content: space-between;
+		width: 100%;
+	}
+
+	#chat-messages {
+		opacity: 0;
+		margin-top: 30px;
+		width: 290px;
+		height: 270px;
+		overflow-y: scroll;
+		overflow-x: hidden;
+		padding-right: 20px;
+		-webkit-transition: all 200ms cubic-bezier(0.000, 0.995, 0.990, 1.000);
+		-moz-transition: all 200ms cubic-bezier(0.000, 0.995, 0.990, 1.000);
+		-ms-transition: all 200ms cubic-bezier(0.000, 0.995, 0.990, 1.000);
+		-o-transition: all 200ms cubic-bezier(0.000, 0.995, 0.990, 1.000);
+		transition: all 200ms cubic-bezier(0.000, 0.995, 0.990, 1.000);
+	}
+
+	#chat-messages.animate {
+		opacity: 1;
+		margin-top: 0;
+	}
+
+	#chat-messages label {
+		color: #aab8c2;
+		font-weight: 600;
+		font-size: 12px;
+		text-align: center;
+		margin: 15px 0;
+		width: 290px;
+		display: block;
+	}
+
+	#chat-messages div.message {
+		padding: 0 0 30px 58px;
+		clear: both;
+		margin-bottom: 45px;
+	}
+
+	#chat-messages div.message.right {
+		padding: 0 58px 30px 0;
+		margin-right: -19px;
+		margin-left: 19px;
+	}
+
+	#chat-messages .message img {
+		float: left;
+		margin-left: -38px;
+		border-radius: 50%;
+		width: 30px;
+		margin-top: 12px;
+	}
+
+	#chat-messages div.message.right img {
+		float: right;
+		margin-left: 0;
+		margin-right: -38px;
+	}
+
+	.message .bubble {
+		background: #f0f4f7;
+		font-size: 13px;
+		font-weight: 600;
+		padding: 12px 13px;
+		border-radius: 5px 5px 5px 0px;
+		color: #8495a3;
+		position: relative;
+		float: left;
+	}
+
+	#chat-messages div.message.right .bubble {
+		float: right;
+		border-radius: 5px 5px 0px 5px;
+	}
+
+	.bubble .corner {
+		background: url("https://s3-us-west-2.amazonaws.com/s.cdpn.io/245657/bubble-corner.png") 0 0 no-repeat;
+		position: absolute;
+		width: 7px;
+		height: 7px;
+		left: -5px;
+		bottom: 0;
+	}
+
+	div.message.right .corner {
+		background: url("https://s3-us-west-2.amazonaws.com/s.cdpn.io/245657/bubble-cornerR.png") 0 0 no-repeat;
+		left: auto;
+		right: -5px;
+	}
+
+	.bubble span {
+		color: #aab8c2;
+		font-size: 9px;
+		position: absolute;
+		right: 0;
+		width: max-content;
+		bottom: -16px;
+	}
+
+	#sendmessage {
+		height: 60px;
+		border-top: 1px solid #e7ebee;
+		position: absolute;
+		bottom: 0;
+		right: 0px;
+		width: 290px;
+		background: #fff;
+		padding-bottm: 50px;
+	}
+
+	#sendmessage input {
+		border
+	}
+
+	#sendmessage input {
+		background: #fff;
+		margin: 21px 0 0 21px;
+		border: none;
+		padding: 0;
+		font-size: 14px;
+		font-family: "Open Sans", sans-serif;
+		font-weight: 400px;
+		color: #aab8c2;
+	}
+
+	#sendmessage input:focus {
+		outline: 0;
+	}
+
+	#sendmessage button {
+		background: #fff url("https://s3-us-west-2.amazonaws.com/s.cdpn.io/245657/send.png") 0 -41px no-repeat;
+		width: 30px;
+		height: 30px;
+		position: absolute;
+		right: 15px;
+		top: 23px;
+		border: none;
+	}
+
+	#sendmessage button:hover {
+		cursor: pointer;
+		background-position: 0 0;
+	}
+
+	#sendmessage button:focus {
+		outline: 0;
+	}
+
+	#close {
+		position: absolute;
+		top: 8px;
+		opacity: 0.8;
+		right: 10px;
+		width: 20px;
+		height: 20px;
+		cursor: pointer;
+	}
+
+	#close:hover {
+		opacity: 1;
+	}
+
+	.cx,
+	.cy {
+		background: #fff;
+		position: absolute;
+		width: 0px;
+		top: 15px;
+		right: 15px;
+		height: 3px;
+		-webkit-transition: all 250ms ease-in-out;
+		-moz-transition: all 250ms ease-in-out;
+		-ms-transition: all 250ms ease-in-out;
+		-o-transition: all 250ms ease-in-out;
+		transition: all 250ms ease-in-out;
+	}
+
+	.cx.s1,
+	.cy.s1 {
+		right: 0;
+		width: 20px;
+		-webkit-transition: all 100ms ease-out;
+		-moz-transition: all 100ms ease-out;
+		-ms-transition: all 100ms ease-out;
+		-o-transition: all 100ms ease-out;
+		transition: all 100ms ease-out;
+	}
+
+	.cy.s2 {
+		-ms-transform: rotate(50deg);
+		-webkit-transform: rotate(50deg);
+		transform: rotate(50deg);
+		-webkit-transition: all 100ms ease-out;
+		-moz-transition: all 100ms ease-out;
+		-ms-transition: all 100ms ease-out;
+		-o-transition: all 100ms ease-out;
+		transition: all 100ms ease-out;
+	}
+
+	.cy.s3 {
+		-ms-transform: rotate(45deg);
+		-webkit-transform: rotate(45deg);
+		transform: rotate(45deg);
+		-webkit-transition: all 100ms ease-out;
+		-moz-transition: all 100ms ease-out;
+		-ms-transition: all 100ms ease-out;
+		-o-transition: all 100ms ease-out;
+		transition: all 100ms ease-out;
+	}
+
+	.cx.s1 {
+		right: 0;
+		width: 20px;
+		-webkit-transition: all 100ms ease-out;
+		-moz-transition: all 100ms ease-out;
+		-ms-transition: all 100ms ease-out;
+		-o-transition: all 100ms ease-out;
+		transition: all 100ms ease-out;
+	}
+
+	.cx.s2 {
+		-ms-transform: rotate(140deg);
+		-webkit-transform: rotate(140deg);
+		transform: rotate(140deg);
+		-webkit-transition: all 100ms ease-out;
+		-moz-transition: all 100ms ease-out;
+		-ms-transition: all 100ease-out;
+		-o-transition: all 100ms ease-out;
+		transition: all 100ms ease-out;
+	}
+
+	.cx.s3 {
+		-ms-transform: rotate(135deg);
+		-webkit-transform: rotate(135deg);
+		transform: rotate(135deg);
+		-webkit-transition: all 100ease-out;
+		-moz-transition: all 100ms ease-out;
+		-ms-transition: all 100ms ease-out;
+		-o-transition: all 100ms ease-out;
+		transition: all 100ms ease-out;
+	}
+
+	#chatview,
+	#sendmessage {
+		overflow: hidden;
+		border-radius: 6px;
+	}
+
+	.friend p span {
+		display: block;
+		max-width: 90% !important;
+		white-space: pre-wrap !important;
+		text-transform: lowercase !important;
+	}
+</style>
+
+<nav class="layout-navbar container-xxl navbar navbar-expand-xl navbar-detached align-items-center bg-navbar-theme"
+	id="layout-navbar">
+
+	<div id="chatbox" style="display: none;">
+		<div id="friendslist">
+			<div id="topmenu">
+				<span class="friends"></span>
+				<span class="chats"></span>
+				<span class="history"></span>
+			</div>
+
+			<div id="friends">
+
+				<div id="search">
+					<input type="text" id="searchfield" placeholder="Search contacts..." />
+				</div>
+
+			</div>
+
+		</div>
+
+		<div id="chatview" class="p1">
+			<div id="profile">
+				<div id="close">
+					<div class="cy"></div>
+					<div class="cx"></div>
+				</div>
+				<p>Miro Badev</p>
+				<span>miro@badev@gmail.com</span>
+			</div>
+			<div id="chat-messages">
+				<!-- Messages will be displayed here -->
+			</div>
+			<div id="sendmessage">
+				<input type="text" placeholder="Send message..." />
+				<button id="send"></button>
+			</div>
+		</div>
+
+	</div>
+
+
+	<div class="layout-menu-toggle navbar-nav align-items-xl-center me-3 me-xl-0 d-xl-none">
+		<a class="nav-item nav-link px-0 me-xl-4" href="javascript:void(0)">
+			<i class="bx bx-menu bx-sm"></i>
+		</a>
+	</div>
+	{{!-- --}}
+
+	<div class="navbar-nav-right d-flex align-items-center" id="navbar-collapse">
+		<!-- Search -->
+		<div class="navbar-nav align-items-center">
+			<div class="nav-item d-flex align-items-center">
+				<i class="bx bx-search fs-4 lh-0"></i>
+				<input type="text" class="form-control border-0 shadow-none ps-1 ps-sm-2" placeholder="Search..."
+					aria-label="Search...">
+			</div>
+		</div>
+		<!-- /Search -->
+
+		<ul class="navbar-nav flex-row align-items-center ms-auto">
+			<!-- Place this tag where you want the button to render. -->
+			<li class="nav-item lh-1 me-3 header">
+				<span> <i class="ri-chat-4-line "></i></span>
+			</li>
+
+
+			<!-- User -->
+			<li class="nav-item navbar-dropdown dropdown-user dropdown">
+
+				<a class="nav-link dropdown-toggle hide-arrow" href="javascript:void(0);" data-bs-toggle="dropdown">
+					<div class="avatar avatar-online">
+						<img src="../assets/img/avatars/1.png" alt="" class="w-px-40 h-auto rounded-circle">
+					</div>
+				</a>
+				<ul class="dropdown-menu dropdown-menu-end">
+					<li>
+						<a class="dropdown-item" href="#">
+							<div class="d-flex">
+								<div class="flex-shrink-0 me-3">
+									<div class="avatar avatar-online">
+										<img src="../assets/img/avatars/1.png" alt=""
+											class="w-px-40 h-auto rounded-circle">
+									</div>
+								</div>
+								<div class="flex-grow-1">
+									<span class="fw-medium d-block">John Doe</span>
+									<small class="text-muted">Admin</small>
+								</div>
+							</div>
+						</a>
+					</li>
+					<li>
+						<div class="dropdown-divider"></div>
+					</li>
+					<li>
+						<a class="dropdown-item" href="#">
+							<i class="bx bx-user me-2"></i>
+							<span class="align-middle">My Profile</span>
+						</a>
+					</li>
+					<li>
+						<a class="dropdown-item" href="#">
+							<i class="bx bx-cog me-2"></i>
+							<span class="align-middle">Settings</span>
+						</a>
+					</li>
+					<li>
+						<a class="dropdown-item" href="#">
+							<span class="d-flex align-items-center align-middle">
+								<i class="flex-shrink-0 bx bx-credit-card me-2"></i>
+								<span class="flex-grow-1 align-middle ms-1">Billing</span>
+								<span
+									class="flex-shrink-0 badge badge-center rounded-pill bg-danger w-px-20 h-px-20">4</span>
+							</span>
+						</a>
+					</li>
+					<li>
+						<div class="dropdown-divider"></div>
+					</li>
+					<li>
+						<a class="dropdown-item" href="javascript:void(0);">
+							<i class="bx bx-power-off me-2"></i>
+							<span class="align-middle">Log Out</span>
+						</a>
+					</li>
+				</ul>
+			</li>
+			<!--/ User -->
+		</ul>
+	</div>
+</nav>
+
+
+{{!--
+<script>
+	//Content Loaded
+	window.addEventListener("DOMContentLoaded", (e) => {
+		var header = document.querySelector(".header");
+		var chatRoom = document.querySelector(".chat-room");
+		var typeArea = document.querySelector(".type-area");
+		var btnAdd = document.querySelector(".button-add");
+		var others = document.querySelector(".others");
+		var emojiBox = document.querySelector(".emoji-button .emoji-box");
+		var emojiButton = document.querySelector(".others .emoji-button");
+		var emojis = document.querySelectorAll(".emoji-box span");
+		var inputText = document.querySelector("#inputText");
+		var btnSend = document.querySelector(".button-send");
+		var messageArea = document.querySelector(".message.message-right");
+		var chatBox2 = document.querySelector('.chat-box')
+		//Header onclick event
+		let flag = true;
+		const chatBox = document.querySelector('.chat-box ')
+		header.addEventListener('click', () => {
+			if (flag) {
+				chatBox2.style.display = "block"
+				flag = false
+			}
+			else {
+				chatBox2.style.display = "none"
+				flag = true
+			}
+
+		})
+		//Button Add onclick event
+		btnAdd.addEventListener("click", (e) => {
+			others.classList.add("others-show");
+		});
+		//Emoji onclick event
+		emojiButton.addEventListener("click", (e) => {
+			emojiBox.classList.add("emoji-show");
+		});
+		//Button Send onclick event
+		btnSend.addEventListener("click", (e) => {
+			var mess = inputText.value;
+			var bubble = document.createElement('div');
+			bubble.className += " bubble bubble-dark";
+			bubble.textContent = mess;
+			messageArea.appendChild(bubble);
+			inputText.value = "";
+		});
+		for (var emoji of emojis) {
+			emoji.addEventListener("click", (e) => {
+				e.stopPropagation();
+				emojiBox.classList.remove("emoji-show");
+				others.classList.remove("others-show");
+				inputText.value += e.target.textContent;
+			});
+		}
+	})
+</script> --}}
+
+
+<script>
+	// Make sure to replace 'http://your-api-url.com' with the actual URL of your API
+	const apiUrl = '/userNamesAndEmails';
+
+	fetch(apiUrl)
+		.then(response => {
+			if (!response.ok) {
+				throw new Error('Network response was not ok');
+			}
+			return response.json();
+		})
+		.then(users => {
+			appendDataToFriendsList(users);
+			console.log('Updated Data:', users); // For demonstration, logs the updated data to console
+		})
+		.catch(error => {
+			console.error('Error fetching users:', error);
+		});
+	function appendDataToFriendsList(data) {
+		var friendsList = document.getElementById('friends');
+		const searchField = document.getElementById('searchfield').value.toLowerCase();
+
+		// Get the username from session
+		const sessionUsername = '{{req.session.username}}';
+
+		// Use map function to transform each object into HTML elements
+		var friendElements = data.map(function (entry) {
+			var friendDiv = document.createElement('div');
+			friendDiv.classList.add('friend');
+
+			var img = document.createElement('img');
+			img.src = 'https://s3-us-west-2.amazonaws.com/s.cdpn.io/245657/1_copy.jpg'; // Replace with actual image URL
+
+			var p = document.createElement('p');
+			var strong = document.createElement('strong');
+			var span = document.createElement('span');
+
+			if (entry.username === sessionUsername) {
+				strong.textContent = 'Me';
+			} else {
+				strong.textContent = entry.username;
+				span.textContent = entry.email; // Display email for other users
+			}
+
+			p.appendChild(strong);
+			p.appendChild(span);
+
+			var statusDiv = document.createElement('div');
+			statusDiv.classList.add('status');
+			statusDiv.classList.add('available'); // Assuming all friends are available
+
+			friendDiv.appendChild(img);
+			friendDiv.appendChild(p);
+			friendDiv.appendChild(statusDiv);
+
+			return friendDiv;
+		});
+
+		// Append the HTML elements to the friends list
+		friendElements.forEach(function (friendElement) {
+			friendsList.appendChild(friendElement);
+		});
+	}
+
+	// Toggle chatbox visibility
+	const headerBtn = document.querySelector('.header');
+	const chatbox = document.querySelector('#chatbox');
+	var flag = true;
+	headerBtn.addEventListener('click', () => {
+		if (flag) {
+			chatbox.style.display = "block";
+			flag = false;
+		}
+		else {
+			chatbox.style.display = "none";
+			flag = true;
+		}
+	});
+</script>
+<script>
+	function fetchMessages(toId) {
+		fetch(`/messages/${toId}`)
+			.then(response => {
+				if (!response.ok) {
+					throw new Error('Network response was not ok');
+				}
+				return response.json();
+			})
+			.then(messages => {
+				displayMessages(messages);
+				console.log('Fetched messages:', messages);
+			})
+			.catch(error => {
+				console.error('Error fetching messages:', error);
+			});
+	}
+
+
+
+	async function displayMessages(messages) {
+		var chatMessages = document.getElementById('chat-messages');
+		chatMessages.innerHTML = ''; // Clear existing messages
+
+		// Fetch session email from backend
+		const response = await fetch('/session-email');
+		const data = await response.json();
+		const sessionEmail = data.email;
+
+		messages.forEach(message => {
+			var messageDiv = document.createElement('div');
+			messageDiv.classList.add('message');
+
+			// Check if the message is from the current user
+			if (message.fromId === sessionEmail) {
+				messageDiv.classList.add('right'); // Display on the right side
+			} else {
+				messageDiv.classList.add('left'); // Display on the left side
+			}
+
+			var img = document.createElement('img');
+			img.src = message.fromId === sessionEmail ? 'https://s3-us-west-2.amazonaws.com/s.cdpn.io/245657/2_copy.jpg' : 'https://s3-us-west-2.amazonaws.com/s.cdpn.io/245657/1_copy.jpg';
+
+			var bubbleDiv = document.createElement('div');
+			bubbleDiv.classList.add('bubble');
+			bubbleDiv.textContent = message.message;
+
+			var cornerDiv = document.createElement('div');
+			cornerDiv.classList.add('corner');
+
+			var span = document.createElement('span');
+			// Calculate time difference
+			var timeDiff = new Date() - new Date(message.createdAt);
+			var seconds = Math.floor(timeDiff / 1000);
+			var minutes = Math.floor(seconds / 60);
+			var hours = Math.floor(minutes / 60);
+
+			if (seconds < 60) {
+				span.textContent = 'Just now';
+			} else if (minutes < 60) {
+				span.textContent = minutes + ' minutes ago';
+			} else if (hours < 24) {
+				span.textContent = hours + ' hours ago';
+			} else if (hours >= 24 && hours < 48) {
+				span.textContent = 'Yesterday';
+			} else {
+				// Display the date if the message was sent earlier than yesterday
+				var options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+				span.textContent = new Date(message.createdAt).toLocaleDateString(undefined, options);
+			}
+
+			bubbleDiv.appendChild(cornerDiv);
+			bubbleDiv.appendChild(span);
+
+			messageDiv.appendChild(img);
+			messageDiv.appendChild(bubbleDiv);
+
+			chatMessages.appendChild(messageDiv);
+		});
+
+		// Scroll to the bottom of the chat messages container
+		chatMessages.scrollTop = chatMessages.scrollHeight;
+	}
+
+	// When a friend is clicked
+	$("#friends").on("click", ".friend", function () {
+		var name = $(this).find("p strong").html();
+		var email = $(this).find("p span").html();
+		$("#profile p").html(name);
+		$("#profile span").html(email);
+
+		var toId = email;
+
+		// Fetch messages between the two users
+		fetchMessages(toId);
+
+		// Handle the chatbox animation
+		var childOffset = $(this).offset();
+		var parentOffset = $(this).parent().parent().offset();
+		var childTop = childOffset.top - parentOffset.top;
+		var clone = $(this).find('img').eq(0).clone();
+		var top = childTop + 12 + "px";
+
+		$(clone).css({ 'top': top }).addClass("floatingImg").appendTo("#chatbox");
+
+		setTimeout(function () { $("#profile p").addClass("animate"); $("#profile").addClass("animate"); }, 100);
+		setTimeout(function () {
+			$("#chat-messages").addClass("animate");
+			$('.cx, .cy').addClass('s1');
+			setTimeout(function () { $('.cx, .cy').addClass('s2'); }, 100);
+			setTimeout(function () { $('.cx, .cy').addClass('s3'); }, 200);
+		}, 150);
+
+		$('.floatingImg').animate({
+			'width': "68px",
+			'left': '108px',
+			'top': '20px'
+		}, 200);
+
+		// Store recipient's email and name in variables
+		var toName = name;
+
+		// Attach recipient's email and name when sending a message
+		document.getElementById('send').addEventListener('click', function () {
+			var messageInput = document.getElementById('sendmessage').querySelector('input[type="text"]');
+			var messageText = messageInput.value.trim();
+
+			if (messageText !== '') {
+				sendMessage(messageText, toId, toName);
+				messageInput.value = '';
+			}
+		});
+
+		$(".message").not(".right").find("img").attr("src", $(clone).attr("src"));
+		$('#friendslist').fadeOut();
+		$('#chatview').fadeIn();
+
+		$('#close').unbind("click").click(function () {
+			$("#chat-messages, #profile, #profile p").removeClass("animate");
+			$('.cx, .cy').removeClass("s1 s2 s3");
+			$('.floatingImg').animate({
+				'width': "40px",
+				'top': top,
+				'left': '12px'
+			}, 200, function () { $('.floatingImg').remove() });
+
+			setTimeout(function () {
+				$('#chatview').fadeOut();
+				$('#friendslist').fadeIn();
+			}, 50);
+		});
+	});
+
+
+	// Function to send a message
+	function sendMessage(messageText, toId, toName) {
+		var chatMessages = document.getElementById('chat-messages');
+
+		// Create a new message element
+		var messageDiv = document.createElement('div');
+		messageDiv.classList.add('message');
+		messageDiv.classList.add('right');
+
+		// Create image element for the user's avatar
+		var img = document.createElement('img');
+		img.src = 'https://s3-us-west-2.amazonaws.com/s.cdpn.io/245657/2_copy.jpg'; // Replace with actual image URL
+
+		// Create div for the message bubble
+		var bubbleDiv = document.createElement('div');
+		bubbleDiv.classList.add('bubble');
+
+		// Create paragraph element for the message text
+		var p = document.createElement('p');
+		p.textContent = messageText;
+
+		// Create div for the message corner
+		var cornerDiv = document.createElement('div');
+		cornerDiv.classList.add('corner');
+
+		// Create span element for the timestamp
+		var span = document.createElement('span');
+		span.textContent = 'Just now';
+
+		// Append elements to the message bubble
+		bubbleDiv.appendChild(p);
+		bubbleDiv.appendChild(cornerDiv);
+		bubbleDiv.appendChild(span);
+
+		// Append elements to the message div
+		messageDiv.appendChild(img);
+		messageDiv.appendChild(bubbleDiv);
+
+		// Append the new message to the chat messages container
+		chatMessages.appendChild(messageDiv);
+
+		// Scroll to the bottom of the chat messages container
+		chatMessages.scrollTop = chatMessages.scrollHeight;
+
+		// Send message data to the server
+		fetch('/send', {
+			method: 'POST',
+			headers: {
+				'Content-Type': 'application/json'
+			},
+			body: JSON.stringify({
+				toId: toId,
+				toName: toName,
+				message: messageText
+			})
+		})
+			.then(response => {
+				if (!response.ok) {
+					throw new Error('Network response was not ok');
+				}
+				return response.json();
+			})
+			.then(data => {
+				console.log('Message sent:', data);
+			})
+			.catch(error => {
+				console.error('Error sending message:', error);
+			});
+	}
+
+</script>
+
+
+
+<!-- Include Socket.IO client library -->
+<script src="/socket.io/socket.io.js"></script>
+
+<script src="/scripts/client.js"></script>
