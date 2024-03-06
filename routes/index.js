@@ -52,7 +52,7 @@ router.post("/login", async (req, res) => {
     req.session.username = findUser.username
     req.session.email = findUser.email
     req.session.user_group = findUser.user_group
-
+    req.session.userImage = findUser.userImage
     res.status(200).json({ success: true, message: "Login successful" });
 
   } catch (error) {
@@ -536,15 +536,16 @@ router.get('/fetchcontainers', async (req, res) => {
 
 router.get('/userNamesAndEmails', async (req, res) => {
   try {
-    const sessionUsername = req.session.username; // Retrieve the session username
+    const sessionUsername = req.session.username;
+    const sessionImage = req.session.userImage; // Retrieve the session username
 
-    // Fetch users' usernames and emails
-    const users = await userModel.findAll({ attributes: ['username', 'email'] });
+    // Fetch users' usernames, emails, and images
+    const users = await userModel.findAll({ attributes: ['username', 'email', 'userImage'] });
 
     // Replace the username with "Me" if it matches the session username
     const modifiedUsers = users.map(user => {
       if (user.username === sessionUsername) {
-        return { ...user, username: 'Me' };
+        return { ...user, username: 'Me', userImage: sessionImage }; // Include session userImage
       }
       return user;
     });
@@ -554,6 +555,7 @@ router.get('/userNamesAndEmails', async (req, res) => {
     return res.status(400).json({ error: error.message });
   }
 });
+
 
 router.post('/send', async (req, res) => {
   try {
@@ -608,7 +610,8 @@ router.get('/messages/:toId', async (req, res) => {
 // Backend route to fetch session email
 router.get('/session-email', (req, res) => {
   const sessionEmail = req.session.email;
-  res.json({ email: sessionEmail });
+  const sessionImage = req.session.userImage;
+  res.json({ email: sessionEmail, userImage: sessionImage });
 });
 
 router.post("/upload", async (req, res) => {
@@ -665,6 +668,24 @@ router.get('/usersFetch', async (req, res) => {
   } catch (error) {
       console.error("Error fetching user:", error);
       res.status(500).send("Internal Server Error");
+  }
+});
+
+router.get('/user/:toId', async (req, res) => {
+  try {
+    const { toId } = req.params;
+
+    // Fetch user data based on toId
+    const userData = await userModel.findOne({ where: { email: toId } });
+
+    if (!userData) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+
+    res.json(userData);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: 'Server error' });
   }
 });
 

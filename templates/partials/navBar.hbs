@@ -146,6 +146,8 @@
 		top: 0;
 		left: 12px;
 		border: 3px solid #fff;
+		    height: 68px;
+
 	}
 
 	.friend p {
@@ -322,12 +324,23 @@
 		border-radius: 50%;
 		width: 30px;
 		margin-top: 12px;
+		border-radius: 57%;
+		object-fit: cover;
+		width: 34px;
+		height: 36px;
+		margin-top: 12px;
 	}
 
 	#chat-messages div.message.right img {
 		float: right;
 		margin-left: 0;
 		margin-right: -38px;
+		border-radius: 57%;
+		object-fit: cover;
+		width: 34px;
+		height: 36px;
+		margin-top: 12px;
+
 	}
 
 	.message .bubble {
@@ -599,7 +612,7 @@
 			<li class="nav-item navbar-dropdown dropdown-user dropdown">
 
 				<a class="nav-link dropdown-toggle hide-arrow" href="javascript:void(0);" data-bs-toggle="dropdown">
-					<div class="avatar avatar-online">
+					<div class="avatar avatar-online ">
 						{{!-- <img src="../assets/img/avatars/1.png" alt="" class="w-px-40 h-auto rounded-circle"> --}}
 					</div>
 				</a>
@@ -611,18 +624,18 @@
 									<div class="avatar avatar-online">
 										<form id="imageForm" action="/upload" method="post"
 											enctype="multipart/form-data">
-											<label for="userImage">
-												<img id="imagePreview" src="../assets/img/avatars/1.png" alt=""
-													class="w-px-40 h-auto rounded-circle">
+											<label for="userImage" id="imagePreviewContainer"
+												style="width: 40px;height:40px">
+												<img id="imagePreview" class="d-none">
 											</label>
 											<input type="file" id="userImage" name="userImage" style="display: none;">
 										</form>
 
 									</div>
 								</div>
-								<div class="flex-grow-1">
-									<span class="fw-medium d-block">John Doe</span>
-									<small class="text-muted">Admin</small>
+								<div class="flex-grow-1" id="appendNameGroup">
+									{{!-- <span class="fw-medium d-block">John Doe</span>
+									<small class="text-muted">Admin</small> --}}
 								</div>
 							</div>
 						</a>
@@ -667,6 +680,9 @@
 		</ul>
 	</div>
 </nav>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/js/toastr.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@10"></script>
+
 <script>
 	document.addEventListener("DOMContentLoaded", function () {
 		// Add event listener to the image
@@ -680,41 +696,102 @@
 			// Automatically submit the form when file is selected
 			document.getElementById("imageForm").submit();
 		});
-	});
 
+		// Add event listener to form submission
+		document.getElementById("imageForm").addEventListener("submit", function (event) {
+			event.preventDefault(); // Prevent default form submission
+			const form = event.target;
+			const formData = new FormData(form);
+
+			fetch("/upload", {
+				method: "POST",
+				body: formData
+			})
+				.then(response => {
+					if (!response.ok) {
+						throw new Error('Network response was not ok');
+					}
+					return response.json();
+				})
+				.then(data => {
+					if (data.message === "File uploaded successfully") {
+						toastr.success(data.message);
+						setTimeout(function () {
+							location.reload(); // Reload the page after a short delay
+						}, 1000); // 1000 milliseconds = 1 second
+					} else {
+						toastr.error(data.message);
+					}
+				})
+				.catch(error => {
+					console.error("Error uploading file:", error);
+					toastr.error("Error uploading file. Please try again later.");
+				});
+		});
+	});
 </script>
 
-<script>
-// Define a function to fetch user details and display user image
-function displayUserImage() {
-  // Fetch the user details API
-  fetch('/usersFetch')
-    .then(response => {
-      if (!response.ok) {
-        throw new Error('Network response was not ok');
-      }
-      return response.json();
-    })
-    .then(user => {
-      // Get the container element where the user image will be displayed
-      const avatarContainer = document.querySelector('.avatar.avatar-online');
-      
-      // Create an <img> element for the user's image
-      const img = document.createElement('img');
-      img.src = '/userImage/' + user.userImage; // Assuming userImage contains the image file name
-      img.alt = ''; // Provide alternative text if necessary
-      img.classList.add('rounded-circle');
-      
-      // Append the <img> element to the container
-      avatarContainer.appendChild(img);
-    })
-    .catch(error => {
-      console.error('There was a problem fetching the user details:', error);
-    });
-}
 
-// Add an event listener to call displayUserImage function when the window loads
-window.addEventListener('load', displayUserImage);
+<script>
+	function displayUserImage() {
+		// Fetch the user details API
+		fetch('/usersFetch')
+			.then(response => {
+				if (!response.ok) {
+					throw new Error('Network response was not ok');
+				}
+				return response.json();
+			})
+			.then(user => {
+				// Get the container element where the user image will be displayed
+				const avatarContainer = document.querySelector('.avatar.avatar-online');
+				const imagePreviewContainer = document.getElementById('imagePreviewContainer');
+				const nameGroupContainer = document.getElementById('appendNameGroup');
+
+				// Create an <img> element for the user's image
+				const img = document.createElement('img');
+				img.src = '/userImage/' + user.userImage; // Assuming userImage contains the image file name
+				img.alt = ''; // Provide alternative text if necessary
+				img.classList.add('rounded-circle');
+
+				// Append the <img> element to the container
+				avatarContainer.appendChild(img);
+
+				// Create an <img> element for the user's image preview
+				const imgPreview = document.createElement('img');
+				imgPreview.style.width = "100%"
+				imgPreview.style.height = "100%"
+				imgPreview.style.objectFit = "cover"
+				imgPreview.src = '/userImage/' + user.userImage; // Assuming userImage contains the image file name
+				imgPreview.alt = ''; // Provide alternative text if necessary
+				imgPreview.classList.add('rounded-circle');
+
+				// Append the <img> element to the preview container
+				imagePreviewContainer.appendChild(imgPreview);
+
+				// Create a <span> element for the username
+				const usernameSpan = document.createElement('span');
+				usernameSpan.classList.add('fw-medium', 'd-block');
+				usernameSpan.textContent = user.username; // Assuming 'username' is the property in the API response for username
+
+				// Create a <small> element for the user group
+				const userGroupSmall = document.createElement('small');
+				userGroupSmall.style.textTransform = "capitalize"
+				userGroupSmall.classList.add('text-muted', 'capitalize');
+				userGroupSmall.textContent = user.user_group; // Assuming 'userGroup' is the property in the API response for user group
+
+				// Append the <span> and <small> elements to the container
+				nameGroupContainer.appendChild(usernameSpan);
+				nameGroupContainer.appendChild(userGroupSmall);
+			})
+			.catch(error => {
+				console.error('There was a problem fetching the user details:', error);
+			});
+	}
+
+	// Add an event listener to call displayUserImage function when the window loads
+	window.addEventListener('load', displayUserImage);
+
 </script>
 
 
@@ -807,7 +884,7 @@ window.addEventListener('load', displayUserImage);
 			friendDiv.classList.add('friend');
 
 			var img = document.createElement('img');
-			img.src = 'https://s3-us-west-2.amazonaws.com/s.cdpn.io/245657/1_copy.jpg'; // Replace with actual image URL
+			img.src = entry.userImage ? '/userImage/' + entry.userImage : 'https://s3-us-west-2.amazonaws.com/s.cdpn.io/245657/1_copy.jpg';
 
 			var p = document.createElement('p');
 			var strong = document.createElement('strong');
@@ -815,6 +892,7 @@ window.addEventListener('load', displayUserImage);
 
 			if (entry.username === sessionUsername) {
 				strong.textContent = 'Me';
+				img.src = '{{req.session.userImage}}'; // Assuming user image is stored in session
 			} else {
 				strong.textContent = entry.username;
 				span.textContent = entry.email; // Display email for other users
@@ -873,71 +951,89 @@ window.addEventListener('load', displayUserImage);
 			});
 	}
 
-
-
 	async function displayMessages(messages) {
 		var chatMessages = document.getElementById('chat-messages');
 		chatMessages.innerHTML = ''; // Clear existing messages
 
-		// Fetch session email from backend
-		const response = await fetch('/session-email');
-		const data = await response.json();
-		const sessionEmail = data.email;
-
-		messages.forEach(message => {
-			var messageDiv = document.createElement('div');
-			messageDiv.classList.add('message');
-
-			// Check if the message is from the current user
-			if (message.fromId === sessionEmail) {
-				messageDiv.classList.add('right'); // Display on the right side
-			} else {
-				messageDiv.classList.add('left'); // Display on the left side
+		try {
+			// Fetch session email from backend
+			const sessionDataResponse = await fetch('/session-email');
+			if (!sessionDataResponse.ok) {
+				throw new Error('Failed to fetch session data');
 			}
+			const sessionData = await sessionDataResponse.json();
+			const sessionEmail = sessionData.email;
 
-			var img = document.createElement('img');
-			img.src = message.fromId === sessionEmail ? 'https://s3-us-west-2.amazonaws.com/s.cdpn.io/245657/2_copy.jpg' : 'https://s3-us-west-2.amazonaws.com/s.cdpn.io/245657/1_copy.jpg';
-
-			var bubbleDiv = document.createElement('div');
-			bubbleDiv.classList.add('bubble');
-			bubbleDiv.textContent = message.message;
-
-			var cornerDiv = document.createElement('div');
-			cornerDiv.classList.add('corner');
-
-			var span = document.createElement('span');
-			// Calculate time difference
-			var timeDiff = new Date() - new Date(message.createdAt);
-			var seconds = Math.floor(timeDiff / 1000);
-			var minutes = Math.floor(seconds / 60);
-			var hours = Math.floor(minutes / 60);
-
-			if (seconds < 60) {
-				span.textContent = 'Just now';
-			} else if (minutes < 60) {
-				span.textContent = minutes + ' minutes ago';
-			} else if (hours < 24) {
-				span.textContent = hours + ' hours ago';
-			} else if (hours >= 24 && hours < 48) {
-				span.textContent = 'Yesterday';
-			} else {
-				// Display the date if the message was sent earlier than yesterday
-				var options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
-				span.textContent = new Date(message.createdAt).toLocaleDateString(undefined, options);
+			// Fetch user image for toId
+			const toIdUserResponse = await fetch(`/user/${toId}`);
+			if (!toIdUserResponse.ok) {
+				throw new Error('Failed to fetch user data');
 			}
+			const toIdUserData = await toIdUserResponse.json();
+			const toIdUserImage = toIdUserData.userImage;
 
-			bubbleDiv.appendChild(cornerDiv);
-			bubbleDiv.appendChild(span);
+			messages.forEach(message => {
+				var messageDiv = document.createElement('div');
+				messageDiv.classList.add('message');
 
-			messageDiv.appendChild(img);
-			messageDiv.appendChild(bubbleDiv);
+				// Check if the message is from the current user
+				if (message.fromId === sessionEmail) {
+					messageDiv.classList.add('right'); // Display on the right side
+				} else {
+					messageDiv.classList.add('left'); // Display on the left side
+				}
 
-			chatMessages.appendChild(messageDiv);
-		});
+				var img = document.createElement('img');
+				if (message.fromId === sessionEmail) {
+					img.src = `/userImage/${sessionData.userImage}`;
+				} else {
+					img.src = `/userImage/${toIdUserImage}`;
+				}
 
-		// Scroll to the bottom of the chat messages container
-		chatMessages.scrollTop = chatMessages.scrollHeight;
+				var bubbleDiv = document.createElement('div');
+				bubbleDiv.classList.add('bubble');
+				bubbleDiv.textContent = message.message;
+
+				var cornerDiv = document.createElement('div');
+				cornerDiv.classList.add('corner');
+
+				var span = document.createElement('span');
+				// Calculate time difference
+				var timeDiff = new Date() - new Date(message.createdAt);
+				var seconds = Math.floor(timeDiff / 1000);
+				var minutes = Math.floor(seconds / 60);
+				var hours = Math.floor(minutes / 60);
+
+				if (seconds < 60) {
+					span.textContent = 'Just now';
+				} else if (minutes < 60) {
+					span.textContent = minutes + ' minutes ago';
+				} else if (hours < 24) {
+					span.textContent = hours + ' hours ago';
+				} else if (hours >= 24 && hours < 48) {
+					span.textContent = 'Yesterday';
+				} else {
+					// Display the date if the message was sent earlier than yesterday
+					var options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+					span.textContent = new Date(message.createdAt).toLocaleDateString(undefined, options);
+				}
+
+				bubbleDiv.appendChild(cornerDiv);
+				bubbleDiv.appendChild(span);
+
+				messageDiv.appendChild(img);
+				messageDiv.appendChild(bubbleDiv);
+
+				chatMessages.appendChild(messageDiv);
+			});
+
+			// Scroll to the bottom of the chat messages container
+			chatMessages.scrollTop = chatMessages.scrollHeight;
+		} catch (error) {
+			console.error('Error fetching data:', error);
+		}
 	}
+
 	// Define variables outside the click event handler
 	var toId = "";
 	var toName = "";
@@ -1021,71 +1117,87 @@ window.addEventListener('load', displayUserImage);
 	function sendMessage(messageText, toId, toName) {
 		var chatMessages = document.getElementById('chat-messages');
 
-		// Create a new message element
-		var messageDiv = document.createElement('div');
-		messageDiv.classList.add('message');
-		messageDiv.classList.add('right');
-
-		// Create image element for the user's avatar
-		var img = document.createElement('img');
-		img.src = 'https://s3-us-west-2.amazonaws.com/s.cdpn.io/245657/2_copy.jpg'; // Replace with actual image URL
-
-		// Create div for the message bubble
-		var bubbleDiv = document.createElement('div');
-		bubbleDiv.classList.add('bubble');
-
-		// Create paragraph element for the message text
-		var p = document.createElement('p');
-		p.textContent = messageText;
-
-		// Create div for the message corner
-		var cornerDiv = document.createElement('div');
-		cornerDiv.classList.add('corner');
-
-		// Create span element for the timestamp
-		var span = document.createElement('span');
-		span.textContent = 'Just now';
-
-		// Append elements to the message bubble
-		bubbleDiv.appendChild(p);
-		bubbleDiv.appendChild(cornerDiv);
-		bubbleDiv.appendChild(span);
-
-		// Append elements to the message div
-		messageDiv.appendChild(img);
-		messageDiv.appendChild(bubbleDiv);
-
-		// Append the new message to the chat messages container
-		chatMessages.appendChild(messageDiv);
-
-		// Scroll to the bottom of the chat messages container
-		chatMessages.scrollTop = chatMessages.scrollHeight;
-
-		// Send message data to the server
-		fetch('/send', {
-			method: 'POST',
-			headers: {
-				'Content-Type': 'application/json'
-			},
-			body: JSON.stringify({
-				toId: toId,
-				toName: toName,
-				message: messageText
-			})
-		})
+		// Fetch session data
+		fetch('/session-email')
 			.then(response => {
 				if (!response.ok) {
-					throw new Error('Network response was not ok');
+					throw new Error('Failed to fetch session data');
 				}
 				return response.json();
 			})
 			.then(data => {
-				console.log('Message sent:', data);
+				// Extract session data
+				const sessionImage = data.userImage;
+				// Create a new message element
+				var messageDiv = document.createElement('div');
+				messageDiv.classList.add('message');
+				messageDiv.classList.add('right');
+
+				// Create image element for the user's avatar
+				var img = document.createElement('img');
+				img.src = '/userImage/' + sessionImage; // Assuming sessionImage contains the filename
+
+				// Create div for the message bubble
+				var bubbleDiv = document.createElement('div');
+				bubbleDiv.classList.add('bubble');
+
+				// Create paragraph element for the message text
+				var p = document.createElement('p');
+				p.textContent = messageText;
+
+				// Create div for the message corner
+				var cornerDiv = document.createElement('div');
+				cornerDiv.classList.add('corner');
+
+				// Create span element for the timestamp
+				var span = document.createElement('span');
+				span.textContent = 'Just now';
+
+				// Append elements to the message bubble
+				bubbleDiv.appendChild(p);
+				bubbleDiv.appendChild(cornerDiv);
+				bubbleDiv.appendChild(span);
+
+				// Append elements to the message div
+				messageDiv.appendChild(img);
+				messageDiv.appendChild(bubbleDiv);
+
+				// Append the new message to the chat messages container
+				chatMessages.appendChild(messageDiv);
+
+				// Scroll to the bottom of the chat messages container
+				chatMessages.scrollTop = chatMessages.scrollHeight;
+
+				// Send message data to the server
+				fetch('/send', {
+					method: 'POST',
+					headers: {
+						'Content-Type': 'application/json'
+					},
+					body: JSON.stringify({
+						toId: toId,
+						toName: toName,
+						message: messageText
+					})
+				})
+					.then(response => {
+						if (!response.ok) {
+							throw new Error('Network response was not ok');
+						}
+						return response.json();
+					})
+					.then(data => {
+						console.log('Message sent:', data);
+					})
+					.catch(error => {
+						console.error('Error sending message:', error);
+					});
 			})
 			.catch(error => {
-				console.error('Error sending message:', error);
+				console.error('Error fetching session data:', error);
 			});
 	}
+
 
 </script>
 
