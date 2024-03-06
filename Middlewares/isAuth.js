@@ -5,8 +5,8 @@ const authenticate =(req,res,next)=>{
         next()
     }
     else{
-        // res.redirect('/')
-        next()
+        res.redirect('/')
+        // next()
     }
 }
 

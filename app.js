@@ -21,7 +21,7 @@ app.use(cors());
 app.set('view engine', 'hbs');
 app.set("views", templatespath);
 hbs.registerPartials(partialpath);
-app.use(session({ secret: 'ShubhamSharma',resave:false,saveUninitialized:false ,cookie: { maxAge: 24*60*60  }}));
+app.use(session({ secret: 'ShubhamSharma', resave: false, saveUninitialized: false, cookie: { maxAge: 60 * 60 * 1000 } }));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 

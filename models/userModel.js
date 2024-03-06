@@ -1,5 +1,6 @@
 const { DataTypes } = require("sequelize");
 const sequelize = require("../config/database")
+
 const userData = sequelize.define('userModel',{
     username:{
         type:DataTypes.STRING,
@@ -19,16 +20,22 @@ const userData = sequelize.define('userModel',{
         allowNull:false
     },
     employee_id:{
-        type :DataTypes.STRING,
-        
+        type:DataTypes.STRING,
+    },
+    user_group: {
+        type: DataTypes.STRING,
+        defaultValue: 'user' // Setting a default value
+    },
+    userImage: {
+        type: DataTypes.STRING,
+        allowNull: true // Assuming userImage can be null
     }
-},{timestamps:false})             
+}, { timestamps: false });
 
-sequelize.sync().then(()=>{
+sequelize.sync().then(() => {
     console.log("user table created")
-})
-.catch((err)=>{
+}).catch((err) => {
     console.log(err)
-})
+});
 
 module.exports = userData;

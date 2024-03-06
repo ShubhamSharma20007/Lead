@@ -1,4 +1,4 @@
-const path = require('path');
+git commit -m "first commit"const path = require('path');
 const { src, dest, series } = require('gulp');
 const replace = require('gulp-replace');
 const useref = require('gulp-useref');

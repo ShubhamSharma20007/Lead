@@ -15,6 +15,11 @@ const isAuth = require('../Middlewares/isAuth');
 const selecteModal = require("../models/TargetSelectModel")
 const DashboardFieldModal = require("../models/DashBoardFieldName")
 const Message = require('../models/message');
+const fileUpload = require("express-fileupload");
+const path = require('path');
+const fs = require('fs');
+
+router.use(fileUpload());
 
 // login get request
 router.get("/", function (req, res, next) {
@@ -46,6 +51,7 @@ router.post("/login", async (req, res) => {
     req.session.user = true;
     req.session.username = findUser.username
     req.session.email = findUser.email
+    req.session.user_group = findUser.user_group
 
     res.status(200).json({ success: true, message: "Login successful" });
 
@@ -65,36 +71,39 @@ router.get("/signup", (req, res) => {
 //lead Managment get request
 router.get('/leadManagement', isAuth, async function (req, res, next) {
   try {
-      const newLeads = await LeadData.findAll({ where: { target_status: 'New Lead' } });
-      const contactInitiation = await LeadData.findAll({ where: { target_status: 'Contact Initiation' } });
-      const scheduleFollowUp = await LeadData.findAll({ where: { target_status: 'Schedule Follow Up' } });
+    let userGroup = req.session.user_group;
+    console.log(userGroup);
+    let isAdmin = userGroup === "admin";
+    const newLeads = await LeadData.findAll({ where: { target_status: 'New Lead' } });
+    const contactInitiation = await LeadData.findAll({ where: { target_status: 'Contact Initiation' } });
+    const scheduleFollowUp = await LeadData.findAll({ where: { target_status: 'Schedule Follow Up' } });
 
-      // Fetch other containers dynamically based on unique target statuses
-      const otherContainers = await DashboardFieldModal.findAll({
-          where: {
-              fieldName: {
-                  [Op.notIn]: ['New Lead', 'Contact Initiation', 'Schedule Follow Up']
-              }
-          }
-      });
+    // Fetch other containers dynamically based on unique target statuses
+    const otherContainers = await DashboardFieldModal.findAll({
+      where: {
+        fieldName: {
+          [Op.notIn]: ['New Lead', 'Contact Initiation', 'Schedule Follow Up']
+        }
+      }
+    });
 
-      res.render('leadManagement', { newLeads, contactInitiation, scheduleFollowUp, otherContainers });
+    res.render('leadManagement', { newLeads, contactInitiation, scheduleFollowUp, otherContainers, isAdmin: isAdmin });
   } catch (error) {
-      console.error('Error fetching lead data:', error);
-      res.status(500).send('Internal Server Error');
+    console.error('Error fetching lead data:', error);
+    res.status(500).send('Internal Server Error');
   }
 });
 
 router.get('/fetchDataForContainer/:fieldName', async (req, res) => {
   const { fieldName } = req.params;
   try {
-      // Fetch data from LeadData table based on target_status
-      const leads = await LeadData.findAll({ where: { target_status: fieldName } });
-      // console.log('Fetched data for', fieldName, ':', leads); // Log fetched data
-      res.status(200).json(leads);
+    // Fetch data from LeadData table based on target_status
+    const leads = await LeadData.findAll({ where: { target_status: fieldName } });
+    // console.log('Fetched data for', fieldName, ':', leads); // Log fetched data
+    res.status(200).json(leads);
   } catch (error) {
-      console.error(`Error fetching data for ${fieldName}:`, error);
-      res.status(500).json({ error: 'Internal server error' });
+    console.error(`Error fetching data for ${fieldName}:`, error);
+    res.status(500).json({ error: 'Internal server error' });
   }
 });
 
@@ -103,12 +112,12 @@ router.get('/fetchDataForContainer/:fieldName', async (req, res) => {
 router.post('/updateTargetStatus', async (req, res) => {
   const { cardId, newTargetStatus } = req.body;
   try {
-      // Update the target_status in the LeadData table based on the cardId
-      await LeadData.update({ target_status: newTargetStatus }, { where: { id: cardId } });
-      res.sendStatus(200); // Send success response
+    // Update the target_status in the LeadData table based on the cardId
+    await LeadData.update({ target_status: newTargetStatus }, { where: { id: cardId } });
+    res.sendStatus(200); // Send success response
   } catch (error) {
-      console.error('Error updating target status:', error);
-      res.status(500).send('Internal Server Error'); // Send error response
+    console.error('Error updating target status:', error);
+    res.status(500).send('Internal Server Error'); // Send error response
   }
 });
 
@@ -122,10 +131,10 @@ router.get("/logout", (req, res) => {
 });
 
 router.get("/customizeLeadform", function (req, res, next) {
-  // let userGroup = req.session.user_group;
-  // console.log(userGroup);
-  // let isAdmin = userGroup === "admin";
-  res.render("customizeLeadform", { title: "sumit" });
+  let userGroup = req.session.user_group;
+  console.log(userGroup);
+  let isAdmin = userGroup === "admin";
+  res.render("customizeLeadform", { title: "sumit", isAdmin: isAdmin });
 });
 
 // post custom field and alter lead table
@@ -400,9 +409,9 @@ router.get("/selectoption", async (req, res) => {
       DashboardFieldModal.findAll()
     ]);
 
-    return res.status(200).json({ 
-      success: true, 
-      message: "Data retrieved successfully", 
+    return res.status(200).json({
+      success: true,
+      message: "Data retrieved successfully",
       selecteModalData: selecteModalData,
       dashboardFieldData: dashboardFieldData
     });
@@ -440,15 +449,15 @@ router.post("/delete-option", async (req, res) => {
 
 
 
-router.get('/userName', async(req,res) => {
+router.get('/userName', async (req, res) => {
   try {
-   const users =  await userModel.findAll();
-   return res.status(200).json({userName :req.session.username,users})
+    const users = await userModel.findAll();
+    return res.status(200).json({ userName: req.session.username, users })
   } catch (error) {
-   return res.status(400).json({ error: error.message })
+    return res.status(400).json({ error: error.message })
   }
- })
- 
+})
+
 
 
 router.get("/demo", async function (req, res, next) {
@@ -470,16 +479,16 @@ router.put("/updateLeadStatus/:id", async function (req, res, next) {
   const { fieldName } = req.body;
 
   try {
-      const lead = await LeadData.findByPk(id);
-      if (!lead) {
-          return res.status(404).send('Lead not found');
-      }
-      lead.target_status = fieldName;
-      await lead.save();
-      res.sendStatus(200);
+    const lead = await LeadData.findByPk(id);
+    if (!lead) {
+      return res.status(404).send('Lead not found');
+    }
+    lead.target_status = fieldName;
+    await lead.save();
+    res.sendStatus(200);
   } catch (error) {
-      console.error('Error updating lead status:', error);
-      res.status(500).send('Internal Server Error');
+    console.error('Error updating lead status:', error);
+    res.status(500).send('Internal Server Error');
   }
 });
 
@@ -488,16 +497,16 @@ router.put("/updateLeadStatus/:id", async function (req, res, next) {
 // POST : /customfield
 
 router.post('/customfield', async (req, res) => {
-  try {  
+  try {
     const { value } = req.body;
     if (!value) {
       return res.status(400).json({ error: "Field name is required" });
     }
-    
+
     // Get the maximum container ID from the database
     const maxContainerId = await DashboardFieldModal.max('containerId');
     let nextContainerId;
-    
+
     // If maxContainerId is null, start from container4, else increment it by 1
     if (maxContainerId === null) {
       nextContainerId = 'container4';
@@ -505,7 +514,7 @@ router.post('/customfield', async (req, res) => {
       const containerNumber = parseInt(maxContainerId.replace('container', ''));
       nextContainerId = `container${containerNumber + 1}`;
     }
-    
+
     const insertData = await DashboardFieldModal.create({ fieldName: value, containerId: nextContainerId });
     return res.status(200).json({ message: "Field added successfully", data: insertData });
   } catch (error) {
@@ -527,22 +536,22 @@ router.get('/fetchcontainers', async (req, res) => {
 
 router.get('/userNamesAndEmails', async (req, res) => {
   try {
-      const sessionUsername = req.session.username; // Retrieve the session username
+    const sessionUsername = req.session.username; // Retrieve the session username
 
-      // Fetch users' usernames and emails
-      const users = await userModel.findAll({ attributes: ['username', 'email'] });
+    // Fetch users' usernames and emails
+    const users = await userModel.findAll({ attributes: ['username', 'email'] });
 
-      // Replace the username with "Me" if it matches the session username
-      const modifiedUsers = users.map(user => {
-          if (user.username === sessionUsername) {
-              return { ...user, username: 'Me' };
-          }
-          return user;
-      });
+    // Replace the username with "Me" if it matches the session username
+    const modifiedUsers = users.map(user => {
+      if (user.username === sessionUsername) {
+        return { ...user, username: 'Me' };
+      }
+      return user;
+    });
 
-      return res.status(200).json(modifiedUsers);
+    return res.status(200).json(modifiedUsers);
   } catch (error) {
-      return res.status(400).json({ error: error.message });
+    return res.status(400).json({ error: error.message });
   }
 });
 
@@ -550,7 +559,7 @@ router.post('/send', async (req, res) => {
   try {
     // Destructure request body
     const { toId, toName, message } = req.body;
-    
+
     // Default values for fromId and fromName
     const fromId = req.session.email || 'default_email@example.com'; // Using session email if available, or default value
     const fromName = req.session.username || 'Default User'; // Using session username if available, or default value
@@ -577,9 +586,7 @@ router.post('/send', async (req, res) => {
 router.get('/messages/:toId', async (req, res) => {
   try {
     const { toId } = req.params;
-    const fromId = req.session.email; // Retrieve fromId from session
-    console.log("From ID:", fromId); // Log fromId for debugging
-    console.log("To ID:", toId); // Log toId for debugging
+    const fromId = req.session.email;
 
     const messages = await Message.findAll({
       where: {
@@ -602,6 +609,63 @@ router.get('/messages/:toId', async (req, res) => {
 router.get('/session-email', (req, res) => {
   const sessionEmail = req.session.email;
   res.json({ email: sessionEmail });
+});
+
+router.post("/upload", async (req, res) => {
+  if (!req.files || Object.keys(req.files).length === 0) {
+    return res.status(400).send("No files were uploaded.");
+  }
+
+  let userImage = req.files.userImage;
+
+  const uploadDir = path.join("public", "userImage");
+  console.log(uploadDir,123)
+  if (!fs.existsSync(uploadDir)) {
+    fs.mkdirSync(uploadDir, { recursive: true });
+  }
+
+  const fileName = Date.now() + "_" + userImage.name;
+  userImage.mv(path.join(uploadDir, fileName), async (err) => {
+    if (err) {
+      return res.status(500).send(err);
+    }
+
+    try {
+      const user = await userModel.findOne({ where: { email: req.session.email } });
+      if (user) {
+        user.userImage = fileName;
+        await user.save();
+        res.json({ message: "File uploaded successfully", imageName: fileName });
+      } else {
+        res.status(404).json({ message: "User not found" });
+      }
+    } catch (error) {
+      console.error("Error updating database:", error);
+      res.status(500).send("Internal Server Error");
+    }
+  });
+});
+
+
+router.get('/usersFetch', async (req, res) => {
+  try {
+      // Assuming you have access to the user's email stored in the session
+      const userEmail = req.session.email;
+
+      // Fetch the user details based on the email
+      const user = await userModel.findOne({ where: { email: userEmail } });
+
+      if (!user) {
+          return res.status(404).json({ message: "User not found" });
+      }
+
+      // If the user is found, send the user details in the response
+      res.json(user);
+      
+  } catch (error) {
+      console.error("Error fetching user:", error);
+      res.status(500).send("Internal Server Error");
+  }
 });
 
 

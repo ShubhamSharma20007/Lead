@@ -9,6 +9,43 @@
 		font: 12px "Open Sans", sans-serif;
 	}
 
+	#chat-messages {
+		max-height: 400px;
+		/* Set maximum height for the container */
+		overflow-y: auto;
+		/* Enable vertical scrolling */
+	}
+
+
+
+	/* Hide scrollbar for Chrome, Safari, and Opera */
+	#chat-messages::-webkit-scrollbar {
+		display: none;
+	}
+
+
+	.board-column-content-wrapper::-webkit-scrollbar {
+		display: none;
+	}
+
+	.slide-container::-webkit-scrollbar {
+		display: none;
+	}
+
+	.board-column-container {
+		box-shadow: rgba(0, 0, 0, 0.35) 0px 5px 15px;
+	}
+
+	body::-webkit-scrollbar {
+		display: none;
+	}
+
+	.animate {
+		text-transform: capitalize;
+	}
+
+
+
 	#view-code {
 		color: #89a2b5;
 		opacity: 0.7;
@@ -198,6 +235,10 @@
 		border: 3px solid #fff;
 		margin: 23px 0 0;
 		border-radius: 50%;
+	}
+
+	strong {
+		text-transform: capitalize;
 	}
 
 	#profile p {
@@ -520,9 +561,10 @@
 				<!-- Messages will be displayed here -->
 			</div>
 			<div id="sendmessage">
-				<input type="text" placeholder="Send message..." />
+				<input type="text" placeholder="Send message..." id="messageInput" />
 				<button id="send"></button>
 			</div>
+
 		</div>
 
 	</div>
@@ -558,7 +600,7 @@
 
 				<a class="nav-link dropdown-toggle hide-arrow" href="javascript:void(0);" data-bs-toggle="dropdown">
 					<div class="avatar avatar-online">
-						<img src="../assets/img/avatars/1.png" alt="" class="w-px-40 h-auto rounded-circle">
+						{{!-- <img src="../assets/img/avatars/1.png" alt="" class="w-px-40 h-auto rounded-circle"> --}}
 					</div>
 				</a>
 				<ul class="dropdown-menu dropdown-menu-end">
@@ -567,8 +609,15 @@
 							<div class="d-flex">
 								<div class="flex-shrink-0 me-3">
 									<div class="avatar avatar-online">
-										<img src="../assets/img/avatars/1.png" alt=""
-											class="w-px-40 h-auto rounded-circle">
+										<form id="imageForm" action="/upload" method="post"
+											enctype="multipart/form-data">
+											<label for="userImage">
+												<img id="imagePreview" src="../assets/img/avatars/1.png" alt=""
+													class="w-px-40 h-auto rounded-circle">
+											</label>
+											<input type="file" id="userImage" name="userImage" style="display: none;">
+										</form>
+
 									</div>
 								</div>
 								<div class="flex-grow-1">
@@ -618,6 +667,55 @@
 		</ul>
 	</div>
 </nav>
+<script>
+	document.addEventListener("DOMContentLoaded", function () {
+		// Add event listener to the image
+		document.getElementById("imagePreview").addEventListener("click", function () {
+			// Trigger click event on file input
+			document.getElementById("userImage").click();
+		});
+
+		// Add event listener to file input
+		document.getElementById("userImage").addEventListener("change", function () {
+			// Automatically submit the form when file is selected
+			document.getElementById("imageForm").submit();
+		});
+	});
+
+</script>
+
+<script>
+// Define a function to fetch user details and display user image
+function displayUserImage() {
+  // Fetch the user details API
+  fetch('/usersFetch')
+    .then(response => {
+      if (!response.ok) {
+        throw new Error('Network response was not ok');
+      }
+      return response.json();
+    })
+    .then(user => {
+      // Get the container element where the user image will be displayed
+      const avatarContainer = document.querySelector('.avatar.avatar-online');
+      
+      // Create an <img> element for the user's image
+      const img = document.createElement('img');
+      img.src = '/userImage/' + user.userImage; // Assuming userImage contains the image file name
+      img.alt = ''; // Provide alternative text if necessary
+      img.classList.add('rounded-circle');
+      
+      // Append the <img> element to the container
+      avatarContainer.appendChild(img);
+    })
+    .catch(error => {
+      console.error('There was a problem fetching the user details:', error);
+    });
+}
+
+// Add an event listener to call displayUserImage function when the window loads
+window.addEventListener('load', displayUserImage);
+</script>
 
 
 {{!--
@@ -680,7 +778,6 @@
 
 
 <script>
-	// Make sure to replace 'http://your-api-url.com' with the actual URL of your API
 	const apiUrl = '/userNamesAndEmails';
 
 	fetch(apiUrl)
@@ -841,6 +938,9 @@
 		// Scroll to the bottom of the chat messages container
 		chatMessages.scrollTop = chatMessages.scrollHeight;
 	}
+	// Define variables outside the click event handler
+	var toId = "";
+	var toName = "";
 
 	// When a friend is clicked
 	$("#friends").on("click", ".friend", function () {
@@ -849,7 +949,7 @@
 		$("#profile p").html(name);
 		$("#profile span").html(email);
 
-		var toId = email;
+		toId = email;
 
 		// Fetch messages between the two users
 		fetchMessages(toId);
@@ -878,39 +978,44 @@
 		}, 200);
 
 		// Store recipient's email and name in variables
-		var toName = name;
+		toName = name;
 
-		// Attach recipient's email and name when sending a message
-		document.getElementById('send').addEventListener('click', function () {
-			var messageInput = document.getElementById('sendmessage').querySelector('input[type="text"]');
-			var messageText = messageInput.value.trim();
-
-			if (messageText !== '') {
-				sendMessage(messageText, toId, toName);
-				messageInput.value = '';
-			}
-		});
+		// Update recipient's email and name when sending a message
+		$("#send").data("toId", toId);
+		$("#send").data("toName", toName);
 
 		$(".message").not(".right").find("img").attr("src", $(clone).attr("src"));
 		$('#friendslist').fadeOut();
 		$('#chatview').fadeIn();
-
-		$('#close').unbind("click").click(function () {
-			$("#chat-messages, #profile, #profile p").removeClass("animate");
-			$('.cx, .cy').removeClass("s1 s2 s3");
-			$('.floatingImg').animate({
-				'width': "40px",
-				'top': top,
-				'left': '12px'
-			}, 200, function () { $('.floatingImg').remove() });
-
-			setTimeout(function () {
-				$('#chatview').fadeOut();
-				$('#friendslist').fadeIn();
-			}, 50);
-		});
 	});
 
+	// Attach event listener for sending a message
+	document.getElementById('send').addEventListener('click', function () {
+		var messageInput = document.getElementById('sendmessage').querySelector('input[type="text"]');
+		var messageText = messageInput.value.trim();
+		var toId = $("#send").data("toId");
+		var toName = $("#send").data("toName");
+
+		if (messageText !== '') {
+			sendMessage(messageText, toId, toName);
+			messageInput.value = '';
+		}
+	});
+
+	$('#close').unbind("click").click(function () {
+		$("#chat-messages, #profile, #profile p").removeClass("animate");
+		$('.cx, .cy').removeClass("s1 s2 s3");
+		$('.floatingImg').animate({
+			'width': "40px",
+			'top': top,
+			'left': '12px'
+		}, 200, function () { $('.floatingImg').remove() });
+
+		setTimeout(function () {
+			$('#chatview').fadeOut();
+			$('#friendslist').fadeIn();
+		}, 50);
+	});
 
 	// Function to send a message
 	function sendMessage(messageText, toId, toName) {
@@ -984,7 +1089,31 @@
 
 </script>
 
+<script>
+	document.addEventListener('DOMContentLoaded', function () {
+		// Get reference to the input field
+		var messageInput = document.getElementById('messageInput');
 
+		// Add event listener for "keypress" event
+		messageInput.addEventListener('keypress', function (event) {
+			// Check if Enter key is pressed
+			if (event.key === 'Enter') {
+				// Prevent default behavior (form submission)
+				event.preventDefault();
+				// Get message text from input field
+				var messageText = messageInput.value.trim();
+				// Check if message is not empty
+				if (messageText !== '') {
+					// Call sendMessage function with message text
+					sendMessage(messageText, toId, toName);
+					// Clear input field after sending message
+					messageInput.value = '';
+				}
+			}
+		});
+	});
+
+</script>
 
 <!-- Include Socket.IO client library -->
 <script src="/socket.io/socket.io.js"></script>
