@@ -65,14 +65,14 @@
 	}
 
 	#chatbox {
-		width: 290px;
+		width: 294px;
 		background: #fff;
 		border-radius: 6px;
 		overflow-x: hidden;
 		overflow-y: scroll;
 		height: 484px;
 		position: absolute;
-		top: 120%;
+		top: 140%;
 		right: 0%;
 		margin-left: -155px;
 	}
@@ -495,6 +495,9 @@
 		-o-transition: all 100ms ease-out;
 		transition: all 100ms ease-out;
 	}
+	#profile span{
+		text-transform: lowercase;
+	}
 
 	.cy.s3 {
 		-ms-transform: rotate(45deg);
@@ -551,6 +554,11 @@
 		white-space: pre-wrap !important;
 		text-transform: lowercase !important;
 	}
+
+	#chatbox::-webkit-scrollbar{
+		display: none !important;;
+
+	}
 </style>
 
 <nav class="layout-navbar container-xxl navbar navbar-expand-xl navbar-detached align-items-center bg-navbar-theme"
@@ -580,7 +588,7 @@
 				<div id="close">
 					<div class="cy"></div>
 					<div class="cx"></div>
-				</div>
+				</div>    
 				<p>Miro Badev</p>
 				<span>miro@badev@gmail.com</span>
 			</div>
@@ -941,7 +949,9 @@
 				img.src = '{{req.session.userImage}}'; // Assuming user image is stored in session
 			} else {
 				strong.textContent = entry.username;
-				span.textContent = entry.email; // Display email for other users
+				span.textContent = entry.email;
+				span.style.textTransform ="lowercase"
+				 // Display email for other users
 			}
 
 			p.appendChild(strong);
