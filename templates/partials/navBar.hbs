@@ -68,7 +68,8 @@
 		width: 290px;
 		background: #fff;
 		border-radius: 6px;
-		overflow: hidden;
+		overflow-x: hidden;
+		overflow-y: scroll;
 		height: 484px;
 		position: absolute;
 		top: 120%;
@@ -88,7 +89,9 @@
 		height: 69px;
 		width: 290px;
 		border-bottom: 1px solid #d8dfe3;
+		position: relative;
 	}
+
 
 	#topmenu span {
 		float: left;
@@ -146,8 +149,7 @@
 		top: 0;
 		left: 12px;
 		border: 3px solid #fff;
-		    height: 68px;
-
+		height: 68px;
 	}
 
 	.friend p {
@@ -198,13 +200,25 @@
 
 	#searchfield {
 		background: #e3e9ed;
-		margin: 21px 0 0 55px;
+		position: relative;
 		border: none;
-		padding: 0;
+
 		font-size: 14px;
 		font-family: "Open Sans", sans-serif;
 		font-weight: 400px;
 		color: #8198ac;
+	}
+
+	.search_div {
+		height: 100%;
+		float: right;
+
+	}
+
+	.search_div input {
+		height: 100%;
+		padding-left: 10px;
+		float: right;
 	}
 
 	#searchfield:focus {
@@ -340,7 +354,6 @@
 		width: 34px;
 		height: 36px;
 		margin-top: 12px;
-
 	}
 
 	.message .bubble {
@@ -547,13 +560,14 @@
 		<div id="friendslist">
 			<div id="topmenu">
 				<span class="friends"></span>
-				<span class="chats"></span>
-				<span class="history"></span>
+				<div class="search_div">
+					<input type="text" id="searchfield" placeholder="Search contacts..." />
+				</div>
 			</div>
 
 			<div id="friends">
 
-				<div id="search">
+				<div id="search" style="display: none;">
 					<input type="text" id="searchfield" placeholder="Search contacts..." />
 				</div>
 
@@ -871,6 +885,38 @@
 		.catch(error => {
 			console.error('Error fetching users:', error);
 		});
+
+	function filterData(searchTerm) {
+		var friendsList = document.getElementById('friends');
+		friendsList.innerHTML = ''; // Clear the current list
+
+		const apiUrl = '/userNamesAndEmails';
+		fetch(apiUrl)
+			.then(response => {
+				if (!response.ok) {
+					throw new Error('Network response was not ok');
+				}
+				return response.json();
+			})
+			.then(users => {
+				const filteredUsers = users.filter(item => {
+					return item.username.toLowerCase().includes(searchTerm);
+				});
+
+				appendDataToFriendsList(filteredUsers);
+			})
+			.catch(error => {
+				console.error('Error fetching users:', error);
+			});
+	}
+
+	// get input data and value
+	const searchField = document.getElementById('searchfield');
+	searchField.addEventListener('input', (e) => {
+		const value = e.target.value.toLowerCase();
+		console.log(value)
+		filterData(value)
+	})
 	function appendDataToFriendsList(data) {
 		var friendsList = document.getElementById('friends');
 		const searchField = document.getElementById('searchfield').value.toLowerCase();
