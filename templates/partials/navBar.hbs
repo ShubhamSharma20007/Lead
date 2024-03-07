@@ -495,7 +495,8 @@
 		-o-transition: all 100ms ease-out;
 		transition: all 100ms ease-out;
 	}
-	#profile span{
+
+	#profile span {
 		text-transform: lowercase;
 	}
 
@@ -555,9 +556,83 @@
 		text-transform: lowercase !important;
 	}
 
-	#chatbox::-webkit-scrollbar{
-		display: none !important;;
+	#chatbox::-webkit-scrollbar {
+		display: none !important;
+		;
 
+	}
+
+	.chatview {
+		position: relative;
+	}
+
+	.emoji_container {
+		position: absolute;
+		bottom: 65px;
+		right: 10%;
+		height: 120px;
+		width: 120px;
+		background-color: white;
+		box-shadow: rgba(100, 100, 111, 0.2) 0px 7px 29px 0px;
+		display: none;
+		z-index: 101;
+	}
+
+	.search {
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		text-align: center;
+	}
+
+	.search__input {
+		font-family: inherit;
+		font-size: inherit;
+		background-color: #f4f2f2;
+		border: none;
+		color: #646464;
+		padding: 0.5rem 1rem;
+		width: 100%;
+		transition: all ease-in-out .5s;
+		margin-right: -2rem;
+	}
+
+	.search__input:hover,
+	.search__input:focus {
+		box-shadow: 0 0 1em #00000013;
+	}
+
+	.search__input:focus {
+		outline: none;
+		background-color: #f0eeee;
+	}
+
+	.search__input::-webkit-input-placeholder {
+		font-weight: 100;
+		color: #ccc;
+	}
+
+	.search_input:focus+.search_button {
+		background-color: #f0eeee;
+	}
+
+	.emoji-content {
+		width: 100%;
+		height: 70%;
+		overflow-y:auto;
+		overflow-x: hidden;
+	}
+
+	.emoji-content::-webkit-scrollbar {
+		width: 6px;
+	}
+
+	.search {
+		height: 30%;
+	}
+
+	.search input {
+		height: 100%;
 	}
 </style>
 
@@ -584,19 +659,30 @@
 		</div>
 
 		<div id="chatview" class="p1">
+			<div class="emoji_container">
+				<div class="search">
+					<input type="text" class="search__input" placeholder="Type your text">
+				</div>
+				<div class="emoji-content">
+				{{!-- dynamically emoji content --}}
+
+				</div>
+			</div>
 			<div id="profile">
 				<div id="close">
 					<div class="cy"></div>
 					<div class="cx"></div>
-				</div>    
+				</div>
 				<p>Miro Badev</p>
 				<span>miro@badev@gmail.com</span>
 			</div>
 			<div id="chat-messages">
 				<!-- Messages will be displayed here -->
 			</div>
+
 			<div id="sendmessage">
 				<input type="text" placeholder="Send message..." id="messageInput" />
+				<i class="ri-emoji-sticker-line emojiBtn" style="font-size: 13px;"></i>
 				<button id="send"></button>
 			</div>
 
@@ -666,7 +752,7 @@
 						<div class="dropdown-divider"></div>
 					</li>
 					<li>
-						<a class="dropdown-item" href="#">
+						<a class="dropdown-item" href="/account">
 							<i class="bx bx-user me-2"></i>
 							<span class="align-middle">My Profile</span>
 						</a>
@@ -704,7 +790,72 @@
 </nav>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/js/toastr.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@10"></script>
+<script>
+async function Emoji() {
+		const emoji_cnt = document.querySelector('.emoji_container')
+		const emojiBtn = document.querySelector('.emojiBtn')
+		const searchInput = document.querySelector('#sendmessage > input')
+		var increment = true;
+		emojiBtn.addEventListener('click', () => {
+			if (increment) {
+				emoji_cnt.style.display = 'block';
+				increment = false
+			}
+			else {
+				emoji_cnt.style.display = 'none';
+				increment = true;
+			}
+			
+		})
+		searchInput.addEventListener('keyup',(e)=>{
+			if(e.key.toLowerCase()==='enter' ){
+				emoji_cnt.style.display = 'none';
+				increment = true;
+			}
+		})
+		document.querySelector('#send').addEventListener('click',()=>{
+			emoji_cnt.style.display = 'none';
+				increment = true;
+		})
+		
+		
 
+	}
+
+
+	window.onload = async () => {
+		const res = await fetch('/emoji.json')
+		const data = await res.json()
+		appendEmoji(data)
+		filterEmoji(data)
+	}
+
+	function appendEmoji(data) {
+		const emojicnt = document.querySelector('.emoji-content')
+		data.forEach(el => {
+			const small = document.createElement('small')
+			small.classList.add('emoji')
+			small.style.cursor = 'pointer'
+			small.textContent = el.character
+			emojicnt.appendChild(small)
+			small.addEventListener('click',(e)=>{
+			const searchInput = document.querySelector('#sendmessage > input')
+			searchInput.value += e.target.textContent
+			})
+		})
+	}
+
+	function filterEmoji(data){
+		const emojiInput = document.querySelector('.search__input')
+		emojiInput.addEventListener('input',function(e){
+			const emojicnt = document.querySelector('.emoji-content')
+			emojicnt.innerHTML = ''
+			const filteredEmojis = data.filter(el => el.subGroup.includes(e.target.value.toLowerCase()))
+			appendEmoji(filteredEmojis)
+		})
+	}
+	Emoji()
+</script>
 <script>
 	document.addEventListener("DOMContentLoaded", function () {
 		// Add event listener to the image

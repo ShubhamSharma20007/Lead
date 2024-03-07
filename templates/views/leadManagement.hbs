@@ -274,32 +274,21 @@
 
   }
 
-  .board-column-header {
-    position: relative;
-    height: 50px;
-    line-height: 50px;
-    overflow: hidden;
-    padding: 0 20px;
-    text-align: center;
-    background: #333;
-    color: #fff;
-    border-radius: 5px 5px 0 0;
-    font-weight: bold;
-    letter-spacing: 0.5px;
-    text-transform: uppercase;
-  }
+.board-column-header {
+  position: relative;
+  height: 50px;
+  line-height: 50px;
+  overflow: hidden;
+  padding: 0 20px;
+  text-align: center;
+  color: #fff;
+  border-radius: 5px 5px 0 0;
+  font-weight: bold;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  background: linear-gradient(to right, #4CAF50, #8BC34A); /* Add a gradient background */
+}
 
-  .board-column.todo .board-column-header {
-    background: #4A9FF9;
-  }
-
-  .board-column.working .board-column-header {
-    background: #f9944a;
-  }
-
-  .board-column.done .board-column-header {
-    background: #2ac06d;
-  }
 
   .board-column-content-wrapper,
   .board-column-header {

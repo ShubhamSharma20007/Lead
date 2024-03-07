@@ -622,7 +622,7 @@ router.post("/upload", async (req, res) => {
   let userImage = req.files.userImage;
 
   const uploadDir = path.join("public", "userImage");
-  console.log(uploadDir,123)
+  console.log(uploadDir, 123)
   if (!fs.existsSync(uploadDir)) {
     fs.mkdirSync(uploadDir, { recursive: true });
   }
@@ -652,22 +652,22 @@ router.post("/upload", async (req, res) => {
 
 router.get('/usersFetch', async (req, res) => {
   try {
-      // Assuming you have access to the user's email stored in the session
-      const userEmail = req.session.email;
+    // Assuming you have access to the user's email stored in the session
+    const userEmail = req.session.email;
 
-      // Fetch the user details based on the email
-      const user = await userModel.findOne({ where: { email: userEmail } });
+    // Fetch the user details based on the email
+    const user = await userModel.findOne({ where: { email: userEmail } });
 
-      if (!user) {
-          return res.status(404).json({ message: "User not found" });
-      }
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
 
-      // If the user is found, send the user details in the response
-      res.json(user);
-      
+    // If the user is found, send the user details in the response
+    res.json(user);
+
   } catch (error) {
-      console.error("Error fetching user:", error);
-      res.status(500).send("Internal Server Error");
+    console.error("Error fetching user:", error);
+    res.status(500).send("Internal Server Error");
   }
 });
 
@@ -689,6 +689,88 @@ router.get('/user/:toId', async (req, res) => {
   }
 });
 
+router.get('/account', isAuth, async (req, res) => {
+  try {
+    const userDetails = await userModel.findOne({
+      where: {
+        email: req.session.email
+      }
+    });
 
+    res.render('account', { userDetails });
+  } catch (error) {
+    console.error('Error fetching user details:', error);
+    res.status(500).send('Internal Server Error');
+  }
+});
+
+router.post('/update-account', async (req, res) => {
+  try {
+    const { id, username, email, number, address, state, zipCode, country } = req.body;
+
+    // Find the user by ID
+    const user = await userModel.findByPk(id);
+
+    if (!user) {
+      return res.status(404).send('User not found');
+    }
+
+    // Update user details
+    await user.update({
+      username,
+      email,
+      number,
+      address,
+      state,
+      pincode: zipCode,
+      country
+    });
+
+    res.status(200).send('User details updated successfully');
+  } catch (error) {
+    console.error('Error updating user details:', error);
+    // Handle error appropriately
+    res.status(500).send('Internal Server Error');
+  }
+});
+
+router.post('/upload-image/:id', async (req, res) => {
+  try {
+    if (!req.files || Object.keys(req.files).length === 0) {
+      return res.status(400).send('No files were uploaded.');
+    }
+
+    const { id } = req.params;
+    const userImage = req.files.userImage;
+
+    // Use the ID to find the user
+    const user = await userModel.findByPk(id);
+
+    if (!user) {
+      return res.status(404).send('User not found.');
+    }
+
+    // Generate a unique name for the uploaded image
+    const imageName = `${Date.now()}_${userImage.name}`;
+
+    // Move the uploaded file to /public/userImage folder
+    const uploadPath = path.join('public', 'userImage', imageName);
+    await userImage.mv(uploadPath);
+
+    // Update userImage field in the database
+    user.userImage = imageName;
+
+    // Save the updated user to the database
+    await user.save();
+    res.status(200).json('File uploaded!');
+  } catch (error) {
+    console.error('Error uploading file:', error);
+    res.status(500).json('Internal Server Error');
+  }
+});
+
+router.get('/mail', function (req, res) {
+  res.render('mailIntegration')
+})
 
 module.exports = router;

@@ -44,23 +44,23 @@ async function drop(ev) {
     var leadId = draggedElement.getAttribute('data-lead-id');
     var fieldName = ev.target.closest('.board-column').querySelector('.board-column-header').getAttribute('data-target-status');
 
-    fetch(`/updateLeadStatus/${leadId}`, {
-        method: 'PUT',
-        headers: {
-            'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({ fieldName: fieldName })
-    })
-        .then(response => {
-            if (!response.ok) {
-                throw new Error('Failed to update lead status');
+    var xhr = new XMLHttpRequest();
+    xhr.open('PUT', `/updateLeadStatus/${leadId}`, true);
+    xhr.setRequestHeader('Content-Type', 'application/json');
+
+    xhr.onreadystatechange = function() {
+        if (xhr.readyState === XMLHttpRequest.DONE) {
+            if (xhr.status === 200) {
+                
+            } else {
+                console.error('Error updating lead status:', xhr.statusText);
             }
-            window.location.reload();
-        })
-        .catch(error => {
-            console.error('Error updating lead status:', error);
-        });
+        }
+    };
+
+    xhr.send(JSON.stringify({ fieldName: fieldName }));
 }
+
 
 
 
