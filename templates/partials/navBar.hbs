@@ -33,7 +33,7 @@
 	}
 
 	.board-column-container {
-		box-shadow: rgba(0, 0, 0, 0.35) 0px 5px 15px;
+		box-shadow: rgba(149, 157, 165, 0.2) 0px 8px 24px;
 	}
 
 	body::-webkit-scrollbar {
@@ -86,7 +86,7 @@
 	}
 
 	#topmenu {
-		height: 69px;
+		height: 52px;
 		width: 290px;
 		border-bottom: 1px solid #d8dfe3;
 		position: relative;
@@ -95,9 +95,9 @@
 
 	#topmenu span {
 		float: left;
-		width: 96px;
+		width: 105px;
 		height: 70px;
-		background: url("https://s3-us-west-2.amazonaws.com/s.cdpn.io/245657/top-menu.png") -3px -118px no-repeat;
+		background: url(https://s3-us-west-2.amazonaws.com/s.cdpn.io/245657/top-menu.png) -3px -134px no-repeat;
 	}
 
 	#topmenu span.friends {
@@ -619,7 +619,7 @@
 	.emoji-content {
 		width: 100%;
 		height: 70%;
-		overflow-y:auto;
+		overflow-y: auto;
 		overflow-x: hidden;
 	}
 
@@ -664,7 +664,7 @@
 					<input type="text" class="search__input" placeholder="Type your text">
 				</div>
 				<div class="emoji-content">
-				{{!-- dynamically emoji content --}}
+					{{!-- dynamically emoji content --}}
 
 				</div>
 			</div>
@@ -791,7 +791,7 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/js/toastr.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@10"></script>
 <script>
-async function Emoji() {
+	async function Emoji() {
 		const emoji_cnt = document.querySelector('.emoji_container')
 		const emojiBtn = document.querySelector('.emojiBtn')
 		const searchInput = document.querySelector('#sendmessage > input')
@@ -805,21 +805,18 @@ async function Emoji() {
 				emoji_cnt.style.display = 'none';
 				increment = true;
 			}
-			
+
 		})
-		searchInput.addEventListener('keyup',(e)=>{
-			if(e.key.toLowerCase()==='enter' ){
+		searchInput.addEventListener('keyup', (e) => {
+			if (e.key.toLowerCase() === 'enter') {
 				emoji_cnt.style.display = 'none';
 				increment = true;
 			}
 		})
-		document.querySelector('#send').addEventListener('click',()=>{
+		document.querySelector('#send').addEventListener('click', () => {
 			emoji_cnt.style.display = 'none';
-				increment = true;
+			increment = true;
 		})
-		
-		
-
 	}
 
 
@@ -838,16 +835,16 @@ async function Emoji() {
 			small.style.cursor = 'pointer'
 			small.textContent = el.character
 			emojicnt.appendChild(small)
-			small.addEventListener('click',(e)=>{
-			const searchInput = document.querySelector('#sendmessage > input')
-			searchInput.value += e.target.textContent
+			small.addEventListener('click', (e) => {
+				const searchInput = document.querySelector('#sendmessage > input')
+				searchInput.value += e.target.textContent
 			})
 		})
 	}
 
-	function filterEmoji(data){
+	function filterEmoji(data) {
 		const emojiInput = document.querySelector('.search__input')
-		emojiInput.addEventListener('input',function(e){
+		emojiInput.addEventListener('input', function (e) {
 			const emojicnt = document.querySelector('.emoji-content')
 			emojicnt.innerHTML = ''
 			const filteredEmojis = data.filter(el => el.subGroup.includes(e.target.value.toLowerCase()))
@@ -1101,8 +1098,8 @@ async function Emoji() {
 			} else {
 				strong.textContent = entry.username;
 				span.textContent = entry.email;
-				span.style.textTransform ="lowercase"
-				 // Display email for other users
+				span.style.textTransform = "lowercase"
+				// Display email for other users
 			}
 
 			p.appendChild(strong);

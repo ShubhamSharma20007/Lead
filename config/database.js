@@ -1,4 +1,3 @@
-const dbConfig = require("../config/database");
 const { Sequelize, DataTypes } = require("sequelize");
 
 const sequelize = new Sequelize(
@@ -10,6 +9,16 @@ const sequelize = new Sequelize(
        dialect: 'mysql'
     }
  );
+
+// const sequelize = new Sequelize(
+//    'lead_scaleedge1',
+//    'lead_scaleedge1',
+//    'Qwe123!@#',
+//    {
+//       host: '43.239.192.246',
+//       dialect: 'mysql'
+//    }
+// );
  
 sequelize.authenticate().then(() => {
    console.log('Connection has been established successfully.');

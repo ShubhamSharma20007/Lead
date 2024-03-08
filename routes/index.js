@@ -58,12 +58,12 @@ router.post("/login", async (req, res) => {
   } catch (error) {
     return res.status(400).json({ success: false, error: error.message })
   }
-})
+});
 
 //sign up get request
 router.get("/signup", (req, res) => {
   res.render("register")
-})
+});
 
 
 
@@ -771,6 +771,10 @@ router.post('/upload-image/:id', async (req, res) => {
 
 router.get('/mail', function (req, res) {
   res.render('mailIntegration')
+})
+
+router.get('/helpDesk', function (req, res) {
+  res.render('helpDesk')
 })
 
 module.exports = router;

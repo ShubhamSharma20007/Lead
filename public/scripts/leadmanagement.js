@@ -47,7 +47,7 @@ async function drop(ev) {
     var xhr = new XMLHttpRequest();
     xhr.open('PUT', `/updateLeadStatus/${leadId}`, true);
     xhr.setRequestHeader('Content-Type', 'application/json');
-
+ 
     xhr.onreadystatechange = function() {
         if (xhr.readyState === XMLHttpRequest.DONE) {
             if (xhr.status === 200) {
