@@ -1139,25 +1139,36 @@
 </script>
 <script>
 	function fetchMessages(toId) {
-		fetch(`/messages/${toId}`)
-			.then(response => {
-				if (!response.ok) {
-					throw new Error('Network response was not ok');
+		// Perform XMLHttpRequest
+		var xhr = new XMLHttpRequest();
+		xhr.onreadystatechange = function () {
+			if (xhr.readyState === XMLHttpRequest.DONE) {
+				if (xhr.status === 200) {
+					// Handle successful response
+					var messages = JSON.parse(xhr.responseText);
+					displayMessages(messages);
+					console.log('Fetched messages:', messages);
+				} else {
+					// Handle error
+					console.error('Error fetching messages:', xhr.status);
 				}
-				return response.json();
-			})
-			.then(messages => {
-				displayMessages(messages);
-				console.log('Fetched messages:', messages);
-			})
-			.catch(error => {
-				console.error('Error fetching messages:', error);
-			});
+			}
+		};
+		// Open and send request
+		xhr.open('GET', `/messages/${toId}`, true);
+		xhr.send();
+	}
+	// Function to periodically fetch messages
+	function startFetching(toId) {
+		fetchMessages(toId);
+		setInterval(function () {
+			fetchMessages(toId);
+		}, 1000); // Fetch messages every 5 seconds (adjust as needed)
 	}
 
 	async function displayMessages(messages) {
 		var chatMessages = document.getElementById('chat-messages');
-		chatMessages.innerHTML = ''; // Clear existing messages
+		var existingMessages = chatMessages.querySelectorAll('.message');
 
 		try {
 			// Fetch session email from backend
@@ -1176,59 +1187,84 @@
 			const toIdUserData = await toIdUserResponse.json();
 			const toIdUserImage = toIdUserData.userImage;
 
+			// Remove existing messages without timestamp attribute
+			existingMessages.forEach(existingMessage => {
+				if (!existingMessage.hasAttribute('data-timestamp')) {
+					existingMessage.remove();
+				}
+			});
+
 			messages.forEach(message => {
-				var messageDiv = document.createElement('div');
-				messageDiv.classList.add('message');
+				// Check if the message is already displayed
+				var isNewMessage = true;
+				existingMessages.forEach(existingMessage => {
+					if (existingMessage.getAttribute('data-timestamp') === message.createdAt) {
+						isNewMessage = false;
+					}
+				});
 
-				// Check if the message is from the current user
-				if (message.fromId === sessionEmail) {
-					messageDiv.classList.add('right'); // Display on the right side
-				} else {
-					messageDiv.classList.add('left'); // Display on the left side
+				if (isNewMessage) {
+					var messageDiv = document.createElement('div');
+					messageDiv.classList.add('message');
+
+					// Check if the message is from the current user
+					if (message.fromId === sessionEmail) {
+						messageDiv.classList.add('right'); // Display on the right side
+					} else {
+						messageDiv.classList.add('left'); // Display on the left side
+					}
+
+					var img = document.createElement('img');
+					if (message.fromId === sessionEmail) {
+						img.src = `/userImage/${sessionData.userImage}`;
+					} else {
+						img.src = `/userImage/${toIdUserImage}`;
+					}
+
+					var bubbleDiv = document.createElement('div');
+					bubbleDiv.classList.add('bubble');
+					bubbleDiv.textContent = message.message;
+
+					var idinputDiv = document.createElement('input')
+					idinputDiv.value = message.id;
+					idinputDiv.classList.add("messageId")
+					idinputDiv.type = 'hidden'
+
+					var cornerDiv = document.createElement('div');
+					cornerDiv.classList.add('corner');
+
+					var span = document.createElement('span');
+					// Calculate time difference
+					var timeDiff = new Date() - new Date(message.createdAt);
+					var seconds = Math.floor(timeDiff / 1000);
+					var minutes = Math.floor(seconds / 60);
+					var hours = Math.floor(minutes / 60);
+
+					if (seconds < 60) {
+						span.textContent = 'Just now';
+					} else if (minutes < 60) {
+						span.textContent = minutes + ' minutes ago';
+					} else if (hours < 24) {
+						span.textContent = hours + ' hours ago';
+					} else if (hours >= 24 && hours < 48) {
+						span.textContent = 'Yesterday';
+					} else {
+						// Display the date if the message was sent earlier than yesterday
+						var options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+						span.textContent = new Date(message.createdAt).toLocaleDateString(undefined, options);
+					}
+
+					bubbleDiv.appendChild(cornerDiv);
+					bubbleDiv.appendChild(span);
+					cornerDiv.appendChild(idinputDiv);
+
+					messageDiv.appendChild(img);
+					messageDiv.appendChild(bubbleDiv);
+
+					messageDiv.setAttribute('data-timestamp', message.createdAt); // Set timestamp attribute
+
+					chatMessages.appendChild(messageDiv);
 				}
-
-				var img = document.createElement('img');
-				if (message.fromId === sessionEmail) {
-					img.src = `/userImage/${sessionData.userImage}`;
-				} else {
-					img.src = `/userImage/${toIdUserImage}`;
-				}
-
-				var bubbleDiv = document.createElement('div');
-				bubbleDiv.classList.add('bubble');
-				bubbleDiv.textContent = message.message;
-
-				var cornerDiv = document.createElement('div');
-				cornerDiv.classList.add('corner');
-
-				var span = document.createElement('span');
-				// Calculate time difference
-				var timeDiff = new Date() - new Date(message.createdAt);
-				var seconds = Math.floor(timeDiff / 1000);
-				var minutes = Math.floor(seconds / 60);
-				var hours = Math.floor(minutes / 60);
-
-				if (seconds < 60) {
-					span.textContent = 'Just now';
-				} else if (minutes < 60) {
-					span.textContent = minutes + ' minutes ago';
-				} else if (hours < 24) {
-					span.textContent = hours + ' hours ago';
-				} else if (hours >= 24 && hours < 48) {
-					span.textContent = 'Yesterday';
-				} else {
-					// Display the date if the message was sent earlier than yesterday
-					var options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
-					span.textContent = new Date(message.createdAt).toLocaleDateString(undefined, options);
-				}
-
-				bubbleDiv.appendChild(cornerDiv);
-				bubbleDiv.appendChild(span);
-
-				messageDiv.appendChild(img);
-				messageDiv.appendChild(bubbleDiv);
-
-				chatMessages.appendChild(messageDiv);
 			});
 
 			// Scroll to the bottom of the chat messages container
@@ -1252,7 +1288,7 @@
 		toId = email;
 
 		// Fetch messages between the two users
-		fetchMessages(toId);
+		startFetching(toId);
 
 		// Handle the chatbox animation
 		var childOffset = $(this).offset();
