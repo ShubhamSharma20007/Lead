@@ -585,26 +585,65 @@ router.post('/send', async (req, res) => {
 });
 
 
-router.get('/messages/:toId', async (req, res) => {
+// Store connected clients
+const clients = [];
+
+// SSE route for message updates
+router.get('/messages/:toId/stream', async (req, res) => {
   try {
     const { toId } = req.params;
     const fromId = req.session.email;
 
-    const messages = await Message.findAll({
-      where: {
-        [Op.or]: [
-          { fromId: fromId, toId: toId },
-          { fromId: toId, toId: fromId }
-        ]
-      },
-      order: [['createdAt', 'ASC']]
+    // Set headers for SSE
+    res.setHeader('Content-Type', 'text/event-stream');
+    res.setHeader('Cache-Control', 'no-cache');
+    res.setHeader('Connection', 'keep-alive');
+
+    // Send headers
+    res.flushHeaders();
+
+    // Add client to the list
+    clients.push(res);
+
+    // When the client closes the connection, remove it from the list
+    req.on('close', () => {
+      const index = clients.indexOf(res);
+      if (index !== -1) {
+        clients.splice(index, 1);
+      }
     });
-    res.json(messages);
+
+    // Function to send messages to clients
+    const sendMessages = async () => {
+      const messages = await Message.findAll({
+        where: {
+          [Op.or]: [
+            { fromId: fromId, toId: toId },
+            { fromId: toId, toId: fromId }
+          ]
+        },
+        order: [['createdAt', 'ASC']]
+      });
+
+      // Send messages to each connected client
+      res.write(`data: ${JSON.stringify(messages)}\n\n`);
+    };
+
+    // Send messages immediately and then set interval for future updates
+    await sendMessages();
+    const intervalId = setInterval(sendMessages, 5000); // Update every 5 seconds
+
+    // When the client disconnects, clear the interval
+    req.on('end', () => {
+      clearInterval(intervalId);
+    });
+
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: 'Server error' });
   }
 });
+
 
 
 // Backend route to fetch session email
@@ -613,6 +652,8 @@ router.get('/session-email', (req, res) => {
   const sessionImage = req.session.userImage;
   res.json({ email: sessionEmail, userImage: sessionImage });
 });
+
+
 
 router.post("/upload", async (req, res) => {
   if (!req.files || Object.keys(req.files).length === 0) {
