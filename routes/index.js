@@ -15,6 +15,8 @@ const isAuth = require('../Middlewares/isAuth');
 const selecteModal = require("../models/TargetSelectModel")
 const DashboardFieldModal = require("../models/DashBoardFieldName")
 const Message = require('../models/message');
+const Allroute = require('../models/AllRoutes');
+const UserPageSecurity = require('../models/userPageSecurity');
 const fileUpload = require("express-fileupload");
 const path = require('path');
 const fs = require('fs');
@@ -53,6 +55,7 @@ router.post("/login", async (req, res) => {
     req.session.email = findUser.email
     req.session.user_group = findUser.user_group
     req.session.userImage = findUser.userImage
+    req.session.employee_id = findUser.employee_id
     res.status(200).json({ success: true, message: "Login successful" });
 
   } catch (error) {
@@ -452,7 +455,7 @@ router.post("/delete-option", async (req, res) => {
 router.get('/userName', async (req, res) => {
   try {
     const users = await userModel.findAll();
-    return res.status(200).json({ userName: req.session.username, users })
+    return res.status(200).json({ userName: req.session.username, users ,emp:req.session.employee_id })
   } catch (error) {
     return res.status(400).json({ error: error.message })
   }
@@ -591,6 +594,12 @@ const clients = [];
 // SSE route for message updates
 router.get('/messages/:toId/stream', async (req, res) => {
   try {
+    // Check if session is valid
+    if (!req.session || !req.session.email) {
+      // Session expired or user not logged in, redirect to "/"
+      return res.redirect('/');
+    }
+
     const { toId } = req.params;
     const fromId = req.session.email;
 
@@ -599,7 +608,7 @@ router.get('/messages/:toId/stream', async (req, res) => {
     res.setHeader('Cache-Control', 'no-cache');
     res.setHeader('Connection', 'keep-alive');
 
-    // Send headers
+    // Flush headers before any data is sent
     res.flushHeaders();
 
     // Add client to the list
@@ -644,6 +653,19 @@ router.get('/messages/:toId/stream', async (req, res) => {
   }
 });
 
+router.patch('/user-message/:id', async function(req, res) {
+  try {
+    const { id } = req.params;
+    const { input_val } = req.body; 
+    const message = await Message.update(
+      { message:input_val }, 
+      { where: { id } } 
+    );
+    return res.status(200).json({ success: true, allmessage: message });
+  } catch (error) {
+    return res.status(500).json({ success: false, error: error.message });
+  }
+});
 
 
 // Backend route to fetch session email
@@ -816,6 +838,74 @@ router.get('/mail', function (req, res) {
 
 router.get('/helpDesk', function (req, res) {
   res.render('helpDesk')
+})
+
+router.get('/settings', function (req, res) {
+  res.render('settings')
+})
+
+
+
+router.delete('/mess_delete/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+    const delMess = await Message.destroy({ where: { id } });
+    if (delMess) {
+      return res.status(200).json({ msg: "Message Deleted", success: true });
+    } else {
+      return res.status(404).json({ msg: "Message not found" });
+    } `  `
+  } catch (err) {
+    console.error(err);
+    return res.status(500).json({ msg: "Internal Server Error" });
+  }
+});
+
+
+// all routes name
+function logRoutes() {
+  router.stack.forEach((route) => {
+    if (route.route && route.route.path && route.route.methods.get) {
+      const path = route.route.path;
+      Allroute.destroy({
+        truncate:true
+      })
+      Allroute.create({ page_name: path });
+      console.log(path);
+    }
+  });
+}
+logRoutes(); 
+
+
+
+// user validate for pages
+router.post('/access-denied', async function(req, res) {
+  try {
+    const { userPk, pagePk, params } = req.body;
+    const existingRecord = await UserPageSecurity.findOne({ where: { userPk, pagePk } });
+
+    if (existingRecord) {
+      await existingRecord.update({ access_b: params });
+      return res.status(200).json({ success: true, message: 'data updated' });
+    } else {
+      await UserPageSecurity.create({ userPk, pagePk, access_b: params });
+      return res.status(200).json({ success: true, message: 'data stored' });
+    }
+  } catch (error) {
+    return res.status(500).json({ success: false });
+  }
+});
+
+
+router.get('/access-denied',async(req,res)=>{
+  try {
+    const alldata = await UserPageSecurity.findAll();
+    console.log(alldata,2345678)
+    return res.status(200).json({succcess:true,alldata})
+  } catch (error) {
+    return res.status(500).json({success:false})
+  }
 })
 
 module.exports = router;

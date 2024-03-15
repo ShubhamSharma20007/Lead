@@ -9,6 +9,10 @@
 		font: 12px "Open Sans", sans-serif;
 	}
 
+	.bubble {
+		cursor: default;
+	}
+
 	#chat-messages {
 		max-height: 400px;
 		/* Set maximum height for the container */
@@ -22,6 +26,7 @@
 	#chat-messages::-webkit-scrollbar {
 		display: none;
 	}
+
 
 
 	.board-column-content-wrapper::-webkit-scrollbar {
@@ -791,6 +796,7 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/js/toastr.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@10"></script>
 <script>
+
 	async function Emoji() {
 		const emoji_cnt = document.querySelector('.emoji_container')
 		const emojiBtn = document.querySelector('.emojiBtn')
@@ -965,63 +971,6 @@
 </script>
 
 
-{{!--
-<script>
-	//Content Loaded
-	window.addEventListener("DOMContentLoaded", (e) => {
-		var header = document.querySelector(".header");
-		var chatRoom = document.querySelector(".chat-room");
-		var typeArea = document.querySelector(".type-area");
-		var btnAdd = document.querySelector(".button-add");
-		var others = document.querySelector(".others");
-		var emojiBox = document.querySelector(".emoji-button .emoji-box");
-		var emojiButton = document.querySelector(".others .emoji-button");
-		var emojis = document.querySelectorAll(".emoji-box span");
-		var inputText = document.querySelector("#inputText");
-		var btnSend = document.querySelector(".button-send");
-		var messageArea = document.querySelector(".message.message-right");
-		var chatBox2 = document.querySelector('.chat-box')
-		//Header onclick event
-		let flag = true;
-		const chatBox = document.querySelector('.chat-box ')
-		header.addEventListener('click', () => {
-			if (flag) {
-				chatBox2.style.display = "block"
-				flag = false
-			}
-			else {
-				chatBox2.style.display = "none"
-				flag = true
-			}
-
-		})
-		//Button Add onclick event
-		btnAdd.addEventListener("click", (e) => {
-			others.classList.add("others-show");
-		});
-		//Emoji onclick event
-		emojiButton.addEventListener("click", (e) => {
-			emojiBox.classList.add("emoji-show");
-		});
-		//Button Send onclick event
-		btnSend.addEventListener("click", (e) => {
-			var mess = inputText.value;
-			var bubble = document.createElement('div');
-			bubble.className += " bubble bubble-dark";
-			bubble.textContent = mess;
-			messageArea.appendChild(bubble);
-			inputText.value = "";
-		});
-		for (var emoji of emojis) {
-			emoji.addEventListener("click", (e) => {
-				e.stopPropagation();
-				emojiBox.classList.remove("emoji-show");
-				others.classList.remove("others-show");
-				inputText.value += e.target.textContent;
-			});
-		}
-	})
-</script> --}}
 
 
 <script>
@@ -1084,6 +1033,7 @@
 		var friendElements = data.map(function (entry) {
 			var friendDiv = document.createElement('div');
 			friendDiv.classList.add('friend');
+
 
 			var img = document.createElement('img');
 			img.src = entry.userImage ? '/userImage/' + entry.userImage : 'https://s3-us-west-2.amazonaws.com/s.cdpn.io/245657/1_copy.jpg';
@@ -1155,119 +1105,115 @@
 	// Function to periodically fetch messages
 
 
-async function displayMessages(messages) {
-    var chatMessages = document.getElementById('chat-messages');
-    var existingMessages = chatMessages.querySelectorAll('.message');
-  
-    // Check if user manually scrolled up
-    var isManuallyScrolledUp = chatMessages.scrollTop < (chatMessages.scrollHeight - chatMessages.clientHeight);
-  
-    try {
-      // Fetch session email from backend
-      const sessionDataResponse = await fetch('/session-email');
-      if (!sessionDataResponse.ok) {
-        throw new Error('Failed to fetch session data');
-      }
-      const sessionData = await sessionDataResponse.json();
-      const sessionEmail = sessionData.email;
-  
-      // Fetch user image for toId
-      const toIdUserResponse = await fetch(`/user/${toId}`);
-      if (!toIdUserResponse.ok) {
-        throw new Error('Failed to fetch user data');
-      }
-      const toIdUserData = await toIdUserResponse.json();
-      const toIdUserImage = toIdUserData.userImage;
-  
-      // Remove existing messages without timestamp attribute
-      existingMessages.forEach(existingMessage => {
-        if (!existingMessage.hasAttribute('data-timestamp')) {
-          existingMessage.remove();
-        }
-      });
-  
-      messages.forEach(message => {
-        // Check if the message is already displayed
-        var isNewMessage = true;
-        existingMessages.forEach(existingMessage => {
-          if (existingMessage.getAttribute('data-timestamp') === message.createdAt) {
-            isNewMessage = false;
-          }
-        });
-  
-        if (isNewMessage) {
-          var messageDiv = document.createElement('div');
-          messageDiv.classList.add('message');
-  
-          // Check if the message is from the current user
-          if (message.fromId === sessionEmail) {
-            messageDiv.classList.add('right'); // Display on the right side
-          } else {
-            messageDiv.classList.add('left'); // Display on the left side
-          }
-  
-          var img = document.createElement('img');
-          if (message.fromId === sessionEmail) {
-            img.src = `/userImage/${sessionData.userImage}`;
-          } else {
-            img.src = `/userImage/${toIdUserImage}`;
-          }
-  
-          var bubbleDiv = document.createElement('div');
-          bubbleDiv.classList.add('bubble');
-          bubbleDiv.textContent = message.message;
-  
-          var idinputDiv = document.createElement('input')
-          idinputDiv.value = message.id;
-          idinputDiv.classList.add("messageId")
-          idinputDiv.type = 'hidden'
-  
-          var cornerDiv = document.createElement('div');
-          cornerDiv.classList.add('corner');
-  
-          var span = document.createElement('span');
-          // Calculate time difference
-          var timeDiff = new Date() - new Date(message.createdAt);
-          var seconds = Math.floor(timeDiff / 1000);
-          var minutes = Math.floor(seconds / 60);
-          var hours = Math.floor(minutes / 60);
-  
-          if (seconds < 60) {
-            span.textContent = 'Just now';
-          } else if (minutes < 60) {
-            span.textContent = minutes + ' minutes ago';
-          } else if (hours < 24) {
-            span.textContent = hours + ' hours ago';
-          } else if (hours >= 24 && hours < 48) {
-            span.textContent = 'Yesterday';
-          } else {
-            // Display the date if the message was sent earlier than yesterday
-            var options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
-            span.textContent = new Date(message.createdAt).toLocaleDateString(undefined, options);
-          }
-  
-          bubbleDiv.appendChild(cornerDiv);
-          bubbleDiv.appendChild(span);
-          cornerDiv.appendChild(idinputDiv);
-  
-          messageDiv.appendChild(img);
-          messageDiv.appendChild(bubbleDiv);
-  
-          messageDiv.setAttribute('data-timestamp', message.createdAt); // Set timestamp attribute
-  
-          chatMessages.appendChild(messageDiv);
-        }
-      });
-  
-      // Scroll to the bottom of the chat messages container only if not manually scrolled up
-      if (!isManuallyScrolledUp) {
-        chatMessages.scrollTop = chatMessages.scrollHeight;
-      }
-    } catch (error) {
-      console.error('Error fetching data:', error);
-    }
-  }
+	async function displayMessages(messages) {
+		var chatMessages = document.getElementById('chat-messages');
+		var existingMessages = chatMessages.querySelectorAll('.message');
 
+		try {
+			// Fetch session email from backend
+			const sessionDataResponse = await fetch('/session-email');
+			if (!sessionDataResponse.ok) {
+				throw new Error('Failed to fetch session data');
+			}
+			const sessionData = await sessionDataResponse.json();
+			const sessionEmail = sessionData.email;
+
+			// Fetch user image for toId
+			const toIdUserResponse = await fetch(`/user/${toId}`);
+			if (!toIdUserResponse.ok) {
+				throw new Error('Failed to fetch user data');
+			}
+			const toIdUserData = await toIdUserResponse.json();
+			const toIdUserImage = toIdUserData.userImage;
+
+			// Remove existing messages without timestamp attribute
+			existingMessages.forEach(existingMessage => {
+				if (!existingMessage.hasAttribute('data-timestamp')) {
+					existingMessage.remove();
+				}
+			});
+
+			messages.forEach(message => {
+				// Check if the message is already displayed
+				var isNewMessage = true;
+				existingMessages.forEach(existingMessage => {
+					if (existingMessage.getAttribute('data-timestamp') === message.createdAt) {
+						isNewMessage = false;
+					}
+				});
+
+				if (isNewMessage) {
+					var messageDiv = document.createElement('div');
+					messageDiv.classList.add('message');
+
+					// Check if the message is from the current user
+					if (message.fromId === sessionEmail) {
+						messageDiv.classList.add('right'); // Display on the right side
+					} else {
+						messageDiv.classList.add('left'); // Display on the left side
+					}
+
+					var img = document.createElement('img');
+					if (message.fromId === sessionEmail) {
+						img.src = `/userImage/${sessionData.userImage}`;
+					} else {
+						img.src = `/userImage/${toIdUserImage}`;
+					}
+					var bubbleDiv = document.createElement('div');
+					bubbleDiv.classList.add('bubble');
+					bubbleDiv.textContent = message.message;
+
+					bubbleDiv.onclick = (item) => {
+						fetchInputDiv(item);
+					};
+
+					var idinputDiv = document.createElement('input');
+					idinputDiv.value = message.id;
+					idinputDiv.classList.add("messageId");
+					idinputDiv.type = 'hidden';
+
+					var cornerDiv = document.createElement('div');
+					cornerDiv.classList.add('corner');
+
+					var span = document.createElement('span');
+					// Calculate time difference
+					var timeDiff = new Date() - new Date(message.createdAt);
+					var seconds = Math.floor(timeDiff / 1000);
+					var minutes = Math.floor(seconds / 60);
+					var hours = Math.floor(minutes / 60);
+
+					if (seconds < 60) {
+						span.textContent = 'Just now';
+					} else if (minutes < 60) {
+						span.textContent = minutes + ' minutes ago';
+					} else if (hours < 24) {
+						span.textContent = hours + ' hours ago';
+					} else if (hours >= 24 && hours < 48) {
+						span.textContent = 'Yesterday';
+					} else {
+						// Display the date if the message was sent earlier than yesterday
+						var options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+						span.textContent = new Date(message.createdAt).toLocaleDateString(undefined, options);
+					}
+
+					bubbleDiv.appendChild(cornerDiv);
+					bubbleDiv.appendChild(span);
+					cornerDiv.appendChild(idinputDiv);
+
+					messageDiv.appendChild(img);
+					messageDiv.appendChild(bubbleDiv);
+
+					messageDiv.setAttribute('data-timestamp', message.createdAt); // Set timestamp attribute
+
+					chatMessages.appendChild(messageDiv);
+					chatMessages.scrollTop = chatMessages.scrollHeight;
+
+				}
+			});
+		} catch (error) {
+			console.error('Error fetching data:', error);
+		}
+	}
 
 	// Define variables outside the click event handler
 	var toId = "";
@@ -1291,7 +1237,6 @@ async function displayMessages(messages) {
 		var childTop = childOffset.top - parentOffset.top;
 		var clone = $(this).find('img').eq(0).clone();
 		var top = childTop + 12 + "px";
-
 		$(clone).css({ 'top': top }).addClass("floatingImg").appendTo("#chatbox");
 
 		setTimeout(function () { $("#profile p").addClass("animate"); $("#profile").addClass("animate"); }, 100);
@@ -1461,6 +1406,67 @@ async function displayMessages(messages) {
 	});
 
 </script>
+<script>
+	async function fetchInputDiv(item) {
+		const bubblediv = item.target;
+		const handleclick = document.querySelector('#sendmessage #send');
+		const parentInput = document.querySelector('#sendmessage #messageInput');
+		var updatevalue;
+		var custominput = document.createElement('input'); // Moved outside event listener
+		var uniqueId;
+		bubblediv.addEventListener('dblclick', function (e) {
+			const delete_icon = document.createElement('i');
+			delete_icon.classList.add('ri-delete-bin-line', 'delete_icon');
+			updatevalue = bubblediv.childNodes[0].textContent;
+			uniqueId = bubblediv.children[0].children[0].value;
+			bubblediv.textContent = "";
+			custominput.style.outline = "none";
+			custominput.style.border = "none";
+			custominput.type = 'text';
+			custominput.setAttribute('uniqueId', uniqueId);
+			custominput.setAttribute('value', updatevalue);
+			bubblediv.append(custominput, delete_icon);
+
+			delete_icon.addEventListener('click', async function (e) {
+				const uniqueId = custominput.getAttribute('uniqueId');
+				const response = await fetch(`/mess_delete/${uniqueId}`, {
+					method: 'DELETE'
+				});
+				const data = await response.json();
+				console.log(data);
+				if (data.success) {
+					bubblediv.remove(); // Remove the deleted message bubble from the UI
+					fetchMessages(toId);
+					document.querySelector('#chat-messages').innerHTML = ""
+					displayMessages();
+				}
+			});
+		});
+
+		custominput.addEventListener('blur', async function (e) {
+			const newValue = e.target.value;
+			const uniqueId = e.target.getAttribute('uniqueId');
+			const response = await fetch(`/user-message/${uniqueId}`, {
+				method: 'PATCH',
+				headers: {
+					'Content-Type': 'application/json'
+				},
+				body: JSON.stringify({ input_val: newValue })
+			});
+			const data = await response.json();
+			console.log(data);
+
+			if (data.success) {
+				fetchMessages(toId);
+				document.querySelector('#chat-messages').innerHTML = ""
+				displayMessages(messages);
+			}
+		});
+	}
+
+
+</script>
+
 
 <!-- Include Socket.IO client library -->
 <script src="/socket.io/socket.io.js"></script>
