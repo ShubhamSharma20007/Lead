@@ -4,11 +4,10 @@
 		padding: 0px;
 	}
 
-	body {
-		background: #f0f1f2;
-		font: 12px "Open Sans", sans-serif;
-	}
-
+.layout-navbar {
+    background-color: rgb(255 223 223 / 66%) !important;
+    backdrop-filter: saturate(200%) blur(6px);
+}
 	.bubble {
 		cursor: default;
 	}
@@ -72,6 +71,7 @@
 	#chatbox {
 		width: 294px;
 		background: #fff;
+		box-shadow: rgba(255, 255, 255, 0.1) 0px 1px 1px 0px inset, rgba(50, 50, 93, 0.25) 0px 50px 100px -20px, rgba(0, 0, 0, 0.3) 0px 30px 60px -30px;
 		border-radius: 6px;
 		overflow-x: hidden;
 		overflow-y: scroll;
@@ -95,12 +95,13 @@
 		width: 290px;
 		border-bottom: 1px solid #d8dfe3;
 		position: relative;
+		display: flex;
 	}
 
 
 	#topmenu span {
 		float: left;
-		width: 105px;
+		width: 95px;
 		height: 70px;
 		background: url(https://s3-us-west-2.amazonaws.com/s.cdpn.io/245657/top-menu.png) -3px -134px no-repeat;
 	}
@@ -303,6 +304,7 @@
 		overflow-y: scroll;
 		overflow-x: hidden;
 		padding-right: 20px;
+		background: #fff;
 		-webkit-transition: all 200ms cubic-bezier(0.000, 0.995, 0.990, 1.000);
 		-moz-transition: all 200ms cubic-bezier(0.000, 0.995, 0.990, 1.000);
 		-ms-transition: all 200ms cubic-bezier(0.000, 0.995, 0.990, 1.000);
@@ -402,6 +404,7 @@
 	}
 
 	#sendmessage {
+		display: flex;
 		height: 60px;
 		border-top: 1px solid #e7ebee;
 		position: absolute;
@@ -409,12 +412,8 @@
 		right: 0px;
 		width: 290px;
 		background: #fff;
-		padding-bottm: 50px;
 	}
 
-	#sendmessage input {
-		border
-	}
 
 	#sendmessage input {
 		background: #fff;
@@ -639,6 +638,15 @@
 	.search input {
 		height: 100%;
 	}
+
+	.table> :not(caption)>*>* {
+		padding: 0px 3px !important;
+	}
+	.fs-4 {
+		position: relative;
+	    left: 150px;
+		font-size: 18px !important;
+	}
 </style>
 
 <nav class="layout-navbar container-xxl navbar navbar-expand-xl navbar-detached align-items-center bg-navbar-theme"
@@ -687,7 +695,7 @@
 
 			<div id="sendmessage">
 				<input type="text" placeholder="Send message..." id="messageInput" />
-				<i class="ri-emoji-sticker-line emojiBtn" style="font-size: 13px;"></i>
+				<i class="ri-emoji-sticker-line emojiBtn" style="font-size: 13px;margin-top: 25px;"></i>
 				<button id="send"></button>
 			</div>
 
@@ -708,8 +716,8 @@
 		<div class="navbar-nav align-items-center">
 			<div class="nav-item d-flex align-items-center">
 				<i class="bx bx-search fs-4 lh-0"></i>
-				<input type="text" class="form-control border-0 shadow-none ps-1 ps-sm-2" placeholder="Search..."
-					aria-label="Search...">
+				<input type="text" class="border-0 shadow-none ps-1 ps-sm-2" placeholder="Search..."
+					aria-label="Search..." style="background: none;">
 			</div>
 		</div>
 		<!-- /Search -->

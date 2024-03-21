@@ -41,34 +41,27 @@
     <!--! Template customizer & Theme config files MUST be included after core stylesheets and helpers.js in the <head> section -->
     <!--? Config:  Mandatory theme config file contain global vars & default theme options, Set your preferred theme option in this file.  -->
     <script src="/assets/js/config.js"></script>
-    <style>
-        table tr th {
-            width: calc(100% /5);
-            font-size: 13px;
-        }
 
-        table {
-            max-height: 60vh;
-            width: 100%;
-        }
 
-        table tr th:nth-child(1) {
-            width: 5% !important;
-        }
 
-        .row_data {
-            border-bottom: 1px solid lightgray;
-        }
+    
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/5.3.0/css/bootstrap.min.css">
 
-        table tr {
-            line-height: 35px;
-        }
+    <link href="http://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css" rel="stylesheet">
+    <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
+    <link rel="stylesheet" href="http://cdn.datatables.net/1.10.2/css/jquery.dataTables.min.css">
+    </style>
+    <script type="text/javascript"
+        src="https://cdnjs.cloudflare.com/ajax/libs/datatables/1.10.21/js/jquery.dataTables.min.js"></script>
+    <script type="text/javascript" src="http://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js"></script>
 
-        .table-container {
-            position: relative;
-        }
 
-        .custom_btn {
+
+   <style>
+    .table-responsive{
+        overflow-x: visible !important;
+    }
+      .custom_btn {
             position: absolute;
             right: 5%;
             margin-top: 10px;
@@ -134,7 +127,8 @@
         button:hover .arrow:before {
             right: 0;
         }
-    </style>
+
+</style> 
 </head>
 
 <body>
@@ -158,26 +152,23 @@
                     <!-- Content -->
 
                     <div class="container-xxl flex-grow-1 container-p-y">
-                        <div class="table-container" style="height: 70vh; overflow-y:scroll">
-                            <div class=" col-md-12 cols-12">
-
-                                <table>
-                                    <thead>
-                                        <tr>
+                        <div class="table-responsive">
+                            <table id="example" class="table table-striped" style="width:100%">
+                                <thead>
+                                    <tr>
+                                       
                                             <th>Sr.</th>
                                             <th>Name</th>
                                             <th>Report</th>
                                             <th>Mail Integration</th>
 
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        {{!-- dynamically data coming --}}
-
-                                    </tbody>
-                                </table>
-                            </div>
-
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                   {{!-- dynamically data coming --}}
+                                </tbody>
+                               
+                            </table>
                         </div>
                         <button class="custom_btn">
                             submit
@@ -211,9 +202,10 @@
 
 <!-- Main JS -->
 <script src="/assets/js/main.js"></script>
-
-
-
+<script src="https://code.jquery.com/jquery-3.7.1.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.datatables.net/2.0.2/js/dataTables.js"></script>
+<script src="https://cdn.datatables.net/2.0.2/js/dataTables.bootstrap5.js"></script>
 
 
 
@@ -229,36 +221,37 @@
     })
 
     const tbody = document.querySelector('tbody')
-    alluser.then(data => {
-        data.users.forEach(user => {
-            tbody.innerHTML += `
-          <tr class="row_data">
-            <td>${user.employee_id}</td>
-            <td>${user.username}</td>
-            <td><input type="checkbox" class="checkBx" data-user-id="${user.employee_id}" data-page="/report" ></td>
-            <td><input type="checkbox" class="checkBx" data-user-id="${user.employee_id}" data-page="/mail"></td>
-          </tr>
-        `
-        })
+   alluser.then(data => {
+    data.users.forEach(user => {
+        tbody.innerHTML += `
+      <tr class="row_data">
+        <td>${user.employee_id}</td>
+        <td>${user.username}</td>
+        <td><input type="checkbox" class="checkBx" data-user-id="${user.employee_id}" data-page="/report" ></td>
+        <td><input type="checkbox" class="checkBx" data-user-id="${user.employee_id}" data-page="/mail"></td>
+      </tr>
+    `
+    });
 
-        const reportCheckboxes = document.querySelectorAll('.checkBx');
-        reportCheckboxes.forEach(checkbox => {
-            checkbox.addEventListener('change', async function (e) {
-
-                if (this.checked) {
-                    const userPk = this.getAttribute('data-user-id');
-                    const pagePk = this.getAttribute('data-page');
-                    accessDenied(userPk, pagePk, this.checked ? "y" : "n");
-                }
-                else {
-                    const userPk = this.getAttribute('data-user-id');
-                    const pagePk = this.getAttribute('data-page');
-                    accessDenied(userPk, pagePk, this.checked ? "y" : "n");
-
-                }
-            });
+    const reportCheckboxes = document.querySelectorAll('.checkBx');
+    reportCheckboxes.forEach(checkbox => {
+        checkbox.addEventListener('change', async function (e) {
+            if (this.checked) {
+                const userPk = this.getAttribute('data-user-id');
+                const pagePk = this.getAttribute('data-page');
+                accessDenied(userPk, pagePk, this.checked ? "y" : "n");
+            } else {
+                const userPk = this.getAttribute('data-user-id');
+                const pagePk = this.getAttribute('data-page');
+                accessDenied(userPk, pagePk, this.checked ? "y" : "n");
+            }
         });
-    })
+    });
+
+ 
+    new DataTable('#example');
+});
+
 
     function accessDenied(userPk, pagePk, params) {
         const custom_btn = document.querySelector('.custom_btn')

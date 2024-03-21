@@ -4,11 +4,13 @@ var path = require('path');
 var cookieParser = require('cookie-parser');
 var logger = require('morgan');
 const hbs = require('hbs');
-// const db = require('./database');
 const db = require('./config/database');
+const { google } = require('googleapis');
+const passport = require('passport');
+const GoogleStrategy = require('passport-google-oauth20').Strategy;
 const cors = require('cors')
 const session = require('express-session');
-
+const moment = require('moment'); // Import the moment library for date formatting
 var indexRouter = require('./routes/index');
 var app = express();
 
@@ -21,6 +23,9 @@ app.set('view engine', 'hbs');
 app.set("views", templatespath);
 hbs.registerPartials(partialpath);
 app.use(session({ secret: 'ShubhamSharma', resave: false, saveUninitialized: false, cookie: { maxAge: 60 * 60 * 1000 } }));
+// Initialize Passport.js
+app.use(passport.initialize());
+app.use(passport.session());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
@@ -28,6 +33,10 @@ app.use(logger('dev'));
 
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
+
+
+
+// Add a new route to handle sending emails
 
 app.use('/', indexRouter);
 
@@ -47,7 +56,7 @@ app.use(function (err, req, res, next) {
   res.status(err.status || 500);
   res.render('error');
 });
-app.listen(9000, function () {
+app.listen(4000, function () {
   console.log('Express server listening on port 9000');
 });
 

@@ -19,14 +19,594 @@ const Allroute = require('../models/AllRoutes');
 const UserPageSecurity = require('../models/userPageSecurity');
 const fileUpload = require("express-fileupload");
 const path = require('path');
+const hbs = require('hbs');
 const fs = require('fs');
-
+const { google } = require('googleapis');
+const passport = require('passport');
+const GoogleStrategy = require('passport-google-oauth20').Strategy;
+// Initialize Passport.js
+router.use(passport.initialize());
+router.use(passport.session());
 router.use(fileUpload());
+
+// // Passport serialize and deserialize user
+passport.serializeUser((user, done) => {
+  done(null, user);
+});
+
+passport.deserializeUser((obj, done) => {
+  done(null, obj);
+});
+
+// Google OAuth 
+passport.use(new GoogleStrategy({
+  clientID: '770083145761-rb10dmm058o29r8oki31012hb938jj4l.apps.googleusercontent.com',
+  clientSecret: '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',
+  callbackURL: 'http://localhost:4000/auth/google/callback',
+  scope: ['profile', 'email', 'https://mail.google.com/'] // Updated scope
+
+}, (accessToken, refreshToken, profile, done) => {
+  profile.accessToken = accessToken;
+  profile.refreshToken = refreshToken;
+
+  const email = profile.emails[0].value;
+  profile.email = email;
+
+  return done(null, profile);
+}));
 
 // login get request
 router.get("/", function (req, res, next) {
   res.render("login", { title: "scaleedge" });
 });
+
+// Define the formatBytes helper function
+hbs.registerHelper('formatBytes', function (bytes, decimals = 2) {
+  if (bytes === 0) return '0 Bytes';
+  const k = 1024;
+  const dm = decimals < 0 ? 0 : decimals;
+  const sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB'];
+  const i = Math.floor(Math.log(bytes) / Math.log(k));
+  return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + ' ' + sizes[i];
+});
+
+
+router.get('/readEmails', ensureAuthenticated, async (req, res) => {
+  try {
+    const emailId = req.query.id;
+
+    const oauth2Client = new google.auth.OAuth2();
+    oauth2Client.setCredentials({
+      access_token: req.user.accessToken,
+      refresh_token: req.user.refreshToken,
+      expiry_date: req.user.expiryDate
+    });
+
+    const gmail = google.gmail({ version: 'v1', auth: oauth2Client });
+
+    const emailResponse = await gmail.users.messages.get({
+      userId: 'me',
+      id: emailId,
+      format: 'full' // Fetch the full email including attachments
+    });
+
+    const email = emailResponse.data;
+    const messageId = email.id; // Extract the messageId
+
+    // Extract attachments from the email payload
+
+    // Extract attachments from the email payload
+    const attachments = extractAttachments(email.payload);
+
+    res.render('readEmails', { user: req.user, email, attachments, messageId });
+  } catch (error) {
+    console.error('Error fetching email details:', error);
+    res.status(500).send('Error fetching email details');
+  }
+});
+
+
+
+function extractAttachments(payload) {
+  const attachments = [];
+  if (payload.parts && payload.parts.length) {
+    payload.parts.forEach(part => {
+      if (part.filename && part.body && part.body.attachmentId) {
+        const attachment = {
+          filename: part.filename,
+          attachmentId: part.body.attachmentId,
+          size: part.body.size
+        };
+        attachments.push(attachment);
+      }
+    });
+  }
+  return attachments;
+}
+
+router.get('/downloadAttachment', ensureAuthenticated, async (req, res) => {
+  try {
+    const oauth2Client = new google.auth.OAuth2();
+    oauth2Client.setCredentials({
+      access_token: req.user.accessToken,
+      refresh_token: req.user.refreshToken,
+      expiry_date: req.user.expiryDate
+    });
+
+    const gmail = google.gmail({ version: 'v1', auth: oauth2Client });
+
+    const attachmentId = req.query.id;
+
+    const attachmentResponse = await gmail.users.messages.attachments.get({
+      userId: 'me',
+      messageId: req.query.emailId,
+      id: attachmentId
+    });
+
+
+    const attachment = attachmentResponse.data;
+    const fileData = Buffer.from(attachment.data, 'base64');
+
+    res.set('Content-Disposition', `attachment;
+    filename = "${attachment.filename}"`);
+    res.set('Content-Type', attachment.mimeType);
+    res.send(fileData);
+  } catch (error) {
+    console.error('Error downloading attachment:', error);
+    res.status(500).send('Error downloading attachment');
+  }
+});
+
+// Define a Handlebars helper function to format file size
+hbs.registerHelper('formatFileSize', function (size) {
+  const units = ['B', 'KB', 'MB', 'GB', 'TB'];
+  let unitIndex = 0;
+  while (size >= 1024 && unitIndex < units.length - 1) {
+    size /= 1024;
+    unitIndex++;
+  }
+  return size.toFixed(2) + ' ' + units[unitIndex];
+});
+
+hbs.registerHelper('truncateWords', function (text, maxWords) {
+  var words = text.split(' ');
+  if (words.length > maxWords) {
+      return words.slice(0, maxWords).join(' ') + '...';
+  } else {
+      return text;
+  }
+});
+
+
+// Google OAuth route
+router.get('/auth/google',
+  passport.authenticate('google', {
+    scope: ['profile', 'email', 'https://www.googleapis.com/auth/gmail.compose', 'https://www.googleapis.com/auth/gmail.readonly']
+  })
+);
+
+
+
+// Import required modules
+
+hbs.registerHelper('formatDate', (dateString) => {
+  const date = new Date(parseInt(dateString));
+  const options = { year: 'numeric', month: 'short', day: 'numeric', hour: 'numeric', minute: 'numeric' };
+  return date.toLocaleDateString('en-US', options);
+});
+
+
+// Google OAuth callback route
+router.get('/auth/google/callback',
+  passport.authenticate('google', { failureRedirect: '/' }),
+  (req, res) => {
+    // Successful authentication, redirect to the inbox or any other page
+    res.redirect('/mail-inbox');
+  }
+);
+function ensureAuthenticated(req, res, next) {
+  if (req.isAuthenticated()) {
+    return next();
+  }
+  res.redirect('/');
+}
+
+
+// // Protected route (requires authentication)
+// router.get('/mail-inbox', (req, res) => {
+//   res.render('inbox');
+// })
+
+router.get('/mail-inbox', ensureAuthenticated, async (req, res) => {
+  try {
+    const oauth2Client = new google.auth.OAuth2();
+    oauth2Client.setCredentials({
+      access_token: req.user.accessToken,
+      refresh_token: req.user.refreshToken,
+      // Optionally, set expiry_date if available
+      expiry_date: req.user.expiryDate
+    });
+
+    const gmail = google.gmail({ version: 'v1', auth: oauth2Client });
+
+    // Fetch inbox emails
+    const inboxResponse = await gmail.users.messages.list({
+      userId: 'me',
+      q: 'in:inbox', // Query to fetch inbox emails
+    });
+
+    const inboxMessages = inboxResponse.data.messages || [];
+
+    // Fetch sent emails
+    const sentResponse = await gmail.users.messages.list({
+      userId: 'me',
+      q: 'in:sent', // Query to fetch sent emails
+    });
+
+    const sentMessages = sentResponse.data.messages || [];
+
+    // Fetch spam emails
+    const spamResponse = await gmail.users.messages.list({
+      userId: 'me',
+      q: 'in:spam', // Query to fetch spam emails
+    });
+
+    const spamMessages = spamResponse.data.messages || [];
+
+    // Fetch important emails
+    const importantResponse = await gmail.users.messages.list({
+      userId: 'me',
+      q: 'is:important', // Query to fetch important emails
+    });
+
+    const importantMessages = importantResponse.data.messages || [];
+
+    // Fetch drafts
+    const draftsResponse = await gmail.users.messages.list({
+      userId: 'me',
+      q: 'in:drafts', // Query to fetch drafts
+    });
+
+    const draftsMessages = draftsResponse.data.messages || [];
+
+    // Fetch trash emails
+    const trashResponse = await gmail.users.messages.list({
+      userId: 'me',
+      q: 'in:trash', // Query to fetch trash emails
+    });
+
+    const trashMessages = trashResponse.data.messages || [];
+
+    // Combine all types of messages
+    const allMessages = [...inboxMessages, ...sentMessages, ...spamMessages, ...importantMessages, ...draftsMessages, ...trashMessages];
+
+    // Fetch details of each email
+    const emails = await Promise.all(allMessages.map(async (message) => {
+      const emailResponse = await gmail.users.messages.get({
+        userId: 'me',
+        id: message.id,
+      });
+      return emailResponse.data;
+    }));
+    
+    res.render('inbox', { user: req.user, emails });
+  } catch (error) {
+    console.error('Error fetching emails:', error);
+    res.status(500).send('Error fetching emails');
+  }
+});
+
+router.get('/sentEmail', ensureAuthenticated, async (req, res) => {
+  try {
+    const oauth2Client = new google.auth.OAuth2();
+    oauth2Client.setCredentials({
+      access_token: req.user.accessToken,
+      refresh_token: req.user.refreshToken,
+      // Optionally, set expiry_date if available
+      expiry_date: req.user.expiryDate
+    });
+
+    const gmail = google.gmail({ version: 'v1', auth: oauth2Client });
+
+    // Fetch sent emails
+    const sentResponse = await gmail.users.messages.list({
+      userId: 'me',
+      q: 'in:sent', // Query to fetch sent emails
+    });
+
+    const sentMessages = sentResponse.data.messages || [];
+
+    // Fetch details of each sent email
+    const sentEmails = await Promise.all(sentMessages.map(async (message) => {
+      const emailResponse = await gmail.users.messages.get({
+        userId: 'me',
+        id: message.id,
+      });
+      return emailResponse.data;
+    }));
+    
+    res.render('sentMail', { user: req.user, sentEmails });
+  } catch (error) {
+    console.error('Error fetching sent emails:', error);
+    res.status(500).send('Error fetching sent emails');
+  }
+});
+
+router.get('/spamEmail', ensureAuthenticated, async (req, res) => {
+  try {
+    const oauth2Client = new google.auth.OAuth2();
+    oauth2Client.setCredentials({
+      access_token: req.user.accessToken,
+      refresh_token: req.user.refreshToken,
+      // Optionally, set expiry_date if available
+      expiry_date: req.user.expiryDate
+    });
+
+    const gmail = google.gmail({ version: 'v1', auth: oauth2Client });
+
+    // Fetch spam emails
+    const spamResponse = await gmail.users.messages.list({
+      userId: 'me',
+      q: 'in:spam', // Query to fetch spam emails
+    });
+
+    const spamMessages = spamResponse.data.messages || [];
+
+    // Fetch details of each spam email
+    const spamEmails = await Promise.all(spamMessages.map(async (message) => {
+      const emailResponse = await gmail.users.messages.get({
+        userId: 'me',
+        id: message.id,
+      });
+      return emailResponse.data;
+    }));
+    
+    res.render('spamMail', { user: req.user, spamEmails });
+  } catch (error) {
+    console.error('Error fetching spam emails:', error);
+    res.status(500).send('Error fetching spam emails');
+  }
+});
+
+router.get('/importantEmail', ensureAuthenticated, async (req, res) => {
+  try {
+    const oauth2Client = new google.auth.OAuth2();
+    oauth2Client.setCredentials({
+      access_token: req.user.accessToken,
+      refresh_token: req.user.refreshToken,
+      // Optionally, set expiry_date if available
+      expiry_date: req.user.expiryDate
+    });
+
+    const gmail = google.gmail({ version: 'v1', auth: oauth2Client });
+
+    // Fetch important emails
+    const importantResponse = await gmail.users.messages.list({
+      userId: 'me',
+      q: 'is:important', // Query to fetch important emails
+    });
+
+    const importantMessages = importantResponse.data.messages || [];
+
+    // Fetch details of each important email
+    const importantEmails = await Promise.all(importantMessages.map(async (message) => {
+      const emailResponse = await gmail.users.messages.get({
+        userId: 'me',
+        id: message.id,
+      });
+      return emailResponse.data;
+    }));
+    
+    res.render('importantMail', { user: req.user, importantEmails });
+  } catch (error) {
+    console.error('Error fetching important emails:', error);
+    res.status(500).send('Error fetching important emails');
+  }
+});
+
+router.get('/drafts', ensureAuthenticated, async (req, res) => {
+  try {
+    const oauth2Client = new google.auth.OAuth2();
+    oauth2Client.setCredentials({
+      access_token: req.user.accessToken,
+      refresh_token: req.user.refreshToken,
+      // Optionally, set expiry_date if available
+      expiry_date: req.user.expiryDate
+    });
+
+    const gmail = google.gmail({ version: 'v1', auth: oauth2Client });
+
+    // Fetch drafts
+    const draftsResponse = await gmail.users.messages.list({
+      userId: 'me',
+      q: 'in:draft', // Query to fetch drafts
+    });
+
+    const draftsMessages = draftsResponse.data.messages || [];
+
+    // Fetch details of each draft
+    const draftsEmails = await Promise.all(draftsMessages.map(async (message) => {
+      const emailResponse = await gmail.users.messages.get({
+        userId: 'me',
+        id: message.id,
+      });
+      return emailResponse.data;
+    }));
+    
+    res.render('drafts', { user: req.user, draftsEmails });
+  } catch (error) {
+    console.error('Error fetching drafts:', error);
+    res.status(500).send('Error fetching drafts');
+  }
+});
+
+router.get('/trashEmail', ensureAuthenticated, async (req, res) => {
+  try {
+    const oauth2Client = new google.auth.OAuth2();
+    oauth2Client.setCredentials({
+      access_token: req.user.accessToken,
+      refresh_token: req.user.refreshToken,
+      // Optionally, set expiry_date if available
+      expiry_date: req.user.expiryDate
+    });
+
+    const gmail = google.gmail({ version: 'v1', auth: oauth2Client });
+
+    // Fetch trash emails
+    const trashResponse = await gmail.users.messages.list({
+      userId: 'me',
+      q: 'in:trash', // Query to fetch trash emails
+    });
+
+    const trashMessages = trashResponse.data.messages || [];
+
+    // Fetch details of each trash email
+    const trashEmails = await Promise.all(trashMessages.map(async (message) => {
+      const emailResponse = await gmail.users.messages.get({
+        userId: 'me',
+        id: message.id,
+      });
+      return emailResponse.data;
+    }));
+    
+    res.render('trashMail', { user: req.user, trashEmails });
+  } catch (error) {
+    console.error('Error fetching trash emails:', error);
+    res.status(500).send('Error fetching trash emails');
+  }
+});
+
+
+
+// Define Handlebars helper function to get the subject from headers
+hbs.registerHelper('getSenderName', function (headers) {
+  const fromHeader = headers.find(header => header.name === 'From');
+  if (fromHeader) {
+    // Extract sender's name from the "From" header
+    const match = fromHeader.value.match(/(.) <.>/);
+    return match ? match[1] : fromHeader.value;
+  } else {
+    return 'Unknown Sender';
+  }
+});
+
+hbs.registerHelper('parseEmailContent', function (email) {
+  const parts = email.payload.parts;
+  let messageBody = '';
+  if (parts && parts.length) {
+    parts.forEach(part => {
+      if (part.body && part.body.size > 0) {
+        const mimeType = part.mimeType;
+        if (mimeType === 'text/plain' || mimeType === 'text/html') {
+          messageBody += Buffer.from(part.body.data, 'base64').toString();
+        }
+      }
+    });
+  } else {
+    // If there are no parts, assume the message body is in the main body of the email
+    messageBody = Buffer.from(email.payload.body.data, 'base64').toString();
+  }
+  return messageBody;
+});
+
+
+
+
+// Backend endpoint to fetch email content
+router.get('/email/:emailId', ensureAuthenticated, async (req, res) => {
+  try {
+    const { emailId } = req.params;
+    const oauth2Client = new google.auth.OAuth2();
+    oauth2Client.setCredentials({
+      access_token: req.user.accessToken,
+      refresh_token: req.user.refreshToken,
+      // Optionally, set expiry_date if available
+      expiry_date: req.user.expiryDate
+    });
+
+    const gmail = google.gmail({ version: 'v1', auth: oauth2Client });
+    const response = await gmail.users.messages.get({ userId: 'me', id: emailId });
+    const emailContent = response.data.snippet; // You can customize this to fetch the full email content
+
+    res.json(emailContent);
+  } catch (error) {
+    console.error('Error fetching email content:', error);
+    res.status(500).json({ error: 'Error fetching email content' });
+  }
+});
+
+// Add this route to handle sending emails
+router.post('/sendGmail', ensureAuthenticated, async (req, res) => {
+
+// return console.log(req.body,'files',req.files)
+  try {
+      const { to, cc, bcc, subject, body } = req.body;
+
+      const oauth2Client = new google.auth.OAuth2();
+      oauth2Client.setCredentials({
+          access_token: req.user.accessToken,
+          refresh_token: req.user.refreshToken,
+          expiry_date: req.user.expiryDate
+      });
+
+      const gmail = google.gmail({ version: 'v1', auth: oauth2Client });
+
+      const attachment = req.files.attachment;
+    
+
+      const emailLines = [
+          `To: ${to}`,
+          `Subject: ${subject}`,
+          `Cc: ${cc || ''}`,
+          `Bcc: ${bcc || ''}`,
+          '',
+          `${body}`
+      ];
+
+      const rawEmail = emailLines.join('\n').trim();
+
+      const messageParts = [
+          `From: "Your Name" <your-email@gmail.com>`,
+          `To: ${to}`,
+          `Cc: ${cc || ''}`,
+          `Bcc: ${bcc || ''}`,
+          'Content-Type: multipart/mixed; boundary="boundary"',
+          '',
+          `--boundary`,
+          `Content-Type: text/plain; charset="UTF-8"`,
+          '',
+          `${body}`,
+          `--boundary`,
+          `Content-Type: ${attachment.mimetype}; name="${attachment.name}"`,
+          'Content-Transfer-Encoding: base64',
+          '',
+          `${attachment.data.toString('base64')}`,
+          `--boundary--`
+      ];
+
+      const message = messageParts.join('\n').trim();
+
+      const encodedMessage = Buffer.from(message).toString('base64').replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+
+      await gmail.users.messages.send({
+          userId: 'me',
+          requestBody: {
+              raw: encodedMessage
+          }
+      });
+
+      res.send('Email sent successfully');
+  } catch (error) {
+      console.error('Error sending email:', error);
+      res.status(500).send('Error sending email');
+  }
+});
+
+
+
+
+// Middleware to check if user is authenticated
+
 
 // post router login request
 router.post("/login", async (req, res) => {
@@ -56,6 +636,7 @@ router.post("/login", async (req, res) => {
     req.session.user_group = findUser.user_group
     req.session.userImage = findUser.userImage
     req.session.employee_id = findUser.employee_id
+ 
     res.status(200).json({ success: true, message: "Login successful" });
 
   } catch (error) {
@@ -846,6 +1427,10 @@ router.get('/settings', function (req, res) {
 
 
 
+
+
+
+
 router.delete('/mess_delete/:id', async (req, res) => {
   try {
     const { id } = req.params;
@@ -861,21 +1446,30 @@ router.delete('/mess_delete/:id', async (req, res) => {
   }
 });
 
+router.get('/report', function (req, res) {
+  res.render('report')
+})
+
+// router.get('/mail-inbox', function (req, res) {
+//   res.render('inbox')
+// })
+
+
 
 // all routes name
-function logRoutes() {
-  router.stack.forEach((route) => {
-    if (route.route && route.route.path && route.route.methods.get) {
-      const path = route.route.path;
-      Allroute.destroy({
-        truncate:true
-      })
-      Allroute.create({ page_name: path });
-      console.log(path);
-    }
-  });
-}
-logRoutes(); 
+// function logRoutes() {
+//   router.stack.forEach((route) => {
+//     if (route.route && route.route.path && route.route.methods.get) {
+//       const path = route.route.path;
+//       Allroute.destroy({
+//         truncate:true
+//       })
+//       Allroute.create({ page_name: path });
+//       console.log(path);
+//     }
+//   });
+// }
+// logRoutes(); 
 
 
 

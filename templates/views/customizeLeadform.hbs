@@ -43,6 +43,7 @@
 </head>
 
 <body>
+
     <!-- Layout wrapper -->
     <div class="layout-wrapper layout-content-navbar">
         <div class="layout-container">
@@ -69,7 +70,7 @@
                         <div class="">
 
                             <div class="col-lg-8 col-mg-8  col-12 shadow-sm rounded-2 p-4"
-                                style="background-color: #FFFF;">
+                                style="background-color: #f0f0f000; box-shadow: rgba(0, 0, 0, 0.2) 0px 12px 28px 0px, rgba(0, 0, 0, 0.1) 0px 2px 4px 0px, rgba(255, 255, 255, 0.05) 0px 0px 0px 1px inset !important;">
                                 <div class=" bg-transparent box-shadow-none">
                                     <form
                                         class="mainForm leadForm p-0 col-12 col-md-12 w-full d-flex flex-wrap justify-content-between "
@@ -157,7 +158,8 @@
                                             class="addField btn ml-3 btn-primary btn-md rounded-1 mt-2">Add
                                             Field</button> --}}
                                     </div>
-                                    <dialog autofocus="true" class="col-md-3 col-10 m-0" style="position: absolute;left: 50%;top: 50%;transform: translate(-50%, -50%);border: none;padding: 14px;">
+                                    <dialog autofocus="true" class="col-md-3 col-10 m-0"
+                                        style="position: absolute;left: 50%;top: 50%;transform: translate(-50%, -50%);border: none;padding: 14px;">
                                         <div class="closeBtn float-end d-block " style="width: 25px;float:right">
                                             <svg style="cursor: pointer;" xmlns="http://www.w3.org/2000/svg"
                                                 viewBox="0 0 24 24" fill="currentColor">
@@ -243,3 +245,38 @@
 <script src="/assets/js/main.js"></script>
 
 </html>
+
+<style>
+    .content-wrapper {
+        transition: filter 0.3s ease;
+        /* Add transition for smooth effect */
+    }
+
+    .blur-body {
+        filter: blur(5px);
+        /* Adjust the blur amount as needed */
+    }
+
+    @media(max-width:800px) {
+        .bg-menu-theme {
+            background-color: #ffffffba !important;
+        }
+    }
+</style>
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const layoutMenuToggle = document.querySelector('.bx-menu');
+        const contentWrapper = document.querySelector('.content-wrapper');
+        const layOutackRemove = document.querySelector('.bx-chevron-left');
+
+
+        layoutMenuToggle.addEventListener('click', function () {
+            contentWrapper.classList.toggle('blur-body');
+        });
+
+        layOutackRemove.addEventListener('click', function () {
+            contentWrapper.classList.remove('blur-body');
+
+        })
+    });
+</script>
