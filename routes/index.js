@@ -4,6 +4,7 @@ const sequelize = require("../config/database");
 const userModel = require("../models/userModel")
 const CustomFormField = require("../models/CustomFormField")
 const LeadData = require("../models/LeadData")
+const TimeTracker = require("../models/TimeTracker")
 const con = require("../config/database");
 const bcrypt = require('bcryptjs');
 const { DataTypes } = require("sequelize");
@@ -196,14 +197,27 @@ hbs.registerHelper('formatDate', (dateString) => {
 });
 
 
-// Google OAuth callback route
 router.get('/auth/google/callback',
   passport.authenticate('google', { failureRedirect: '/' }),
-  (req, res) => {
-    // Successful authentication, redirect to the inbox or any other page
-    res.redirect('/mail-inbox');
+  async (req, res) => {
+    try {
+      // Merge Google profile data with existing session data
+      req.session.user = true;
+      req.session.username = req.user.username;
+      req.session.email = req.user.email;
+      req.session.user_group = req.user.user_group;
+      req.session.userImage = req.user.userImage;
+      req.session.employee_id = req.user.employee_id;
+
+      // Redirect user to desired page
+      res.redirect('/mail-inbox');
+    } catch (error) {
+      // Handle errors if any
+      res.status(500).json({ success: false, error: error.message });
+    }
   }
 );
+
 function ensureAuthenticated(req, res, next) {
   if (req.isAuthenticated()) {
     return next();
@@ -537,73 +551,70 @@ router.get('/email/:emailId', ensureAuthenticated, async (req, res) => {
 
 // Add this route to handle sending emails
 router.post('/sendGmail', ensureAuthenticated, async (req, res) => {
-
-// return console.log(req.body,'files',req.files)
-  try {
-      const { to, cc, bcc, subject, body } = req.body;
-
-      const oauth2Client = new google.auth.OAuth2();
-      oauth2Client.setCredentials({
-          access_token: req.user.accessToken,
-          refresh_token: req.user.refreshToken,
-          expiry_date: req.user.expiryDate
-      });
-
-      const gmail = google.gmail({ version: 'v1', auth: oauth2Client });
-
-      const attachment = req.files.attachment;
-    
-
-      const emailLines = [
-          `To: ${to}`,
-          `Subject: ${subject}`,
-          `Cc: ${cc || ''}`,
-          `Bcc: ${bcc || ''}`,
-          '',
-          `${body}`
-      ];
-
-      const rawEmail = emailLines.join('\n').trim();
-
-      const messageParts = [
-          `From: "Your Name" <your-email@gmail.com>`,
-          `To: ${to}`,
-          `Cc: ${cc || ''}`,
-          `Bcc: ${bcc || ''}`,
-          'Content-Type: multipart/mixed; boundary="boundary"',
-          '',
-          `--boundary`,
-          `Content-Type: text/plain; charset="UTF-8"`,
-          '',
-          `${body}`,
-          `--boundary`,
-          `Content-Type: ${attachment.mimetype}; name="${attachment.name}"`,
-          'Content-Transfer-Encoding: base64',
-          '',
-          `${attachment.data.toString('base64')}`,
-          `--boundary--`
-      ];
-
-      const message = messageParts.join('\n').trim();
-
-      const encodedMessage = Buffer.from(message).toString('base64').replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
-
-      await gmail.users.messages.send({
-          userId: 'me',
-          requestBody: {
-              raw: encodedMessage
-          }
-      });
-
-      res.send('Email sent successfully');
-  } catch (error) {
-      console.error('Error sending email:', error);
-      res.status(500).send('Error sending email');
-  }
-});
-
-
-
+    try {
+        const { to, cc, bcc, subject, body } = req.body;
+  
+        const oauth2Client = new google.auth.OAuth2();
+        oauth2Client.setCredentials({
+            access_token: req.user.accessToken,
+            refresh_token: req.user.refreshToken,
+            expiry_date: req.user.expiryDate
+        });
+  
+        const gmail = google.gmail({ version: 'v1', auth: oauth2Client });
+  
+        const attachment = req.files ? req.files.attachment : { mimetype: '', name: '', data: Buffer.from('')};
+  
+  
+        const emailLines = [
+            `To: ${to}`,
+            `Subject: ${subject}`,
+            `Cc: ${cc || ''}`,
+            `Bcc: ${bcc || ''}`,
+            '',
+            `${body}`
+        ];
+  
+        const rawEmail = emailLines.join('\n').trim();
+  
+        const messageParts = [
+            `From: "Your Name" <your-email@gmail.com>`,
+            `To: ${to}`,
+            `Cc: ${cc || ''}`,
+            `Bcc: ${bcc || ''}`,
+            `Subject: ${subject || ''}`,
+            'Content-Type: multipart/mixed; boundary="boundary"',
+            '',
+            `--boundary`,
+            `Content-Type: text/plain; charset="UTF-8"`,
+            '',
+            `${body}`,
+            `--boundary`,
+            `Content-Type: ${attachment.mimetype}; name="${attachment.name}"`,
+            'Content-Transfer-Encoding: base64',
+            '',
+            `${attachment.data.toString('base64')}`,
+            `--boundary--`
+        ];
+  
+        const message = messageParts.join('\n').trim();
+  
+        const encodedMessage = Buffer.from(message).toString('base64').replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+  
+        await gmail.users.messages.send({
+            userId: 'me',
+            requestBody: {
+                raw: encodedMessage
+            }
+        });
+  
+        res.send('Email sent successfully');
+    } catch (error) {
+        console.error('Error sending email:', error);
+        res.status(500).send('Error sending email');
+    }
+  });
+  
 
 // Middleware to check if user is authenticated
 
@@ -1457,19 +1468,19 @@ router.get('/report', function (req, res) {
 
 
 // all routes name
-// function logRoutes() {
-//   router.stack.forEach((route) => {
-//     if (route.route && route.route.path && route.route.methods.get) {
-//       const path = route.route.path;
-//       Allroute.destroy({
-//         truncate:true
-//       })
-//       Allroute.create({ page_name: path });
-//       console.log(path);
-//     }
-//   });
-// }
-// logRoutes(); 
+function logRoutes() {
+  router.stack.forEach((route) => {
+    if (route.route && route.route.path && route.route.methods.get) {
+      const path = route.route.path;
+      Allroute.destroy({
+        truncate:true
+      })
+      Allroute.create({ page_name: path });
+      console.log(path);
+    }
+  });
+}
+logRoutes(); 
 
 
 
@@ -1501,5 +1512,75 @@ router.get('/access-denied',async(req,res)=>{
     return res.status(500).json({success:false})
   }
 })
+
+
+// time tracker get route
+router.get('/timetracker',isAuth, async function (req, res) {
+  res.render("TimeTracker") 
+});
+
+router.get('/timetrackerGet', async function (req, res) {
+  try {
+    // Assuming your TimeTracker model has a column named userId
+    const alldata = await TimeTracker.findAll({
+      where: {
+        userId: req.session.employee_id
+      }
+    });
+    if (alldata.length > 0) {
+      return res.status(200).json({ success: true, data: alldata });
+    } else {
+      return res.status(404).json({ success: false, message: 'No data found' });
+    }
+  } catch (error) {
+    console.error('Error fetching timetracker data:', error);
+    return res.status(500).json({ success: false, message: 'Internal server error' });
+  }
+});
+
+
+// time tracker update route
+router.put("/timetracker/:id",async (req,res)=>{
+  try {
+    const {id} = req.params;
+    const updateField = await TimeTracker.update(req.body,{where:{id}})
+    if(updateField){
+      return res.status(200).json({success:true,message:"data updated",updateField})
+    }
+    
+  } catch (error) {
+    return res.status(500).json({success:false,message:"internal server error",error})
+  }
+})
+
+// time tracker post route
+router.post('/timetracker', async (req, res) => {
+  try {
+    const { taskname, startTime, endTime, totalTime } = req.body;
+
+    // Validate the request body
+    if (!taskname || !startTime || !endTime || !totalTime) {
+      return res.status(400).json({ success: false, message: 'Missing required fields' });
+    }
+
+    const timetrackerModel = await TimeTracker.create({
+      userId: req.session.employee_id,
+      taskName: taskname,
+      startTime: startTime,
+      endTime: endTime,
+      totalTime: totalTime
+    });
+
+    return res.status(200).json({ success: true, timetrackerModel });
+  } catch (err) {
+    console.log('Error creating timetracker record:', err);
+    return res.status(500).json({ success: false, message: 'Internal server error' });
+  }
+});
+
+
+router.get("/events",async(req,res)=>{
+  res.render("events")
+});
 
 module.exports = router;

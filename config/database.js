@@ -3,7 +3,7 @@ const { Sequelize, DataTypes } = require("sequelize");
 const sequelize = new Sequelize(
     'scaleedge_lead',
     'root',
-    'root',
+    'ashish@11',
     {
        host: 'localhost',
        dialect: 'mysql'

@@ -78,7 +78,7 @@
 
                                         <div class="card-body">
                                             <div class="row">
-                                                <div class="col-lg-3 email-aside border-lg-right">
+                                                <div class="col-lg-2 email-aside border-lg-right">
                                                     <div class="aside-content">
                                                         <div class="aside-header">
                                                             <button class="navbar-toggle" data-target=".aside-nav"
@@ -95,7 +95,9 @@
                                                             <p class="description">{{ user.email }}</p>
                                                         </div>
                                                         <div class="aside-compose">
-                                                            <a class="btn btn-primary btn-block" style="color: white;">Compose Email</a>
+                                                            <a class="btn btn-primary btn-block"
+                                                                style="color: white;font-size: 12px;padding: 10px">Compose
+                                                                Email</a>
 
                                                         </div>
                                                         <div class="aside-nav collapse">
@@ -235,11 +237,11 @@
                                                     </div>
                                                 </div>
                                                 <!-- BEGIN INBOX CONTENT -->
-                                                <div class="col-md-9">
+                                                <div class="col-md-10">
                                                     <div class="row">
                                                         <div class="padding"></div>
                                                         <div class="table-container"
-                                                            style="height: 500px; overflow-y: auto;">
+                                                            style="height: 550px; overflow-y: auto;">
                                                             <div class="table-responsive">
                                                                 <table class="table" style="width: 100%;">
                                                                     {{#each emails}}
@@ -273,9 +275,9 @@
 
                                                 </div>
                                                 <div class="col-md-6 col-12">
-                                                    
-                                                    
-                                        {{>Composemail}}
+
+
+                                                    {{>Composemail}}
                                                 </div>
 
 
@@ -315,3 +317,34 @@
 
 
 </html>
+
+<style>
+    body {
+        overflow: scroll;
+    }
+
+    .subject a {
+        font-size: 12px;
+         color: #121212;
+    }
+
+    .snippet a {
+        font-size: 12px;
+         color: #121212;
+    }
+
+    td {
+        font-size: 12px;
+        color: #121212;
+    }
+
+    .description {
+        font-size: 13px;
+    }
+    .table> :not(caption)>*>* {
+    padding: 11px 3px !important;
+}
+li a{
+    font-size: 12px;
+}
+</style>

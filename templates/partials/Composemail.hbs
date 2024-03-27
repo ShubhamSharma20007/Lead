@@ -38,7 +38,7 @@
 
     attachInput.addEventListener('change', () => {
         const file = attachInput.files[0];
-        attachedFileName.textContent = file.name; // Show the selected file name
+        attachedFileName.textContent = file ? file.name : ''; // Show the selected file name
     });
 </script>
 
