@@ -40,28 +40,6 @@
     <!--! Template customizer & Theme config files MUST be included after core stylesheets and helpers.js in the <head> section -->
     <!--? Config:  Mandatory theme config file contain global vars & default theme options, Set your preferred theme option in this file.  -->
     <script src="/assets/js/config.js"></script>
-    <style>
-        .contact_main {
-            position: relative;
-        }
-
-        .contact_cnt {
-            top: 100%;
-            left: 0;
-            position: absolute;
-            max-height: 230px;
-            background-color: white;
-            width: 100%;
-            overflow-x: hidden;
-            overflow-y: scroll;
-        }
-
-        .contact_img {
-            background: lightgray;
-            border-radius: 50%;
-            margin-bottom: 2px;
-        }
-    </style>
 </head>
 
 <body>
@@ -98,74 +76,47 @@
                                         class="mainForm leadForm p-0 col-12 col-md-12 w-full d-flex flex-wrap justify-content-between "
                                         style="column-gap:30px;">
                                         <div class="mb-2 col-12 col-md-5">
-                                            <label for="exampleInputEmail1" class="form-label">Client Name <span
+                                            <label for="exampleInputEmail1" class="form-label">Lead Name <span
                                                     class="font-w900 text-danger">*</span> </label>
-                                            <input type="text" class="form-control" id="ClientName" name="ClientName" />
+                                            <input type="text" class="form-control" id="leadName" name="leadName"
+                                                aria-describedby="emailHelp" required />
 
                                         </div>
                                         <div class="mb-2 col-12 col-md-5">
-                                            <label for="exampleInputEmail1" class="form-label">Email<span
-                                                    class="font-w900 text-danger">*</span> </label>
-                                            <input type="email" class="form-control" id="email" name="email" />
-                                        </div>
-                                        <div class="mb-2 col-12 col-md-5">
-                                            <label for="companyName" class="form-label">Company Name <span
-                                                    class="font-w900 text-danger">*</span> </label>
-                                            <input type="text" class="form-control" id="companyName"
-                                                name="companyName" />
-                                        </div>
-
-                                        <div class="mb-2 col-12 col-md-5  contact_main">
-                                            <label for="exampleInputEmail1" class="form-label" title="contact">Contact
-                                                <span class="font-w900 text-danger">*</span> </label>
-                                            <input type="text" class="form-control" id="contactNumber"
-                                                name="contactNumber" />
-
-                                            <div class="w-100  contact_cnt">
-
-                                            </div>
-                                        </div>
-
-
-
-                                        <div class="mb-2 col-12 col-md-5">
-                                            <label for="select" class="form-label">Stage<span
+                                            <label for="select" class="form-label">Company Name <span
                                                     class="font-w900 text-danger">*</span></label>
-                                            <select id="Stage" name="Stage" class="form-control" required>
-                                                <option disabled selected> Select the Stage</option>
-                                                <option value="New">New</option>
-                                                <option value="In Progress">In Progress</option>
-                                                <option value="Deal Won">Deal Won</option>
-                                                <option value="Deal Lose">Deal Lose</option>
-                                                <option value="Final Invoice"> Final Invoice</option>
+                                            <select id="selectCompany" name="companyName" class="form-control" required>
+                                                <option value="" selected> Select the Company Name</option>
+                                                <option>Shubham Mart</option>
+                                                <option>Hindustan Petrol</option>
+                                                <option>Miles store</option>
                                             </select>
                                         </div>
 
                                         <div class="mb-2 col-12 col-md-5">
-                                            <label for="exampleInputEmail1" class="form-label">Amount <span
+                                            <label for="exampleInputEmail1" class="form-label">Contact Number <span
                                                     class="font-w900 text-danger">*</span></label>
-                                            <input type="number" class="form-control" id="Amount" name="Amount"
-                                                aria-describedby="emailHelp" value="0" required />
+                                            <input type="number" class="form-control" id="contactNum" name="contactNum"
+                                                aria-describedby="emailHelp" required />
                                         </div>
                                         <div class="mb-2 col-12 col-md-5">
-                                            <label for="exampleInputEmail1" class="form-label">Deal Type <span
+                                            <label for="exampleInputEmail1" class="form-label">Contact Email <span
                                                     class="font-w900 text-danger">*</span></label>
-                                            <input type="text" class="form-control" id="DealType" autocomplete="off"
-                                                name="DealType" aria-describedby="emailHelp" required />
+                                            <input type="email" class="form-control" id="contactNum" autocomplete="off"
+                                                name="contactemail" aria-describedby="emailHelp" required />
                                         </div>
-                                        <div class="mb-2 col-12 col-md-5">
-                                            <label for="exampleInputEmail1" class="form-label">Start Date <span
-                                                    class="font-w900 text-danger">*</span> </label>
-                                            <input type="datetime-local" class="form-control" id="StartDate"
-                                                name="StartDate" />
+                                        <div class="mb-3 col-12 col-md-5">
+                                            <label for="select" class="form-label">Lead Status <span
+                                                    class="font-w900 text-danger">*</span></label>
+                                            <select id="selectstatus" name="selectstatus" class="form-control" required>
+                                                <option value=""> Select Lead Status</option>
+                                                <option>Pending</option>
+                                                <option>Denied </option>
+                                                <option>Approval</option>
+                                            </select>
                                         </div>
 
-                                        <div class="mb-2 col-12 col-md-5">
-                                            <label for="exampleInputEmail1" class="form-label">End Date <span
-                                                    class="font-w900 text-danger">*</span> </label>
-                                            <input type="datetime-local" class="form-control" id="EndDate"
-                                                name="EndDate" />
-                                        </div>
+
 
                                         <div class="mb-3 col-12 col-md-5">
                                             <label for="select" class="form-label">Target Field <span
@@ -186,27 +137,13 @@
                                                     </div>
                                                 </div>
                                             </div>
-                                            <select id="targetStatus" name="target_status"
+                                            <select id="targetStatus" name="targetStatus"
                                                 class="form-control target-status" required>
                                                 <option value="" selected> Select Lead Status</option>
                                                 {{!-- Value comes dynamically --}}
 
                                             </select>
                                         </div>
-                                        <div class="mb-3 col-12 col-md-5">
-                                            <label for="select" class="form-label">Product<span
-                                                    class="font-w900 text-danger">*</span></label>
-                                            <input type="text" name="Product" id="Product" class="form-control"
-                                                value="">
-                                        </div>
-
-                                        <div class="mb-3 col-12 col-md-5">
-                                            <label for="select" class="form-label">Responsible Person<span
-                                                    class="font-w900 text-danger">*</span></label>
-                                            <input type="text" name="responsible_person" id="responsible_person"
-                                                class="form-control" value="{{username}}">
-                                        </div>
-
 
                                     </form>
                                     <div class="d-flex gap-2 col-md-12 col-12">
@@ -257,10 +194,13 @@
                                                         <input type="radio" name="fields" class="mx-2 rounded"
                                                             id="textField3" value="number">
                                                     </div>
-
-
+                                                    <div
+                                                        class="d-flex align-items-center col-md-2 col-3 justify-content-start">
+                                                        <label for="textField3" class="m-0 font-w500">Email</label>
+                                                        <input type="radio" name="fields" class="mx-2 rounded"
+                                                            id="textField4" value="email">
+                                                    </div>
                                                 </div>
-
 
                                                 <div class="my-2 mb-2">
                                                     <label for="lableName" class="form-label">Label Name</label>
@@ -339,68 +279,4 @@
 
         })
     });
-</script>
-<script>
-    document.addEventListener('DOMContentLoaded', function () {
-        const layoutMenuToggle = document.querySelector('.bx-menu');
-        const contentWrapper = document.querySelector('.content-wrapper');
-        const layOutackRemove = document.querySelector('.bx-chevron-left');
-
-        layoutMenuToggle.addEventListener('click', function () {
-            contentWrapper.classList.toggle('blur-body');
-        });
-
-        layOutackRemove.addEventListener('click', function () {
-            contentWrapper.classList.remove('blur-body');
-        });
-
-        const contactPerson = document.getElementById('contactNumber');
-        contactPerson.addEventListener('input', async (e) => {
-            const value = e.target.value.toLowerCase();
-            await getAllData(value);
-        });
-
-        async function getAllData(value) {
-            try {
-                const res = await fetch('/filter-contact', {
-                    method: "POST",
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({
-                        contact: value
-                    })
-                });
-                const data = await res.json();
-
-                if (data.success) {
-                    const contactCnt = document.querySelector('.contact_cnt');
-                    contactCnt.innerHTML = '';
-
-                    data.alldata.forEach(contact => {
-                        console.log(contact)
-                        const card = document.createElement('div');
-                        card.classList.add('card');
-                        card.innerHTML = `
-                                   <div class="wrapper d-flex gap-3 px-3 py-2 mx-auto my-1 border rounded-2 align-items-center" style="width: 80%;">
-                                                    <div class="img-no">
-                                                    <img class="rounded-circle" style="background-color: lightgray;" src="https://upload.wikimedia.org/wikipedia/commons/9/99/Sample_User_Icon.png"
-                                                        alt="" width="40" height="40">
-                                                </div>
-                                                 <div class="div">
-                                                     <small class="m-0 d-block">${contact.ClientName}</small>
-                                                  <small class="m-0 d-block">${contact.contactNumber}</small>
-                                                 </div>
-                                                </div>
-                               `;
-                        contactCnt.appendChild(card);
-                    });
-                }
-
-            } catch (error) {
-                console.error('Error fetching data:', error);
-            }
-        }
-    });
-
 </script>

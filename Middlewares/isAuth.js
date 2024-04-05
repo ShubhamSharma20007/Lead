@@ -6,7 +6,7 @@ const authenticate =(req,res,next)=>{
     }
     else{
         res.redirect('/')
-        // next()
+    
     }
 }
 

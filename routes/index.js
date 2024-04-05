@@ -5,6 +5,7 @@ const userModel = require("../models/userModel")
 const CustomFormField = require("../models/CustomFormField")
 const LeadData = require("../models/LeadData")
 const TimeTracker = require("../models/TimeTracker")
+const CalendarEvent = require("../models/calendarEvent")
 const con = require("../config/database");
 const bcrypt = require('bcryptjs');
 const { DataTypes } = require("sequelize");
@@ -21,6 +22,7 @@ const UserPageSecurity = require('../models/userPageSecurity');
 const fileUpload = require("express-fileupload");
 const path = require('path');
 const hbs = require('hbs');
+const ActivityModel = require('../models/Activity') 
 const fs = require('fs');
 const { google } = require('googleapis');
 const passport = require('passport');
@@ -172,9 +174,9 @@ hbs.registerHelper('formatFileSize', function (size) {
 hbs.registerHelper('truncateWords', function (text, maxWords) {
   var words = text.split(' ');
   if (words.length > maxWords) {
-      return words.slice(0, maxWords).join(' ') + '...';
+    return words.slice(0, maxWords).join(' ') + '...';
   } else {
-      return text;
+    return text;
   }
 });
 
@@ -302,7 +304,7 @@ router.get('/mail-inbox', ensureAuthenticated, async (req, res) => {
       });
       return emailResponse.data;
     }));
-    
+
     res.render('inbox', { user: req.user, emails });
   } catch (error) {
     console.error('Error fetching emails:', error);
@@ -338,7 +340,7 @@ router.get('/sentEmail', ensureAuthenticated, async (req, res) => {
       });
       return emailResponse.data;
     }));
-    
+
     res.render('sentMail', { user: req.user, sentEmails });
   } catch (error) {
     console.error('Error fetching sent emails:', error);
@@ -374,7 +376,7 @@ router.get('/spamEmail', ensureAuthenticated, async (req, res) => {
       });
       return emailResponse.data;
     }));
-    
+
     res.render('spamMail', { user: req.user, spamEmails });
   } catch (error) {
     console.error('Error fetching spam emails:', error);
@@ -410,7 +412,7 @@ router.get('/importantEmail', ensureAuthenticated, async (req, res) => {
       });
       return emailResponse.data;
     }));
-    
+
     res.render('importantMail', { user: req.user, importantEmails });
   } catch (error) {
     console.error('Error fetching important emails:', error);
@@ -446,7 +448,7 @@ router.get('/drafts', ensureAuthenticated, async (req, res) => {
       });
       return emailResponse.data;
     }));
-    
+
     res.render('drafts', { user: req.user, draftsEmails });
   } catch (error) {
     console.error('Error fetching drafts:', error);
@@ -482,7 +484,7 @@ router.get('/trashEmail', ensureAuthenticated, async (req, res) => {
       });
       return emailResponse.data;
     }));
-    
+
     res.render('trashMail', { user: req.user, trashEmails });
   } catch (error) {
     console.error('Error fetching trash emails:', error);
@@ -551,70 +553,70 @@ router.get('/email/:emailId', ensureAuthenticated, async (req, res) => {
 
 // Add this route to handle sending emails
 router.post('/sendGmail', ensureAuthenticated, async (req, res) => {
-    try {
-        const { to, cc, bcc, subject, body } = req.body;
-  
-        const oauth2Client = new google.auth.OAuth2();
-        oauth2Client.setCredentials({
-            access_token: req.user.accessToken,
-            refresh_token: req.user.refreshToken,
-            expiry_date: req.user.expiryDate
-        });
-  
-        const gmail = google.gmail({ version: 'v1', auth: oauth2Client });
-  
-        const attachment = req.files ? req.files.attachment : { mimetype: '', name: '', data: Buffer.from('')};
-  
-  
-        const emailLines = [
-            `To: ${to}`,
-            `Subject: ${subject}`,
-            `Cc: ${cc || ''}`,
-            `Bcc: ${bcc || ''}`,
-            '',
-            `${body}`
-        ];
-  
-        const rawEmail = emailLines.join('\n').trim();
-  
-        const messageParts = [
-            `From: "Your Name" <your-email@gmail.com>`,
-            `To: ${to}`,
-            `Cc: ${cc || ''}`,
-            `Bcc: ${bcc || ''}`,
-            `Subject: ${subject || ''}`,
-            'Content-Type: multipart/mixed; boundary="boundary"',
-            '',
-            `--boundary`,
-            `Content-Type: text/plain; charset="UTF-8"`,
-            '',
-            `${body}`,
-            `--boundary`,
-            `Content-Type: ${attachment.mimetype}; name="${attachment.name}"`,
-            'Content-Transfer-Encoding: base64',
-            '',
-            `${attachment.data.toString('base64')}`,
-            `--boundary--`
-        ];
-  
-        const message = messageParts.join('\n').trim();
-  
-        const encodedMessage = Buffer.from(message).toString('base64').replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
-  
-        await gmail.users.messages.send({
-            userId: 'me',
-            requestBody: {
-                raw: encodedMessage
-            }
-        });
-  
-        res.send('Email sent successfully');
-    } catch (error) {
-        console.error('Error sending email:', error);
-        res.status(500).send('Error sending email');
-    }
-  });
-  
+  try {
+    const { to, cc, bcc, subject, body } = req.body;
+
+    const oauth2Client = new google.auth.OAuth2();
+    oauth2Client.setCredentials({
+      access_token: req.user.accessToken,
+      refresh_token: req.user.refreshToken,
+      expiry_date: req.user.expiryDate
+    });
+
+    const gmail = google.gmail({ version: 'v1', auth: oauth2Client });
+
+    const attachment = req.files ? req.files.attachment : { mimetype: '', name: '', data: Buffer.from('') };
+
+
+    const emailLines = [
+      `To: ${to}`,
+      `Subject: ${subject}`,
+      `Cc: ${cc || ''}`,
+      `Bcc: ${bcc || ''}`,
+      '',
+      `${body}`
+    ];
+
+    const rawEmail = emailLines.join('\n').trim();
+
+    const messageParts = [
+      `From: "Your Name" <your-email@gmail.com>`,
+      `To: ${to}`,
+      `Cc: ${cc || ''}`,
+      `Bcc: ${bcc || ''}`,
+      `Subject: ${subject || ''}`,
+      'Content-Type: multipart/mixed; boundary="boundary"',
+      '',
+      `--boundary`,
+      `Content-Type: text/plain; charset="UTF-8"`,
+      '',
+      `${body}`,
+      `--boundary`,
+      `Content-Type: ${attachment.mimetype}; name="${attachment.name}"`,
+      'Content-Transfer-Encoding: base64',
+      '',
+      `${attachment.data.toString('base64')}`,
+      `--boundary--`
+    ];
+
+    const message = messageParts.join('\n').trim();
+
+    const encodedMessage = Buffer.from(message).toString('base64').replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+
+    await gmail.users.messages.send({
+      userId: 'me',
+      requestBody: {
+        raw: encodedMessage
+      }
+    });
+
+    res.send('Email sent successfully');
+  } catch (error) {
+    console.error('Error sending email:', error);
+    res.status(500).send('Error sending email');
+  }
+});
+
 
 // Middleware to check if user is authenticated
 
@@ -647,7 +649,7 @@ router.post("/login", async (req, res) => {
     req.session.user_group = findUser.user_group
     req.session.userImage = findUser.userImage
     req.session.employee_id = findUser.employee_id
- 
+
     res.status(200).json({ success: true, message: "Login successful" });
 
   } catch (error) {
@@ -667,11 +669,17 @@ router.get("/signup", (req, res) => {
 router.get('/leadManagement', isAuth, async function (req, res, next) {
   try {
     let userGroup = req.session.user_group;
+    let userEmail = req.session.email; // Assuming email is stored in session
     console.log(userGroup);
     let isAdmin = userGroup === "admin";
-    const newLeads = await LeadData.findAll({ where: { target_status: 'New Lead' } });
-    const contactInitiation = await LeadData.findAll({ where: { target_status: 'Contact Initiation' } });
-    const scheduleFollowUp = await LeadData.findAll({ where: { target_status: 'Schedule Follow Up' } });
+    let leadFilter = {}; // Initialize an empty filter object
+    // if (!isAdmin) {
+    //   // If user is not admin, filter by their email
+    //   leadFilter = { loginEmail: userEmail };
+    // }
+    const newLeads = await LeadData.findAll({ where: { target_status: 'New Lead', ...leadFilter } });
+    const contactInitiation = await LeadData.findAll({ where: { target_status: 'Contact Initiation', ...leadFilter } });
+    const scheduleFollowUp = await LeadData.findAll({ where: { target_status: 'Schedule Follow Up', ...leadFilter } });
 
     // Fetch other containers dynamically based on unique target statuses
     const otherContainers = await DashboardFieldModal.findAll({
@@ -689,12 +697,20 @@ router.get('/leadManagement', isAuth, async function (req, res, next) {
   }
 });
 
-router.get('/fetchDataForContainer/:fieldName', async (req, res) => {
+router.get('/fetchDataForContainer/:fieldName', isAuth, async (req, res) => {
   const { fieldName } = req.params;
+  const userGroup = req.session.user_group; // Assuming user group is stored in session
+  const userEmail = req.session.email; // Assuming email is stored in session
+
   try {
-    // Fetch data from LeadData table based on target_status
-    const leads = await LeadData.findAll({ where: { target_status: fieldName } });
-    // console.log('Fetched data for', fieldName, ':', leads); // Log fetched data
+    let leadFilter = {};
+
+    if (userGroup !== "admin" && userEmail) {
+      leadFilter = { loginEmail: userEmail };
+    }
+
+    // Fetch data from LeadData table based on target_status and user's email
+    const leads = await LeadData.findAll({ where: { target_status: fieldName, ...leadFilter } });
     res.status(200).json(leads);
   } catch (error) {
     console.error(`Error fetching data for ${fieldName}:`, error);
@@ -702,7 +718,17 @@ router.get('/fetchDataForContainer/:fieldName', async (req, res) => {
   }
 });
 
-
+router.get("/lead-store-data/:id", async (req, res) => {
+  try {
+    const storeval = await LeadData.findOne({ where: { id: req.params.id } })
+    if (!storeval) {
+      return res.status(404).json({ error: "lead not found" })
+    }
+    return res.status(200).json({ success: true, storeval })
+  } catch (error) {
+    return res.status(400).json({ success: false, error: error.message })
+  }
+})
 
 router.post('/updateTargetStatus', async (req, res) => {
   const { cardId, newTargetStatus } = req.body;
@@ -725,11 +751,12 @@ router.get("/logout", (req, res) => {
   res.redirect("/");
 });
 
-router.get("/customizeLeadform", function (req, res, next) {
+router.get("/customizeLeadform",isAuth, function (req, res, next) {
   let userGroup = req.session.user_group;
+  let username = req.session.username
   console.log(userGroup);
   let isAdmin = userGroup === "admin";
-  res.render("customizeLeadform", { title: "sumit", isAdmin: isAdmin });
+  res.render("customizeLeadform", { title: "sumit", isAdmin: isAdmin ,username});
 });
 
 // post custom field and alter lead table
@@ -1047,7 +1074,7 @@ router.post("/delete-option", async (req, res) => {
 router.get('/userName', async (req, res) => {
   try {
     const users = await userModel.findAll();
-    return res.status(200).json({ userName: req.session.username, users ,emp:req.session.employee_id })
+    return res.status(200).json({ userName: req.session.username, users, emp: req.session.employee_id })
   } catch (error) {
     return res.status(400).json({ error: error.message })
   }
@@ -1245,13 +1272,13 @@ router.get('/messages/:toId/stream', async (req, res) => {
   }
 });
 
-router.patch('/user-message/:id', async function(req, res) {
+router.patch('/user-message/:id', async function (req, res) {
   try {
     const { id } = req.params;
-    const { input_val } = req.body; 
+    const { input_val } = req.body;
     const message = await Message.update(
-      { message:input_val }, 
-      { where: { id } } 
+      { message: input_val },
+      { where: { id } }
     );
     return res.status(200).json({ success: true, allmessage: message });
   } catch (error) {
@@ -1473,19 +1500,18 @@ function logRoutes() {
     if (route.route && route.route.path && route.route.methods.get) {
       const path = route.route.path;
       Allroute.destroy({
-        truncate:true
+        truncate: true
       })
       Allroute.create({ page_name: path });
       console.log(path);
     }
   });
 }
-logRoutes(); 
-
+logRoutes();
 
 
 // user validate for pages
-router.post('/access-denied', async function(req, res) {
+router.post('/access-denied', async function (req, res) {
   try {
     const { userPk, pagePk, params } = req.body;
     const existingRecord = await UserPageSecurity.findOne({ where: { userPk, pagePk } });
@@ -1503,30 +1529,24 @@ router.post('/access-denied', async function(req, res) {
 });
 
 
-router.get('/access-denied',async(req,res)=>{
+router.get('/access-denied', async (req, res) => {
   try {
     const alldata = await UserPageSecurity.findAll();
-    console.log(alldata,2345678)
-    return res.status(200).json({succcess:true,alldata})
+    console.log(alldata, 2345678)
+    return res.status(200).json({ succcess: true, alldata })
   } catch (error) {
-    return res.status(500).json({success:false})
+    return res.status(500).json({ success: false })
   }
 })
 
-
 // time tracker get route
-router.get('/timetracker',isAuth, async function (req, res) {
-  res.render("TimeTracker") 
+router.get('/timetracker', async function (req, res) {
+  res.render("Timetracker")
 });
 
 router.get('/timetrackerGet', async function (req, res) {
   try {
-    // Assuming your TimeTracker model has a column named userId
-    const alldata = await TimeTracker.findAll({
-      where: {
-        userId: req.session.employee_id
-      }
-    });
+    const alldata = await TimeTracker.findAll();
     if (alldata.length > 0) {
       return res.status(200).json({ success: true, data: alldata });
     } else {
@@ -1539,19 +1559,23 @@ router.get('/timetrackerGet', async function (req, res) {
 });
 
 
+
 // time tracker update route
-router.put("/timetracker/:id",async (req,res)=>{
+
+router.put("/timetracker/:id", async (req, res) => {
   try {
-    const {id} = req.params;
-    const updateField = await TimeTracker.update(req.body,{where:{id}})
-    if(updateField){
-      return res.status(200).json({success:true,message:"data updated",updateField})
+    const { id } = req.params;
+    const updateField = await TimeTracker.update(req.body, { where: { id } })
+    if (updateField) {
+      return res.status(200).json({ success: true, message: "data updated", updateField })
     }
-    
+
   } catch (error) {
-    return res.status(500).json({success:false,message:"internal server error",error})
+    return res.status(500).json({ success: false, message: "internal server error", error })
   }
 })
+
+
 
 // time tracker post route
 router.post('/timetracker', async (req, res) => {
@@ -1578,9 +1602,175 @@ router.post('/timetracker', async (req, res) => {
   }
 });
 
+// time tracker delete row route
+router.delete('/timetracker/:id', async (req, res) => {
+  try {
+    const { id } = req.params
+    const delMess = await TimeTracker.destroy({ where: { id } })
+    if (delMess) {
+      return res.status(200).json({ msg: "data deleted", success: true })
+    }
+  } catch (error) {
+    return res.status(500).json({ msg: "internal server error", success: false, error })
+  }
+})
 
-router.get("/events",async(req,res)=>{
-  res.render("events")
+
+// calendar
+router.get("/calendar", (req, res) => {
+  res.render("calendar")
+})
+
+
+// calendar event route
+router.post("/events", async (req, res) => {
+  const { eventname, eventdate } = req.body;
+  try {
+    const data = await CalendarEvent.create({
+      eventdate: new Date(eventdate),
+      eventname: eventname,
+    });
+    console.log(req.body)
+    if (!data) {
+      return res.status(400).json({ success: false, message: "Data not stored" });
+    }
+    return res.status(200).json({ success: true, message: "Data stored", data });
+  } catch (error) {
+    return res.status(500).json({ success: false, message: "Internal server error", error });
+  }
+});
+
+router.get('/get-events', async (req, res) => {
+
+  try {
+    const allevent = await CalendarEvent.findAll();
+    console.log(allevent, 2345678)
+    if (allevent.length > 0) {
+      return res.status(200).json({ success: true, data: allevent });
+    }
+    else {
+      return res.status(404).json({ success: false, message: 'No data found' });
+    }
+  } catch (error) {
+    return res.status(500).json({ success: false, message: 'Internal server error' });
+  }
+})
+
+router.post('/leads', function (req, res) {
+  const leadData = req.body;
+  const customFieldsMap = {
+    'ClientName': 'ClientName',
+    'contactNumber': 'contactNumber',
+    'Stage': 'Stage', // Assuming 'Stage' corresponds to 'selectstatus'
+    'Amount': 'Amount',
+    'DealType': 'DealType',
+    'StartDate': 'StartDate',
+    'EndDate': 'EndDate',
+    'target_status': 'target_status',
+    'responsible_person': 'responsible_person',
+    'Product': 'Product',
+    'companyName' : 'companyName',
+    'email' : 'email',
+    // You don't need to map 'createdAt' and 'updatedAt' as they are handled by MySQL
+  };
+
+  // Construct SQL query to insert data into lead_data table
+  let insertQuery = `INSERT INTO leads (`;
+
+  // Prepare column names and values for the SQL query
+  const columnNames = [];
+  const columnValues = [];
+
+  // Iterate through each field in leadData
+  for (const field in leadData) {
+    if (leadData.hasOwnProperty(field)) {
+      // Map custom field names to fixed field names
+      if (customFieldsMap.hasOwnProperty(field)) {
+        columnNames.push(customFieldsMap[field]);
+      } else {
+        columnNames.push(field);
+      }
+      columnValues.push(`'${leadData[field]}'`);
+    }
+  }
+
+  // Add createdAt and updatedAt fields with current timestamp
+  columnNames.push('createdAt', 'updatedAt');
+  const currentDate = new Date().toISOString().slice(0, 19).replace('T', ' ');
+  columnValues.push(`'${currentDate}'`, `'${currentDate}'`);
+
+  columnNames.push('employee_id', 'loginEmail');
+  columnValues.push(`'${req.session.employee_id}'`, `'${req.session.email}'`);
+
+  insertQuery += columnNames.join(', ');
+  insertQuery += `) VALUES (`;
+  insertQuery += columnValues.join(', ');
+  insertQuery += `);`;
+
+  // Execute the insert query
+  con.query(insertQuery, function (error, results) {
+    if (error) {
+      console.error(error);
+      return res.status(500).json({ success: false, error: "Database error" });
+    }
+
+  });
+  res.status(200).json({ success: true, message: "Lead data inserted successfully" });
+
+});
+
+
+// activity route
+
+router.post("/activity", async (req, res) => {
+  try {
+    const { lead_id, activity } = req.body;
+    const newActivity = await ActivityModel.create({
+      lead_id: lead_id,
+      activity: activity
+    });
+    res.status(201).json({ message: "Activity created successfully", data: newActivity });
+  } catch (error) {
+    console.error("Error creating activity:", error);
+    res.status(500).json({ message: "Failed to create activity" });
+  }
+});
+
+router.get('/activities/:lead_id', async (req, res) => {
+  const lead_id = req.params.lead_id;
+
+  try {
+      const activities = await ActivityModel.findAll({
+          where: {
+              lead_id: lead_id
+          }
+      });
+
+      res.status(200).json(activities);
+  } catch (err) {
+      console.error(err);
+      res.status(500).json({ message: 'Internal Server Error' });
+  }
+});
+
+
+router.post('/filter-contact', async (req, res) => {
+  const { contact } = req.body;
+  try {
+    const alldata = await LeadData.findAll({
+      where: {
+        ClientName: {
+          [Op.like]: `%${contact}%` 
+        }
+      }
+    });
+
+    
+
+    return res.status(200).json({ success: true, alldata });
+  } catch (error) {
+    return res.status(500).json({ success: false, error });
+  }
 });
 
 module.exports = router;

@@ -1,39 +1,35 @@
- <form id="composeForm" action="/sendGmail" method="POST"
-                                                        class="form d-none" enctype="multipart/form-data">
-                                                        <p class="form-title">Compose Box</p>
-                                                        <div class="input-container">
-                                                            <label for="to">TO:</label>
-                                                            <input name="to" placeholder="Type email" type="email"
-                                                                required>
-                                                        </div>
-                                                        <div class="input-container">
-                                                            <label for="cc">CC:</label>
-                                                            <input name="cc" placeholder="Type email" type="email">
-                                                        </div>
-                                                        <div class="input-container">
-                                                            <label for="bcc">BCC:</label>
-                                                            <input name="bcc" placeholder="Type email" type="email">
-                                                        </div>
-                                                        <div class="input-container">
-                                                            <label for="subject">Subject:</label>
-                                                            <input name="subject" placeholder="Subject" type="text"
-                                                                required>
-                                                        </div>
-                                                        <div class="input-container">
-                                                            <label for="message">Message:</label>
-                                                            <textarea name="body" id="body" cols="80" rows="10"
-                                                                required></textarea>
-                                                        </div>
-                                                        <div style="display: flex; gap:10px; align-items:center">
-                                                            <button class="submit" type="submit">SEND</button>
-                                                            <input type="file" name="attachment" id="attachment" hidden
-                                                                class="attachInput">
-                                                            <label for="attachment" class="attachBtn">
-                                                                    <i class="ri-attachment-2 " style="font-size: 20px;"></i></label>
-                                                            <span id="attachedFileName"></span>
-                                                        </div>
-                                                    </form>
-                                                
+<form id="composeForm" action="/sendGmail" method="POST" class="form d-none" enctype="multipart/form-data">
+    <p class="form-title"><i class="ri-close-line"></i>Compose Box </p>
+    <div class="input-container">
+        <label for="to">TO:</label>
+        <input name="to" placeholder="Type email" type="email" required>
+    </div>
+    <div class="input-container">
+        <label for="cc">CC:</label>
+        <input name="cc" placeholder="Type email" type="email">
+    </div>
+    <div class="input-container">
+        <label for="bcc">BCC:</label>
+        <input name="bcc" placeholder="Type email" type="email">
+    </div>
+    <div class="input-container">
+        <label for="subject">Subject:</label>
+        <input name="subject" placeholder="Subject" type="text" required>
+    </div>
+    <div class="input-container">
+        <label for="message">Message:</label>
+        <textarea name="body" id="body" cols="50" rows="5" required></textarea>
+    </div>
+    <div style="display: flex; gap:10px; align-items:center">
+        <button class="submit" type="submit">SEND</button>
+        <input type="file" name="attachment" id="attachment" hidden class="attachInput">
+        <label for="attachment" class="attachBtn"><i class="ri-attachment-2"></i></label>
+        <span id="attachedFileName"></span>
+    </div>
+</form>
+
+
+
 <script>
     const attachBtn = document.querySelector('.attachBtn');
     const attachInput = document.querySelector('.attachInput');
@@ -41,15 +37,21 @@
 
 
     attachInput.addEventListener('change', () => {
-        const file = attachInput.files[0] ;
-        attachedFileName.textContent = file ? file.name : '';
+        const file = attachInput.files[0];
+        attachedFileName.textContent = file ? file.name : ''; // Show the selected file name
     });
 </script>
 
 <script>
     document.addEventListener('DOMContentLoaded', function () {
         const aside_compose = document.querySelector('.aside-compose');
+        const ri_close_line = document.querySelector('.ri-close-line')
         aside_compose.addEventListener('click', function () {
+            const form = document.querySelector('.form');
+            form.classList.toggle('d-none');
+        });
+        
+        ri_close_line.addEventListener('click', function () {
             const form = document.querySelector('.form');
             form.classList.toggle('d-none');
         });
@@ -58,14 +60,18 @@
 </script>
 
 <script>
-        const attachInput = document.querySelector('.attachInput');
+    const attachInput = document.querySelector('.attachInput');
     document.getElementById('composeForm').addEventListener('submit', async function (event) {
         event.preventDefault(); // Prevent the default form submission
 
         const form = event.target;
         const formData = new FormData(form);
         const serializedData = Object.fromEntries(formData)
-         console.log(Object.fromEntries(formData))
+        console.log(Object.fromEntries(formData))
+        /*     const serializedData = {};
+             formData.forEach(function (value, key) {
+                 serializedData[key] = value;
+             }); */
 
         try {
             const response = await fetch('/sendGmail', {
@@ -95,11 +101,16 @@
 </script>
 
 <style>
+    .ri-close-line {
+        display: flex;
+        justify-content: right;
+    }
+
     .form {
         position: absolute;
         top: 50%;
-        left: 50%;
-        transform: translate(-50%, -50%);
+        left: 62%;
+        transform: translate(0%, -50%);
     }
 
     .input-container {
@@ -125,10 +136,10 @@
     }
 
     .form {
-        background-color: #fff;
+        background: #fff;
         display: block;
         padding: 2px 15px 2px 13px;
-        max-width: 625px;
+        max-width: 458px;
         border-radius: 0.5rem;
         box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
     }
@@ -200,8 +211,6 @@
         display: block;
         padding-top: 0.5rem;
         padding-bottom: 0.5rem;
-        padding-left: 1.25rem;
-        padding-right: 1.25rem;
         background-color: #4F46E5;
         color: #ffffff;
         font-size: 0.875rem;
@@ -277,7 +286,6 @@
     }
 
     .inbox-wrapper .email-aside .aside-content .aside-compose {
-        text-align: center;
         padding: 14px 0;
     }
 
@@ -1166,12 +1174,11 @@
         border-bottom-style: solid !important;
     }
 </style>
-{{!-- <script>
+<script>
     const cnt = document.querySelector('.cnt_contact')
     const btn = document.querySelector('.btn-block')
     btn.addEventListener('click', () => {
         cnt.classList.toggle('block_cnt')
     })
 
-</script> --}}
-
+</script>

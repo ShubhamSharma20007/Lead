@@ -95,13 +95,12 @@
                                                             <p class="description">{{ user.email }}</p>
                                                         </div>
                                                         <div class="aside-compose">
-                                                            <a class="btn btn-primary btn-block"
-                                                                style="color: white;">Compose Email</a>
+                                                            <a class="btn btn-primary btn-block" style="color: white;">Compose Email</a>
 
                                                         </div>
                                                         <div class="aside-nav collapse">
                                                             <ul class="nav">
-                                                                <li class="active"><a href="/mail-inbox"><span
+                                                                <li><a href="/mail-inbox"><span
                                                                             class="icon"><svg
                                                                                 xmlns="http://www.w3.org/2000/svg"
                                                                                 width="24" height="24"
@@ -132,7 +131,7 @@
                                                                                 <polyline points="22,6 12,13 2,6">
                                                                                 </polyline>
                                                                             </svg></span>Sent Mail</a></li>
-                                                                <li><a href="/importantEmail"><span class="icon"><svg
+                                                                <li class="active"><a href="/importantEmail"><span class="icon"><svg
                                                                                 xmlns="http://www.w3.org/2000/svg"
                                                                                 width="24" height="24"
                                                                                 viewBox="0 0 24 24" fill="none"
@@ -243,7 +242,7 @@
                                                             style="height: 500px; overflow-y: auto;">
                                                             <div class="table-responsive">
                                                                 <table class="table" style="width: 100%;">
-                                                                    {{#each emails}}
+                                                                    {{#each importantEmails}}
                                                                     <tbody>
                                                                         <tr>
                                                                             <td class="action"><input type="checkbox" />
@@ -274,9 +273,9 @@
 
                                                 </div>
                                                 <div class="col-md-6 col-12">
+                                                   
 
-
-                                                    {{>Composemail}}
+                                        {{>Composemail}}
                                                 </div>
 
 

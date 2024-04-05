@@ -4,11 +4,10 @@
 		padding: 0px;
 	}
 
-	.layout-navbar {
-		background-color: rgb(255 223 223 / 66%) !important;
-		backdrop-filter: saturate(200%) blur(6px);
-	}
-
+.layout-navbar {
+    background-color: rgb(255 223 223 / 66%) !important;
+    backdrop-filter: saturate(200%) blur(6px);
+}
 	.bubble {
 		cursor: default;
 	}
@@ -157,11 +156,6 @@
 		left: 12px;
 		border: 3px solid #fff;
 		height: 68px;
-	}
-
-	.nav-search {
-		margin-right: 2vw;
-		border: 1px solid rgb(153, 151, 151) !important;
 	}
 
 	.friend p {
@@ -648,55 +642,11 @@
 	.table> :not(caption)>*>* {
 		padding: 0px 3px !important;
 	}
-
 	.fs-4 {
 		position: relative;
-		left: 150px;
+	    left: 150px;
 		font-size: 18px !important;
 	}
-
-
-	/* btn css */
-	.cssbuttons-io-button {
-		display: flex;
-		align-items: center;
-		font-family: inherit;
-		font-weight: 500;
-		font-size: 12px;
-		padding: 0.7em 1.2em 0.7em 1em;
-		color: white;
-		background: #ad5389;
-		background: linear-gradient(0deg, rgba(20, 167, 62, 1) 0%, rgba(102, 247, 113, 1) 100%);
-		border: none;
-		
-		letter-spacing: 0.05em;
-		border-radius: 5px;
-		position: relative;
-	}
-
-	.cssbuttons-io-button::after {
-		content: '';
-		position: absolute;
-		top: 100%;
-		left: 60%;
-		rotate: 180deg;
-		width: 0;
-		height: 0;
-		border-left: 10px solid transparent;
-		border-right: 10px solid transparent;
-		border-bottom: 10px solid rgba(20, 167, 62, 1);
-	}
-
-	.cssbuttons-io-button svg {
-		margin-right: 6px;
-		font-size: 10px;
-	}
-
-	.cssbuttons-io-button:hover {
-		box-shadow: 0 0.5em 1.5em -0.5em #14a73e98;
-	}
-
-
 </style>
 
 <nav class="layout-navbar container-xxl navbar navbar-expand-xl navbar-detached align-items-center bg-navbar-theme"
@@ -766,20 +716,10 @@
 		<div class="navbar-nav align-items-center">
 			<div class="nav-item d-flex align-items-center">
 				<i class="bx bx-search fs-4 lh-0"></i>
-				<input type="text" class="border-0 shadow-none ps-1 ps-sm-2 nav-search" placeholder="Search..."
+				<input type="text" class="border-0 shadow-none ps-1 ps-sm-2" placeholder="Search..."
 					aria-label="Search..." style="background: none;">
 			</div>
 		</div>
-		
-		<button class="cssbuttons-io-button">
-			<a href="/customizeLeadform" class="text-white">
-				<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="15" height="15">
-				<path fill="none" d="M0 0h24v24H0z"></path>
-				<path fill="currentColor" d="M11 11V5h2v6h6v2h-6v6h-2v-6H5v-2z"></path>
-			</svg>
-			<span>Create</span>
-			</a>
-		</button>
 		<!-- /Search -->
 
 		<ul class="navbar-nav flex-row align-items-center ms-auto">
@@ -861,7 +801,6 @@
 		</ul>
 	</div>
 </nav>
-
 <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/js/toastr.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@10"></script>
 <script>
@@ -1535,8 +1474,6 @@
 
 
 </script>
-
-
 
 
 <!-- Include Socket.IO client library -->

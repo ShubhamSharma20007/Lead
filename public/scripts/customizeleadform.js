@@ -166,7 +166,7 @@ async function getLeadData() {
     console.log(obj);
 
     try {
-        const res = await fetch('/lead_data', {
+        const res = await fetch('/leads', {
             headers: {
                 'Content-Type': 'application/json'
             },
@@ -193,13 +193,13 @@ async function getLeadData() {
                 window.location.reload();
             }, 1500);
         } else {
-            throw new Error('Failed to store data');
+            throw new Error(response.error || 'Failed to store data');
         }
     } catch (error) {
         console.error(error);
         // Show error message
         Toastify({
-            text: "Failed to store data",
+            text: error.message || "Failed to store data",
             gravity: "top",
             duration: 3000,
             close: true,
@@ -211,6 +211,7 @@ async function getLeadData() {
         }).showToast();
     }
 }
+
 
 
 

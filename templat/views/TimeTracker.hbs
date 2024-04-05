@@ -259,11 +259,11 @@
                             <div class="heading w-100 d-flex justify-content-between rounded-top  p-4 align-items-center p-0"
                                 style="background-color: antiquewhite;">
 
-                                <div class="total_cnt d-flex justify-content-between align-items-center w-100"
+                                <div class="total_cnt d-flex justify-content-center align-items-center"
                                     style="gap: 15px;">
                                     <h6 class="m-0">Total</h6>
                                     <input type="text" name="" value={{userId}} id="useremp_id" class="d-none">
-                                    <div class="timer output_timer d-flex justify-content-center align-items-center"
+                                    <div class="timer d-flex justify-content-center align-items-center"
                                         style="gap: 15px">
                                         <p class="hour m-0">00</p>
                                         :
@@ -320,26 +320,11 @@
 
 <script>
 
-    function outputTime(totalTime){
-        const totlaTime_cnt =  document.querySelector('.output_timer')
-        let t_hour =totlaTime_cnt .querySelector('.hour')
-        let t_minute =totlaTime_cnt .querySelector('.minute')
-        let t_second =totlaTime_cnt .querySelector('.second')
-          let sum =  totalTime?.data.reduce((acc,curr)=>{
-                return acc + parseInt(curr.totalTime)
-          },0)
-
-        t_second.textContent = sum < 10 || sum % 60 == 0 ? `0${Math.floor(sum % 60)}` : Math.floor(sum % 60);   
-        t_minute.textContent = sum < 10 || sum % 60 == 0 ? `0${Math.floor(sum / 60) % 60}` : Math.floor(sum / 60) % 60;
-        t_hour.textContent = sum < 10 || sum % 60 == 0 ? `0${Math.floor(sum / 3600) % 60}` : Math.floor(sum / 3600) % 60;
-    }
-
 
     async function fetchAndDisplayData() {
         try {
             const response = await fetch('/timetrackerGet');
             const data = await response.json();
-            outputTime(data)
             if (data.success) {
                 const dataholder = document.querySelector(".data_holder");
 
@@ -355,8 +340,7 @@
           <div class="dets d-flex justify-content-between align-items-center">
               <div class="input-container2 d-flex gap-3 align-items-center">
                   <input type="text"  placeholder="Enter your name" id="text_${item.id}" value="${item.taskName}" name="text" id="text" class="input-field input-taskName_field" autocomplete="name" readonly>
-                   <i class="ri-edit-line" onclick="updateField('${item.id}')"></i>    
-                   <i class="ri-close-line" onclick="deleteField('${item.id}')"></i> 
+                   <i class="ri-edit-line" onclick="updateField('${item.id}')"></i>     
               </div>
               <div class="row_time">
                   <div class="timer d-flex justify-content-center align-items-center" style="gap: 15px">
@@ -498,8 +482,6 @@
                             taskhour.textContent = '00';
                             taskminute.textContent = '00';
                             tasksecond.textContent = '00';
-                            fetchAndDisplayData()
-
                             return;
                         }
 
@@ -531,25 +513,6 @@
     showData();
 </script>
 
-
-<script>
- async  function deleteField(removeid){
-      const prompt = confirm("Are you sure you want to delete this task?");
-    if(prompt){
-          const res = await fetch(`/timetracker/${removeid}`,{
-            method:'DELETE',
-            headers:{
-                'Content-Type':'application/json'
-            }
-        })
-        const data = await res.json()
-        if(data.success){
-            fetchAndDisplayData()
-        }
-    }
-
-    }
-</script>
 
 
 

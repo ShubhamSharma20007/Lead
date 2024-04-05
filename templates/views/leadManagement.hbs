@@ -42,9 +42,832 @@
   <script src="/assets/js/config.js"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/css/toastr.min.css">
 
+
+  {{!-- boostrap link --}}
+  <!-- CSS Files -->
+  <link rel="stylesheet" href="https://unpkg.com/bootstrap@5.3.2/dist/css/bootstrap.min.css" />
+  <link rel="stylesheet"
+    href="https://unpkg.com/bs-brain@2.0.3/components/contacts/contact-5/assets/css/contact-5.css" />
+
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Livvic:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,900&display=swap');
+
+    input {
+      border-radius: 4px;
+      margin: 3px 0px;
+      border: none;
+      width: 100%;
+      padding: 4px 8px;
+      font-size: 13px;
+    }
+
+    label {
+      display: block;
+    }
+
+    .save-button {
+      margin-left: 7%;
+      border: none;
+      color: #fff;
+      background-color: #696cff;
+      border-color: #696cff;
+      box-shadow: 0 0.125rem 0.25rem 0 rgba(105, 108, 255, 0.4);
+      padding: 7px 20px;
+      border-radius: 4px;
+    }
+
+    .bg-transparent {
+      box-shadow: none;
+    }
+
+    .drag-container {
+      position: fixed;
+      left: 0;
+      top: 0;
+      z-index: 1000;
+    }
+
+    .board {
+      position: relative;
+      display: flex;
+      /* Add flex display to arrange columns horizontally */
+      overflow-x: auto;
+      /* Add horizontal scrolling */
+      width: calc(350px * 4);
+      /* Adjust the width based on the number of columns */
+    }
+
+    .board-column {
+      width: 350px;
+      /* Set fixed width for each column */
+
+      /* Add some space between columns */
+    }
+
+
+    .board-container {
+      overflow-x: auto;
+      /* Enable horizontal scrolling */
+    }
+
+    .board {
+      position: relative;
+      display: flex;
+      /* Add flex display to arrange columns horizontally */
+    }
+
+    .board-column {
+      width: 350px;
+      /* Set fixed width for each column */
+
+    }
+
+    .board-column.muuri-item-releasing {
+      z-index: 2;
+    }
+
+    .board-column.muuri-item-dragging {
+      z-index: 3;
+      cursor: move;
+    }
+
+    .board-column-container {
+      position: relative;
+      width: 100%;
+      height: 100%;
+      box-shadow: none !important;
+
+    }
+
+    .board-column {
+      width: 280px;
+    }
+
+    .board-column-content-wrapper,
+    .board-column-header {
+      width: 235px !important;
+    }
+
+    .board-column-header {
+      position: relative;
+      height: 50px;
+      line-height: 50px;
+      overflow: hidden;
+      padding: 0 20px;
+      text-align: justify;
+      color: #121212e3;
+      border-radius: 5px 5px 0 0;
+      font-size: 15px;
+      font-weight: 600;
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+      /*  background: #f0f0f066; */
+      font-family: 'Livvic', sans-serif;
+    }
+
+
+
+
+    .board-column-content-wrapper {
+      position: relative;
+      padding: 8px;
+      /*  background: #f0f0f066; */
+      height: calc(100vh - 90px);
+      /*   overflow-y: auto; */
+      border-radius: 0 0 5px 5px;
+    }
+
+    .board-column-content {
+      position: relative;
+      min-height: 100%;
+
+    }
+
+    .board-item {
+      position: relative;
+      width: calc(100% - 16px);
+      margin: 8px;
+
+    }
+
+    .board-item.muuri-item-releasing {
+      z-index: 9998;
+    }
+
+    .board-item.muuri-item-dragging {
+      z-index: 9999;
+      cursor: move;
+    }
+
+    .board-item.muuri-item-hidden {
+      z-index: 0;
+    }
+
+    .board-item-content {
+      position: relative;
+      border-radius: 4px;
+      font-size: 17px;
+      cursor: pointer;
+
+    }
+
+    @media (max-width: 600px) {
+      .board-item-content {
+        text-align: center;
+      }
+
+      .board-item-content span {
+        display: none;
+      }
+    }
+
+    dialog {
+      width: 40%;
+      min-height: 30%;
+      position: absolute;
+      border: 1px solid lightgray;
+      border-radius: 10px;
+      padding: 20px;
+      left: 50%;
+      top: 50%;
+      transform: translate(-50%, -50%);
+    }
+
+    input::-webkit-outer-spin-button,
+    input::-webkit-inner-spin-button {
+      -webkit-appearance: none;
+      margin: 0;
+    }
+
+    .new-class {
+      text-transform: capitalize;
+    }
+
+    #lableName {
+      border: 1px solid rgb(185, 185, 185);
+      height: 40px;
+    }
+
+    .form-control {
+      height: 40px !important;
+      border: 1px solid rgb(235, 233, 233);
+    }
+
+    p {
+      text-transform: capitalize !important;
+    }
+
+    .board-item-content {
+      min-height: 200px;
+      max-height: 300px !important;
+      overflow-y: scroll !important;
+      font-family: "Overpass", sans-serif !important;
+      background: #faebd7b5 !important;
+      font-size: 0.999rem !important;
+      border-radius: 8px !important;
+      line-height: 1.5;
+      background-image: url(https://node.scaleedge.in/assets/images/dashboard/circle.svg) !important;
+      background-position: start;
+      background-size: cover !important;
+      background-repeat: no-repeat;
+    }
+
+    .board-item-content::-webkit-scrollbar {
+      width: 0px
+    }
+
+    .slide-container::-webkit-scrollbar {
+
+      height: 9px;
+    }
+
+    .slide-container::-webkit-scrollbar-thumb {
+      background-color: #8888888f;
+      border-radius: 10px;
+    }
+
+    .slide-container::-webkit-scrollbar-track {
+      background-color: #f1f1f1;
+      border-radius: 10px;
+    }
+
+    .plan {
+      box-shadow: rgba(14, 30, 37, 0.12) 0px 2px 4px 0px, rgba(14, 30, 37, 0.32) 0px 2px 16px 0px !important;
+      padding: 6px;
+      background-color: #f0f0f066;
+      color: #697e91;
+      max-width: 300px;
+    }
+
+    .plan strong {
+      font-weight: 600;
+      color: #425275;
+    }
+
+
+
+    .plan .inner {
+      align-items: center;
+      padding: 6px 10px;
+      border-radius: 12px;
+
+    }
+
+    .plan .pricing {
+      position: absolute;
+      top: 0;
+      right: 0;
+      border-radius: 99em 0 0 99em;
+      display: flex;
+      align-items: center;
+      padding: 0.625em 0.75em;
+      font-size: 1.25rem;
+      font-weight: 600;
+      color: #425475;
+    }
+
+    .plan .pricing small {
+      color: #707a91;
+      font-size: 0.75em;
+      margin-left: 0.25em;
+    }
+
+    .plan .title {
+      font-weight: 600;
+      font-size: 1.25rem;
+      color: #425675;
+    }
+
+    .plan .title+* {
+      margin-top: 0.75rem;
+    }
+
+    .plan .info+* {
+      margin-top: 1rem;
+    }
+
+    .plan .features {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .plan .features li {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .plan .features li+* {
+      margin-top: 0.75rem;
+    }
+
+    .plan .features .icon {
+      background-color: #1FCAC5;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      color: #fff;
+      border-radius: 50%;
+      width: 20px;
+      height: 20px;
+    }
+
+    .plan .features .icon svg {
+      width: 14px;
+      height: 14px;
+    }
+
+    .plan .features+* {
+      margin-top: 1.25rem;
+    }
+
+    .plan .action {
+      width: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: end;
+    }
+
+    .plan .button {
+      background-color: #6558d3;
+      border-radius: 6px;
+      color: #fff;
+      font-weight: 500;
+      font-size: 1.125rem;
+      text-align: center;
+      border: 0;
+      outline: 0;
+      width: 100%;
+      padding: 0.625em 0.75em;
+      text-decoration: none;
+    }
+
+    .plan .button:hover,
+    .plan .button:focus {
+      background-color: #4133B7;
+    }
+  </style>
+  <style>
+    .cookie-card {
+      max-width: 320px;
+      min-height: 150px;
+      margin: 8px;
+      padding: 0.8rem;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      background-color: #fff;
+      border-radius: 10px;
+      box-shadow: rgba(149, 157, 165, 0.2) 0px 8px 24px;
+    }
+
+    .title {
+      font-weight: 600;
+      color: rgb(31 41 55);
+    }
+
+    .description {
+      margin-top: 1rem;
+      font-size: 0.875rem;
+      line-height: 1.25rem;
+      color: rgb(75 85 99);
+    }
+
+    .description a {
+      --tw-text-opacity: 1;
+      color: rgb(59 130 246);
+    }
+
+    .description a:hover {
+      -webkit-text-decoration-line: underline;
+      text-decoration-line: underline;
+    }
+
+    .actions {
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      margin-top: 1rem;
+      -moz-column-gap: 1rem;
+      column-gap: 1rem;
+      flex-shrink: 0;
+    }
+
+    .pref {
+      font-size: 0.75rem;
+      line-height: 1rem;
+      color: rgb(31 41 55);
+      -webkit-text-decoration-line: underline;
+      text-decoration-line: underline;
+      transition: all .3s cubic-bezier(0.4, 0, 0.2, 1);
+      border: none;
+      background-color: transparent;
+    }
+
+    .pref:hover {
+      color: rgb(156 163 175);
+    }
+
+    .pref:focus {
+      outline: 2px solid transparent;
+      outline-offset: 2px;
+    }
+
+    .accept {
+      font-size: 0.60rem;
+      line-height: 1rem;
+      background-color: rgb(17 24 39);
+      font-weight: 500;
+      border-radius: 50%;
+      color: #fff;
+      padding: 5px 8.5px;
+
+      border: none;
+      transition: all .15s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .accept:hover {
+      background-color: rgb(55 65 81);
+    }
+
+    .accept:focus {
+      outline: 2px solid transparent;
+      outline-offset: 2px;
+    }
+
+    .details_container {
+      transition: width 0.6s ease-in-out;
+      width: 0%;
+      display: none;
+
+    }
+
+    .w-75 {
+      width: 75%;
+    }
+
+    .close_side {
+      padding: 9px 10px;
+    }
+
+    .borderB {
+      padding-bottom: 4px;
+      border-bottom: 3px solid #435971;
+    }
+
+    .contact-cards {
+      position: absolute;
+      top: 100%;
+      right: 0;
+      width: 70%;
+      height: 32%;
+      border-radius: 10px;
+      background: white;
+      justify-content: center;
+      align-items: center;
+      gap: 10px;
+      box-shadow: rgba(149, 157, 165, 0.2) 0px 8px 24px;
+      display: none;
+    }
+
+    .paginationBtn {
+      position: relative;
+    }
+
+    .paginationBtn::before {
+      position: absolute;
+      content: '';
+      width: 0;
+      height: 1.3px;
+      left: 0;
+      bottom: -5px;
+      transition: all 0.3s ease-in-out;
+      background-color: #435971;
+
+    }
+
+    .paginationBtn:hover::before {
+      width: 100%;
+    }
+
+    /*.ri-information-2-fill:hover{
+      background: orange;
+    } */
+
+    .activity_sec {
+      height: 110px;
+      width: 250px;
+      left: -20px;
+      top: -10px;
+      border-radius: 10px;
+      position: relative;
+      box-shadow: rgba(0, 0, 0, 0.15) 1.95px 1.95px 2.6px;
+    }
+
+    .activity_sec::before {
+      position: absolute;
+      content: '';
+      border-left: 12px solid transparent;
+      border-right: 12px solid transparent;
+      border-top: 12px solid white;
+      top: 100%;
+      filter: drop-shadow(rgba(0, 0, 0, 0.15) 0px 1.95px 2.6px) drop-shadow(rgba(0, 0, 0, 0.15) 0px 1.95px 2.6px);
+
+      left: 40px;
+    }
+
+    .activity_sec {
+      display: none;
+    }
+
+    .coolinput {
+      display: flex;
+      flex-direction: column;
+      width: fit-content;
+      position: static;
+      width: 90%;
+      margin: 0 auto;
+      margin-top: 13px;
+    }
+
+    .coolinput label.text {
+      font-size: 0.75rem;
+      color: #818CF8;
+      font-weight: 700;
+      position: relative;
+      top: 0.5rem;
+      margin: 0 0 0 7px;
+      padding: 0 3px;
+
+      width: fit-content;
+    }
+
+    .coolinput input[type=text].input {
+      padding: 8px 10px;
+      font-size: 0.75rem;
+      border: 2px #818df867 solid;
+      border-radius: 5px;
+      background: #e8e8e8;
+    }
+
+    .coolinput input[type=text].input:focus {
+      outline: none;
+    }
+
+    .btns_sec {
+      margin-top: 12px !important;
+      width: 90%;
+      margin: 0 auto;
+      display: flex;
+      justify-items: start;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .sub_btn {
+      font-weight: normal;
+      color: white;
+      border-radius: 2rem;
+      cursor: pointer;
+      width: 62.02px;
+      height: 30.66px;
+      border: none;
+      background-color: #3653f8;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-size: 0.7rem;
+    }
+
+    .cen_btn {
+      font-weight: normal;
+      color: black;
+      border-radius: 2rem;
+      cursor: pointer;
+      width: 62.02px;
+      height: 30.66px;
+      border: 1px solid rgb(165, 164, 164);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-size: 0.7rem;
+    }
+
+    .activity_data {
+      overflow: auto;
+      min-height: 120px;
+      max-height: 140px;
+      width: 250px;
+      top: 50px;
+      left: 100px;
+      border-radius: 10px;
+      position: absolute;
+      background-color: white;
+      box-shadow: rgba(17, 17, 26, 0.1) 0px 4px 16px, rgba(17, 17, 26, 0.05) 0px 8px 32px;
+      display: none;
+
+    }
+
+    .acti-name {
+      white-space: nowrap;
+      overflow-x: auto;
+     /* margin-bottom: 8px; */
+     /* padding: 8px 0; */
+
+    }
+
+    .acti-name::-webkit-scrollbar {
+      height: 5px;
+    }
+
+    .line {
+      width: 98%;
+      margin: 0 auto;
+      height: 1px;
+      margin-top: 9px;
+      background-color: lightgray;
+    }
+  </style>
 </head>
 
 <body>
+  <div class="details_container position-absolute bg-white end-0 border" style="z-index: 1100;min-height: 120vh">
+    <div class="w-full h-full p-4">
+      <div class="w-full mb-4 mt-2 d-flex justify-content-end align-content-center">
+        <i class="ri-close-large-line bg-black text-white close_side rounded-circle d-inline-block  h5 "></i>
+      </div>
+      <div class="row tabs align-content-center">
+        <div class="w-full d-flex align-items-center  gap-3 tabs_heading">
+          <h5 class="borderB cursor-pointer">General</h5>
+          <h5 class="cursor-pointer">Activity</h5>
+          <h5 class="cursor-pointer">Product</h5>
+          <h5 class="cursor-pointer">Listing</h5>
+        </div>
+        <div class="data-container block mt-4  mh-100 overflow-auto w-full">
+
+
+          <div class="data-values">
+            <div class="row gy-4 gy-md-5 gy-lg-0 align-items-md-center">
+              <div class="col-12 col-lg-6">
+                <div class="border overflow-hidden rounded-2">
+
+                  <form action="#">
+                    <div class="row gy-4 gy-xl-5 p-4 p-xl-5">
+                      <div class="col-12 mt-4">
+                        <label for="leadname" class="form-label">Lead Name </label>
+                        <div class="input-group">
+                          <input type="text" class="form-control" id="leadname" name="leadname" value="" />
+                        </div>
+                      </div>
+                      <div class="col-12 mt-2 col-md-6">
+                        <label for="companyname" class="form-label">Company Name</label>
+                        <div class="input-group">
+
+                          <input type="text" class="form-control" id="companyname" name="companyname" value="" />
+                        </div>
+                      </div>
+                      <div class="col-12 mt-2 col-md-6">
+                        <label for="phone" class="form-label">Phone Number</label>
+                        <div class="input-group">
+
+                          <input type="number" class="form-control" id="phone" name="phone" value="" />
+                        </div>
+                      </div>
+
+                      <div class="col-12 mt-2 col-md-6">
+                        <label for="email" class="form-label">Email</label>
+                        <div class="input-group">
+
+                          <input type="email" class="form-control" id="email" name="email" value="" />
+                        </div>
+                      </div>
+                      <div class="col-12 mt-2 col-md-6">
+                        <label for="leadstatus" class="form-label">Lead Status</label>
+                        <div class="input-group">
+
+                          <input type="text" class="form-control" id="leadstatus" name="leadstatus" value="" />
+                        </div>
+                      </div>
+                      {{!--
+                      <div class="col-12 mt-2">
+                        <label for="message" class="form-label">Message</label>
+                        <textarea class="form-control" id="message" name="message" rows="3" required></textarea>
+                      </div> --}}
+                      <div class="col-12 mt-4">
+                        <button class="btn btn-primary btn-md" type="submit">Update Field</button>
+                      </div>
+                    </div>
+                  </form>
+
+                </div>
+              </div>
+              <div class="col-12 col-lg-6">
+                <div class="row justify-content-xl-center">
+                  <div class="col-12 col-xl-11">
+                    <div class="mb-4 mb-md-5">
+                      <div class="mb-3 text-primary">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" fill="currentColor"
+                          class="bi bi-geo" viewBox="0 0 16 16">
+                          <path fill-rule="evenodd"
+                            d="M8 1a3 3 0 1 0 0 6 3 3 0 0 0 0-6zM4 4a4 4 0 1 1 4.5 3.969V13.5a.5.5 0 0 1-1 0V7.97A4 4 0 0 1 4 3.999zm2.493 8.574a.5.5 0 0 1-.411.575c-.712.118-1.28.295-1.655.493a1.319 1.319 0 0 0-.37.265.301.301 0 0 0-.057.09V14l.002.008a.147.147 0 0 0 .016.033.617.617 0 0 0 .145.15c.165.13.435.27.813.395.751.25 1.82.414 3.024.414s2.273-.163 3.024-.414c.378-.126.648-.265.813-.395a.619.619 0 0 0 .146-.15.148.148 0 0 0 .015-.033L12 14v-.004a.301.301 0 0 0-.057-.09 1.318 1.318 0 0 0-.37-.264c-.376-.198-.943-.375-1.655-.493a.5.5 0 1 1 .164-.986c.77.127 1.452.328 1.957.594C12.5 13 13 13.4 13 14c0 .426-.26.752-.544.977-.29.228-.68.413-1.116.558-.878.293-2.059.465-3.34.465-1.281 0-2.462-.172-3.34-.465-.436-.145-.826-.33-1.116-.558C3.26 14.752 3 14.426 3 14c0-.599.5-1 .961-1.243.505-.266 1.187-.467 1.957-.594a.5.5 0 0 1 .575.411z" />
+                        </svg>
+                      </div>
+                      <div>
+                        <h4 class="mb-2">Office</h4>
+                        <p class="mb-2">Please visit us to have a discussion.</p>
+                        <hr class="w-50 mb-3 border-dark-subtle">
+                        <address class="m-0 text-secondary">8014 Edith Blvd NE, Albuquerque, New York, United States
+                        </address>
+                      </div>
+                    </div>
+                    <div class="row mb-sm-4 mb-md-5">
+                      <div class="col-12 col-sm-6">
+                        <div class="mb-4 mb-sm-0">
+                          <div class="mb-3 text-primary">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" fill="currentColor"
+                              class="bi bi-telephone-outbound" viewBox="0 0 16 16">
+                              <path
+                                d="M3.654 1.328a.678.678 0 0 0-1.015-.063L1.605 2.3c-.483.484-.661 1.169-.45 1.77a17.568 17.568 0 0 0 4.168 6.608 17.569 17.569 0 0 0 6.608 4.168c.601.211 1.286.033 1.77-.45l1.034-1.034a.678.678 0 0 0-.063-1.015l-2.307-1.794a.678.678 0 0 0-.58-.122l-2.19.547a1.745 1.745 0 0 1-1.657-.459L5.482 8.062a1.745 1.745 0 0 1-.46-1.657l.548-2.19a.678.678 0 0 0-.122-.58L3.654 1.328zM1.884.511a1.745 1.745 0 0 1 2.612.163L6.29 2.98c.329.423.445.974.315 1.494l-.547 2.19a.678.678 0 0 0 .178.643l2.457 2.457a.678.678 0 0 0 .644.178l2.189-.547a1.745 1.745 0 0 1 1.494.315l2.306 1.794c.829.645.905 1.87.163 2.611l-1.034 1.034c-.74.74-1.846 1.065-2.877.702a18.634 18.634 0 0 1-7.01-4.42 18.634 18.634 0 0 1-4.42-7.009c-.362-1.03-.037-2.137.703-2.877L1.885.511zM11 .5a.5.5 0 0 1 .5-.5h4a.5.5 0 0 1 .5.5v4a.5.5 0 0 1-1 0V1.707l-4.146 4.147a.5.5 0 0 1-.708-.708L14.293 1H11.5a.5.5 0 0 1-.5-.5z" />
+                            </svg>
+                          </div>
+                          <div>
+                            <h4 class="mb-2">Phone</h4>
+                            <p class="mb-2">Please speak with us directly.</p>
+                            <hr class="w-75 mb-3 border-dark-subtle">
+                            <p class="mb-0">
+                              <a class="link-secondary text-decoration-none" href="tel:+15057922430">(505) 792-2430</a>
+                            </p>
+                          </div>
+                        </div>
+                      </div>
+                      <div class="col-12 col-sm-6">
+                        <div class="mb-4 mb-sm-0">
+                          <div class="mb-3 text-primary">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" fill="currentColor"
+                              class="bi bi-envelope-at" viewBox="0 0 16 16">
+                              <path
+                                d="M2 2a2 2 0 0 0-2 2v8.01A2 2 0 0 0 2 14h5.5a.5.5 0 0 0 0-1H2a1 1 0 0 1-.966-.741l5.64-3.471L8 9.583l7-4.2V8.5a.5.5 0 0 0 1 0V4a2 2 0 0 0-2-2H2Zm3.708 6.208L1 11.105V5.383l4.708 2.825ZM1 4.217V4a1 1 0 0 1 1-1h12a1 1 0 0 1 1 1v.217l-7 4.2-7-4.2Z" />
+                              <path
+                                d="M14.247 14.269c1.01 0 1.587-.857 1.587-2.025v-.21C15.834 10.43 14.64 9 12.52 9h-.035C10.42 9 9 10.36 9 12.432v.214C9 14.82 10.438 16 12.358 16h.044c.594 0 1.018-.074 1.237-.175v-.73c-.245.11-.673.18-1.18.18h-.044c-1.334 0-2.571-.788-2.571-2.655v-.157c0-1.657 1.058-2.724 2.64-2.724h.04c1.535 0 2.484 1.05 2.484 2.326v.118c0 .975-.324 1.39-.639 1.39-.232 0-.41-.148-.41-.42v-2.19h-.906v.569h-.03c-.084-.298-.368-.63-.954-.63-.778 0-1.259.555-1.259 1.4v.528c0 .892.49 1.434 1.26 1.434.471 0 .896-.227 1.014-.643h.043c.118.42.617.648 1.12.648Zm-2.453-1.588v-.227c0-.546.227-.791.573-.791.297 0 .572.192.572.708v.367c0 .573-.253.744-.564.744-.354 0-.581-.215-.581-.8Z" />
+                            </svg>
+                          </div>
+                          <div>
+                            <h4 class="mb-2">Email</h4>
+                            <p class="mb-2">Please write to us directly.</p>
+                            <hr class="w-75 mb-3 border-dark-subtle">
+                            <p class="mb-0">
+                              <a class="link-secondary text-decoration-none"
+                                href="mailto:demo@yourdomain.com">demo@yourdomain.com</a>
+                            </p>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                    <div>
+                      <div class="mb-3 text-primary">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" fill="currentColor"
+                          class="bi bi-alarm" viewBox="0 0 16 16">
+                          <path
+                            d="M8.5 5.5a.5.5 0 0 0-1 0v3.362l-1.429 2.38a.5.5 0 1 0 .858.515l1.5-2.5A.5.5 0 0 0 8.5 9V5.5z" />
+                          <path
+                            d="M6.5 0a.5.5 0 0 0 0 1H7v1.07a7.001 7.001 0 0 0-3.273 12.474l-.602.602a.5.5 0 0 0 .707.708l.746-.746A6.97 6.97 0 0 0 8 16a6.97 6.97 0 0 0 3.422-.892l.746.746a.5.5 0 0 0 .707-.708l-.601-.602A7.001 7.001 0 0 0 9 2.07V1h.5a.5.5 0 0 0 0-1h-3zm1.038 3.018a6.093 6.093 0 0 1 .924 0 6 6 0 1 1-.924 0zM0 3.5c0 .753.333 1.429.86 1.887A8.035 8.035 0 0 1 4.387 1.86 2.5 2.5 0 0 0 0 3.5zM13.5 1c-.753 0-1.429.333-1.887.86a8.035 8.035 0 0 1 3.527 3.527A2.5 2.5 0 0 0 13.5 1z" />
+                        </svg>
+                      </div>
+                      <div>
+                        <h4 class="mb-2">Opening Hours</h4>
+                        <p class="mb-2">Explore our business opening hours.</p>
+                        <hr class="w-50 mb-3 border-dark-subtle">
+                        <div class="d-flex mb-1">
+                          <p class="text-secondary fw-bold mb-0 me-5">Mon - Fri</p>
+                          <p class="text-secondary mb-0">9am - 5pm</p>
+                        </div>
+                        <div class="d-flex">
+                          <p class="text-secondary fw-bold mb-0 me-5">Sat - Sun</p>
+                          <p class="text-secondary mb-0">9am - 2pm</p>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+        </div>
+        <div class="data-container d-none mt-4 mh-100 overflow-auto w-full">
+          <h1>Container 2</h1>
+        </div>
+        <div class="data-container d-none mt-4 mh-100 overflow-auto w-full">
+          <h1>Container 3</h1>
+        </div>
+        <div class="data-container d-none mt-4 mh-100 overflow-auto w-full">
+          <h1>Container 4</h1>
+        </div>
+      </div>
+    </div>
+  </div>
+
+
   <!-- Layout wrapper -->
   <div class="layout-wrapper layout-content-navbar">
     <div class="layout-container">
@@ -55,138 +878,49 @@
 
       <!-- Layout container -->
       <div class="layout-page">
+        {{!-- side container --}}
+
+
         <!-- Navbar -->
+
 
         {{>navBar}}
         <!-- / Navbar -->
 
         <!-- Content wrapper -->
         <div class="content-wrapper">
+
+
           <!-- Content -->
-          <div class="container-xxl flex-grow-1 container-p-y">
-            <div class="row">
+          <div class="container-xxl flex-grow-1 container-p-y ">
+            <div class="d-flex align-items-center gap-4 px-4 py-3 mb-3 rounded-pill "
+              style="width: fit-content; background-color: #f0f0f066">
+              <h6 class="text-capitalize m-0 paginationBtn cursor-pointer">dashboard</h6>
+              <h6 class="text-capitalize m-0 paginationBtn cursor-pointer">listing</h6>
+            </div>
+
+
+            <div class="row first_cnt">
               <div class="col-lg-12">
-                <div class="card bg-transparent box-shadow-none border-0 ">
+                <div class=" bg-transparent box-shadow-none border-0">
                   <div class="drag-container"></div>
                   <div class="board-container">
-                    <div class="d-flex slide-container" style="overflow-x: auto; width:100%; height:100%;">
-                      <div class="board-column todo" id="container1" data-container-id="container1" ondrop="drop(event)"
-                        ondragover="allowDrop(event)">
-                        <div class="board-column-container ">
-                          <div class="board-column-header d-flex align-items-center " style="gap: 5px;"
-                            data-target-status="New Lead">New Lead({{
-                            newLeads.length }})
-                            {{#if isAdmin}}
-                            <i class="ri-add-circle-line m-0 h5 text-white addFieldBtn " style="cursor: pointer;"></i>
-                            {{else}}
-                            {{/if}}
-                          </div>
+                    <div class="d-flex slide-container position-relative rounded-2"
+                      style="overflow-x: auto; width:100%; height:100%;">
 
-                          <div class="board-column-content-wrapper">
-                            <div class="board-column-content">
-                              {{#each newLeads}}
-                              <div class="board-item" draggable="true" ondragstart="drag(event)" id="card1_{{this.Id}}"
-                                data-lead-id="{{this.Id}}">
-                                <div class="board-item-content">
-                                  <div class="plan">
-                                    <div class="inner">
-                                      <span class="pricing">
-                                        <span>
-                                          <small><i class="ri-file-add-line" id="newLeadsIcon"></i></small>
-                                        </span>
-                                      </span>
-                                      <!-- <p class="title">Professional</p> -->
-                                      {{#each this.dataValues}}
-                                      <p class="info" style="font-size: 13px;">{{@key}}:
-                                        {{this}}</p>
-                                      {{/each}}
-                                    </div>
-                                  </div>
-                                </div>
-                              </div>
-                              {{/each}}
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                      <div class="board-column working" id="container2" data-container-id="container2"
-                        ondrop="drop(event)" ondragover="allowDrop(event)">
-                        <div class="board-column-container">
-                          <div class="board-column-header" data-target-status="Contact Initiation">
-                            Contact Initiation({{
-                            contactInitiation.length }})</div>
-                          <div class="board-column-content-wrapper">
-                            <div class="board-column-content">
-                              {{#each contactInitiation}}
-                              <div class="board-item" draggable="true" ondragstart="drag(event)" id="card2_{{this.Id}}"
-                                data-lead-id="{{this.Id}}">
-                                <div class="board-item-content">
-                                  <div class="plan">
-                                    <div class="inner">
-                                      <span class="pricing">
-                                        <span>
-                                          <small><i class="ri-file-add-line"></i></small>
-                                        </span>
-                                      </span>
-                                      <!-- <p class="title">Professional</p> -->
-                                      {{#each this.dataValues}}
-                                      <p class="info" style="font-size: 13px;">{{@key}}:
-                                        {{this}}</p>
-                                      {{/each}}
-                                    </div>
-                                  </div>
-                                </div>
-                              </div>
-                              {{/each}}
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                      <div class="board-column todo" id="container3" ondrop="drop(event)" data-container-id="container3"
-                        ondragover="allowDrop(event)">
-                        <div class="board-column-container">
-                          <div class="board-column-header" data-target-status="Schedule Follow Up">
-                            Schedule Follow Up({{
-                            scheduleFollowUp.length }})</div>
-                          <div class="board-column-content-wrapper">
-                            <div class="board-column-content">
-                              {{#each scheduleFollowUp}}
-                              <div class="board-item" draggable="true" ondragstart="drag(event)" id="card3_{{this.Id}}"
-                                data-lead-id="{{this.Id}}">
-                                <div class="board-item-content">
-                                  <div class="plan">
-                                    <div class="inner">
-                                      <span class="pricing">
-                                        <span>
-                                          <small><i class="ri-file-add-line"></i></small>
-                                        </span>
-                                      </span>
-                                      <!-- <p class="title">Professional</p> -->
-                                      {{#each this.dataValues}}
-                                      <p class="info" style="font-size: 13px">{{@key}}:
-                                        {{this}}</p>
-                                      {{/each}}
-                                    </div>
-                                  </div>
-                                </div>
-                              </div>
-                              {{/each}}
-                            </div>
-                          </div>
-                        </div>
-                      </div>
+                      
                     </div>
-
                   </div>
                 </div>
 
               </div>
             </div>
+            <div class="row second_cnt d-none">
+              <h1>Container2</h1>
+            </div>
           </div>
           <!-- / Content -->
-
           <!-- Footer -->
-
           {{>footer}}
           <!-- / Footer -->
 
@@ -278,366 +1012,172 @@
 </script>
 
 
+
+
+<script>
+  document.addEventListener('click', (event) => {
+    const target = event.target;
+    if (target.matches('.cookie-card span')) {
+      const details_container = document.querySelector('.details_container');
+      if (details_container) {
+        details_container.style.width = '75%';
+        details_container.style.display = 'block';
+      }
+    }
+  });
+
+  const close_large_btn = document.querySelector('.ri-close-large-line');
+  if (close_large_btn) {
+    close_large_btn.addEventListener('click', () => {
+      const details_container = document.querySelector('.details_container');
+      if (details_container) {
+        details_container.style.width = '0';
+        setTimeout(() => {
+          details_container.style.display = 'none';
+        }, 550);
+      }
+    });
+  }
+</script>
+
+
+
+<script>
+  /* open the tabs on click */
+  const tabs_heading = document.querySelector('.tabs_heading')
+  tabs_heading.addEventListener('click', (event) => {
+    if (event.target.tagName === "H5") {
+      const index = Array.from(event.target.parentElement.children).indexOf(event.target)
+      const tabs = event.target.parentElement.children
+
+      const datacontainer = document.querySelectorAll('.data-container')
+      datacontainer.forEach((item, i) => {
+        item.classList.toggle("d-none", i !== index)
+        item.classList.toggle("d-block", i === index)
+        tabs[i].classList.toggle("borderB", index === i)
+      })
+
+    }
+  })
+</script>
+
+<script>
+  function showLeadData(element) {
+    const id = element.parentElement.parentElement.getAttribute('data-lead-id');
+    fetch(`/lead-store-data/${id}`)
+      .then(res => res.json())
+      .then(data => {
+        appendDataToLeadForm(data.storeval)
+
+      })
+      .catch(err => console.log(err))
+
+  }
+
+  function appendDataToLeadForm(data) {
+    console.log(data)
+    const leadname = document.getElementById('leadname')
+    const companyname = document.getElementById('companyname')
+    const leademail = document.getElementById('email')
+    const leadphone = document.getElementById('phone')
+    const leadstatus = document.getElementById('leadstatus')
+    const leadmessage = document.getElementById('message')
+    leadname.value = data.ClientName
+    companyname.value = data.companyName
+    leademail.value = data.email
+    leadphone.value = data.contactNumber
+    leadstatus.value = data.DealType
+
+  }
+</script>
+
+<script>
+  /* pagination btn script*/
+  const paginationBtn = document.querySelectorAll(".paginationBtn")
+  const first_cnt = document.querySelector(".first_cnt")
+  const second_cnt = document.querySelector(".second_cnt")
+  paginationBtn.forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      if (e.target.tagName === "H6") {
+        const index = Array.from(e.target.parentElement.children).indexOf(e.target)
+        first_cnt.classList.toggle("d-none", index === 1)
+        second_cnt.classList.toggle("d-none", index === 0)
+      }
+    })
+  })
+</script>
+
+/*activity container script */
+<script>
+
+  function openActivity() {
+    const activity_container = document.querySelectorAll('.activity_sec')
+    const activity_btn = document.querySelectorAll('.pref')
+
+    activity_btn.forEach((item, index) => {
+      item.addEventListener('click', () => {
+        activity_container[index].classList.toggle("d-block")
+
+      })
+    })
+
+  }
+
+  
+
+  function openActivityData() {
+    const activity_data = document.querySelectorAll('.activity_data')
+    const info_btn = document.querySelectorAll('.ri-information-2-fill')
+    info_btn.forEach((ele, i) => {
+      ele.addEventListener('click', () => {
+        activity_data[i].classList.toggle("d-block")
+
+      })
+
+    })
+  }
+
+
+
+
+</script>
+{{!-- <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      PostData();
+    });
+
+    function PostData() {
+      const sub_btn = document.querySelectorAll('.sub_btn');
+      sub_btn.forEach((ele, i) => {
+        ele.addEventListener('click', () => {
+          const activityInputs = document.querySelectorAll('.activity');
+          const leadIdInputs = document.querySelectorAll('[name="lead_id"]');
+          const postData = [];
+
+          activityInputs.forEach((input, index) => {
+            postData.push({
+              lead_id: leadIdInputs[index].value,
+              activity: input.value
+            });
+          });
+
+          fetch('/activity', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(postData)
+          })
+          .then(response => response.json())
+          .then(data => console.log(data))
+          .catch(error => console.error('Error:', error));
+        });
+      });
+    }
+</script> --}}
+
 <script src="scripts/leadmanagement.js"></script>
 <script src="/assets/js/main.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/js/toastr.min.js"></script>
 
 </html>
-<style>
-  @import url('https://fonts.googleapis.com/css2?family=Livvic:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,900&display=swap');
-
-  input {
-    border-radius: 4px;
-    margin: 3px 0px;
-    border: none;
-    width: 100%;
-    padding: 4px 8px;
-    font-size: 13px;
-  }
-
-  label {
-    display: block;
-  }
-
-  .save-button {
-    margin-left: 7%;
-    border: none;
-    color: #fff;
-    background-color: #696cff;
-    border-color: #696cff;
-    box-shadow: 0 0.125rem 0.25rem 0 rgba(105, 108, 255, 0.4);
-    padding: 7px 20px;
-    border-radius: 4px;
-  }
-
-  .bg-transparent {
-    box-shadow: none;
-  }
-
-  .drag-container {
-    position: fixed;
-    left: 0;
-    top: 0;
-    z-index: 1000;
-  }
-
-  .board {
-    position: relative;
-    display: flex;
-    /* Add flex display to arrange columns horizontally */
-    overflow-x: auto;
-    /* Add horizontal scrolling */
-    width: calc(350px * 4);
-    /* Adjust the width based on the number of columns */
-  }
-
-  .board-column {
-    width: 350px;
-    /* Set fixed width for each column */
-
-    /* Add some space between columns */
-  }
-
-
-  .board-container {
-    overflow-x: auto;
-    /* Enable horizontal scrolling */
-  }
-
-  .board {
-    position: relative;
-    display: flex;
-    /* Add flex display to arrange columns horizontally */
-  }
-
-  .board-column {
-    width: 350px;
-    /* Set fixed width for each column */
-
-  }
-
-  .board-column.muuri-item-releasing {
-    z-index: 2;
-  }
-
-  .board-column.muuri-item-dragging {
-    z-index: 3;
-    cursor: move;
-  }
-
-  .board-column-container {
-    position: relative;
-    width: 100%;
-    height: 100%;
-    box-shadow: none !important;
-
-  }
-
-  .board-column {
-    width: 280px;
-  }
-
-  .board-column-content-wrapper,
-  .board-column-header {
-    width: 270px !important;
-  }
-
-  .board-column-header {
-    position: relative;
-    height: 50px;
-    line-height: 50px;
-    overflow: hidden;
-    padding: 0 20px;
-    text-align: justify;
-    color: #121212e3;
-    border-radius: 5px 5px 0 0;
-    font-size: 15px;
-    font-weight: 600;
-    letter-spacing: 0.5px;
-    text-transform: uppercase;
-    background: #f0f0f066;
-    font-family: 'Livvic', sans-serif;
-  }
-
-
-
-
-  .board-column-content-wrapper {
-    position: relative;
-    padding: 8px;
-    background: #f0f0f066;
-    height: calc(100vh - 90px);
-    overflow-y: auto;
-    border-radius: 0 0 5px 5px;
-  }
-
-  .board-column-content {
-    position: relative;
-    min-height: 100%;
-
-  }
-
-  .board-item {
-    position: relative;
-    width: calc(100% - 16px);
-    margin: 8px;
-
-  }
-
-  .board-item.muuri-item-releasing {
-    z-index: 9998;
-  }
-
-  .board-item.muuri-item-dragging {
-    z-index: 9999;
-    cursor: move;
-  }
-
-  .board-item.muuri-item-hidden {
-    z-index: 0;
-  }
-
-  .board-item-content {
-    position: relative;
-    border-radius: 4px;
-    font-size: 17px;
-    cursor: pointer;
-
-  }
-
-  @media (max-width: 600px) {
-    .board-item-content {
-      text-align: center;
-    }
-
-    .board-item-content span {
-      display: none;
-    }
-  }
-
-  dialog {
-    width: 40%;
-    min-height: 30%;
-    position: absolute;
-    border: 1px solid lightgray;
-    border-radius: 10px;
-    padding: 20px;
-    left: 50%;
-    top: 50%;
-    transform: translate(-50%, -50%);
-  }
-
-  input::-webkit-outer-spin-button,
-  input::-webkit-inner-spin-button {
-    -webkit-appearance: none;
-    margin: 0;
-  }
-
-  .new-class {
-    text-transform: capitalize;
-  }
-
-  #lableName {
-    border: 1px solid rgb(185, 185, 185);
-    height: 40px;
-  }
-
-  .form-control {
-    height: 40px !important;
-    border: 1px solid rgb(235, 233, 233);
-  }
-
-  p {
-    text-transform: capitalize !important;
-  }
-
-  .board-item-content {
-    min-height: 200px;
-    max-height: 300px !important;
-    overflow-y: scroll !important;
-    font-family: "Overpass", sans-serif !important;
-    background: #faebd7b5 !important;
-    font-size: 0.999rem !important;
-    border-radius: 8px !important;
-    line-height: 1.5;
-    background-image: url(https://node.scaleedge.in/assets/images/dashboard/circle.svg) !important;
-    background-position: start;
-    background-size: cover !important;
-    background-repeat: no-repeat;
-  }
-
-  .board-item-content::-webkit-scrollbar {
-    width: 0px
-  }
-
-  .slide-container::-webkit-scrollbar {
-
-    height: 9px;
-  }
-
-  .slide-container::-webkit-scrollbar-thumb {
-    background-color: #8888888f;
-    border-radius: 10px;
-  }
-
-  .slide-container::-webkit-scrollbar-track {
-    background-color: #f1f1f1;
-    border-radius: 10px;
-  }
-
-  .plan {
-    box-shadow: rgba(14, 30, 37, 0.12) 0px 2px 4px 0px, rgba(14, 30, 37, 0.32) 0px 2px 16px 0px !important;
-    padding: 6px;
-    background-color: #f0f0f066;
-    color: #697e91;
-    max-width: 300px;
-  }
-
-  .plan strong {
-    font-weight: 600;
-    color: #425275;
-  }
-
-
-
-  .plan .inner {
-    align-items: center;
-    padding: 6px 10px;
-    border-radius: 12px;
-
-  }
-
-  .plan .pricing {
-    position: absolute;
-    top: 0;
-    right: 0;
-    border-radius: 99em 0 0 99em;
-    display: flex;
-    align-items: center;
-    padding: 0.625em 0.75em;
-    font-size: 1.25rem;
-    font-weight: 600;
-    color: #425475;
-  }
-
-  .plan .pricing small {
-    color: #707a91;
-    font-size: 0.75em;
-    margin-left: 0.25em;
-  }
-
-  .plan .title {
-    font-weight: 600;
-    font-size: 1.25rem;
-    color: #425675;
-  }
-
-  .plan .title+* {
-    margin-top: 0.75rem;
-  }
-
-  .plan .info+* {
-    margin-top: 1rem;
-  }
-
-  .plan .features {
-    display: flex;
-    flex-direction: column;
-  }
-
-  .plan .features li {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-  }
-
-  .plan .features li+* {
-    margin-top: 0.75rem;
-  }
-
-  .plan .features .icon {
-    background-color: #1FCAC5;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    color: #fff;
-    border-radius: 50%;
-    width: 20px;
-    height: 20px;
-  }
-
-  .plan .features .icon svg {
-    width: 14px;
-    height: 14px;
-  }
-
-  .plan .features+* {
-    margin-top: 1.25rem;
-  }
-
-  .plan .action {
-    width: 100%;
-    display: flex;
-    align-items: center;
-    justify-content: end;
-  }
-
-  .plan .button {
-    background-color: #6558d3;
-    border-radius: 6px;
-    color: #fff;
-    font-weight: 500;
-    font-size: 1.125rem;
-    text-align: center;
-    border: 0;
-    outline: 0;
-    width: 100%;
-    padding: 0.625em 0.75em;
-    text-decoration: none;
-  }
-
-  .plan .button:hover,
-  .plan .button:focus {
-    background-color: #4133B7;
-  }
-</style>

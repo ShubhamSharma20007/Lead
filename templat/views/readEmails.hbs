@@ -76,7 +76,7 @@
                                     <div class="card">
                                         <div class="card-body">
                                             <div class="row">
-                                                <div class="col-lg-3 email-aside border-lg-right">
+                                                <div class="col-lg-2 email-aside border-lg-right">
                                                     <div class="aside-content">
                                                         <div class="aside-header">
                                                             <button class="navbar-toggle" data-target=".aside-nav"
@@ -94,7 +94,7 @@
                                                         </div>
                                                         <div class="aside-compose">
                                                             <a class="btn btn-primary btn-block"
-                                                                style="color: white;">Compose Email</a>
+                                                                style="color: white;font-size: 12px;padding: 10px">Compose Email</a>
                                                         </div>
                                                         <div class="aside-nav collapse">
                                                             <ul class="nav">
@@ -232,7 +232,7 @@
                                                         </div>
                                                     </div>
                                                 </div>
-                                                <div class="col-lg-9 email-content">
+                                                <div class="col-lg-10 email-content">
                                                     <div class="email-head">
                                                         <div class="email-head-subject">
                                                             <div
@@ -507,7 +507,25 @@
     });
 
 </script>
-
+<style>
+    body {
+        overflow: scroll;
+        height: 600px;
+    }
+    .description {
+        font-size: 13px;
+    }
+    .table> :not(caption)>*>* {
+    padding: 11px 3px !important;
+}
+li a{
+    font-size: 12px;
+}
+.email-body{
+    height: 500px; 
+    overflow-y: auto;
+}
+</style>
 <style>
     .form {
         position: absolute;
@@ -1640,7 +1658,7 @@
     }
 
     .inbox-wrapper .email-aside .aside-content .aside-compose {
-        text-align: center;
+        text-align: left;
         padding: 14px 0;
     }
 
