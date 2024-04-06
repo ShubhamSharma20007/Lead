@@ -16,6 +16,10 @@ const CustomField = sequelize.define('customField', {
         type :DataTypes.STRING,
         allowNull : false,
         unique: true,
+    },
+    previousField:{
+        type :DataTypes.STRING,
+        allowNull : false,
     }
 })
 module.exports = CustomField;

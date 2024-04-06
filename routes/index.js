@@ -3,6 +3,7 @@ var router = express.Router();
 const sequelize = require("../config/database");
 const userModel = require("../models/userModel")
 const CustomFormField = require("../models/CustomFormField")
+const Contact = require("../models/Contact")
 const LeadData = require("../models/LeadData")
 const TimeTracker = require("../models/TimeTracker")
 const CalendarEvent = require("../models/calendarEvent")
@@ -22,7 +23,7 @@ const UserPageSecurity = require('../models/userPageSecurity');
 const fileUpload = require("express-fileupload");
 const path = require('path');
 const hbs = require('hbs');
-const ActivityModel = require('../models/Activity') 
+const ActivityModel = require('../models/Activity')
 const fs = require('fs');
 const { google } = require('googleapis');
 const passport = require('passport');
@@ -670,6 +671,7 @@ router.get('/leadManagement', isAuth, async function (req, res, next) {
   try {
     let userGroup = req.session.user_group;
     let userEmail = req.session.email; // Assuming email is stored in session
+    let username = req.session.username;
     console.log(userGroup);
     let isAdmin = userGroup === "admin";
     let leadFilter = {}; // Initialize an empty filter object
@@ -690,12 +692,33 @@ router.get('/leadManagement', isAuth, async function (req, res, next) {
       }
     });
 
-    res.render('leadManagement', { newLeads, contactInitiation, scheduleFollowUp, otherContainers, isAdmin: isAdmin });
+    res.render('leadManagement', { newLeads, contactInitiation, scheduleFollowUp, otherContainers, isAdmin: isAdmin, username });
   } catch (error) {
     console.error('Error fetching lead data:', error);
     res.status(500).send('Internal Server Error');
   }
 });
+
+// router.get('/fetchDataForContainer/:fieldName', isAuth, async (req, res) => {
+//   const { fieldName } = req.params;
+//   const userGroup = req.session.user_group; // Assuming user group is stored in session
+//   const userEmail = req.session.email; // Assuming email is stored in session
+
+//   try {
+//     let leadFilter = {};
+
+//     if (userGroup !== "admin" && userEmail) {
+//       leadFilter = { loginEmail: userEmail };
+//     }
+
+//     // Fetch data from LeadData table based on target_status and user's email
+//     const leads = await LeadData.findAll({ where: { target_status: fieldName, ...leadFilter } });
+//     res.status(200).json(leads);
+//   } catch (error) {
+//     console.error(`Error fetching data for ${fieldName}:`, error);
+//     res.status(500).json({ error: 'Internal server error' });
+//   }
+// });
 
 router.get('/fetchDataForContainer/:fieldName', isAuth, async (req, res) => {
   const { fieldName } = req.params;
@@ -710,7 +733,35 @@ router.get('/fetchDataForContainer/:fieldName', isAuth, async (req, res) => {
     }
 
     // Fetch data from LeadData table based on target_status and user's email
-    const leads = await LeadData.findAll({ where: { target_status: fieldName, ...leadFilter } });
+    let leads;
+    if (fieldName !== "all") {
+      leads = await LeadData.findAll({ where: { target_status: fieldName, ...leadFilter } });
+    } else {
+      leads = await LeadData.findAll({ where: leadFilter });
+    }
+
+    // Sort the leads based on the relationship between current and previous fields
+    leads.sort((a, b) => {
+      // If both leads have the same previous field, prioritize the lead that matches the current field
+      if (a.previousField === b.previousField) {
+        if (a.fieldName === fieldName) return -1; // a should come before b
+        if (b.fieldName === fieldName) return 1; // b should come before a
+        return 0; // maintain existing order
+      }
+      // If the previous field of lead a matches the current field of lead b, prioritize lead a
+      else if (a.previousField === fieldName) {
+        return -1; // a should come before b
+      }
+      // If the previous field of lead b matches the current field of lead a, prioritize lead b
+      else if (b.previousField === fieldName) {
+        return 1; // b should come before a
+      }
+      // Otherwise, maintain existing order
+      else {
+        return 0;
+      }
+    });
+
     res.status(200).json(leads);
   } catch (error) {
     console.error(`Error fetching data for ${fieldName}:`, error);
@@ -751,12 +802,12 @@ router.get("/logout", (req, res) => {
   res.redirect("/");
 });
 
-router.get("/customizeLeadform",isAuth, function (req, res, next) {
+router.get("/customizeLeadform", isAuth, function (req, res, next) {
   let userGroup = req.session.user_group;
   let username = req.session.username
   console.log(userGroup);
   let isAdmin = userGroup === "admin";
-  res.render("customizeLeadform", { title: "sumit", isAdmin: isAdmin ,username});
+  res.render("customizeLeadform", { title: "sumit", isAdmin: isAdmin, username });
 });
 
 // post custom field and alter lead table
@@ -1120,7 +1171,7 @@ router.put("/updateLeadStatus/:id", async function (req, res, next) {
 
 router.post('/customfield', async (req, res) => {
   try {
-    const { value } = req.body;
+    const { value, previousField } = req.body;
     if (!value) {
       return res.status(400).json({ error: "Field name is required" });
     }
@@ -1137,7 +1188,7 @@ router.post('/customfield', async (req, res) => {
       nextContainerId = `container${containerNumber + 1}`;
     }
 
-    const insertData = await DashboardFieldModal.create({ fieldName: value, containerId: nextContainerId });
+    const insertData = await DashboardFieldModal.create({ fieldName: value, containerId: nextContainerId, previousField });
     return res.status(200).json({ message: "Field added successfully", data: insertData });
   } catch (error) {
     console.error(error);
@@ -1656,68 +1707,68 @@ router.get('/get-events', async (req, res) => {
   }
 })
 
-router.post('/leads', function (req, res) {
-  const leadData = req.body;
-  const customFieldsMap = {
-    'ClientName': 'ClientName',
-    'contactNumber': 'contactNumber',
-    'Stage': 'Stage', // Assuming 'Stage' corresponds to 'selectstatus'
-    'Amount': 'Amount',
-    'DealType': 'DealType',
-    'StartDate': 'StartDate',
-    'EndDate': 'EndDate',
-    'target_status': 'target_status',
-    'responsible_person': 'responsible_person',
-    'Product': 'Product',
-    'companyName' : 'companyName',
-    'email' : 'email',
-    // You don't need to map 'createdAt' and 'updatedAt' as they are handled by MySQL
-  };
+// router.post('/leads', function (req, res) {
+//   const leadData = req.body;
+//   const customFieldsMap = {
+//     'ClientName': 'ClientName',
+//     'contactNumber': 'contactNumber',
+//     'Stage': 'Stage', // Assuming 'Stage' corresponds to 'selectstatus'
+//     'Amount': 'Amount',
+//     'DealType': 'DealType',
+//     'StartDate': 'StartDate',
+//     'EndDate': 'EndDate',
+//     'target_status': 'target_status',
+//     'responsible_person': 'responsible_person',
+//     'Product': 'Product',
+//     'companyName': 'companyName',
+//     'email': 'email',
+//     // You don't need to map 'createdAt' and 'updatedAt' as they are handled by MySQL
+//   };
 
-  // Construct SQL query to insert data into lead_data table
-  let insertQuery = `INSERT INTO leads (`;
+//   // Construct SQL query to insert data into lead_data table
+//   let insertQuery = `INSERT INTO leads (`;
 
-  // Prepare column names and values for the SQL query
-  const columnNames = [];
-  const columnValues = [];
+//   // Prepare column names and values for the SQL query
+//   const columnNames = [];
+//   const columnValues = [];
 
-  // Iterate through each field in leadData
-  for (const field in leadData) {
-    if (leadData.hasOwnProperty(field)) {
-      // Map custom field names to fixed field names
-      if (customFieldsMap.hasOwnProperty(field)) {
-        columnNames.push(customFieldsMap[field]);
-      } else {
-        columnNames.push(field);
-      }
-      columnValues.push(`'${leadData[field]}'`);
-    }
-  }
+//   // Iterate through each field in leadData
+//   for (const field in leadData) {
+//     if (leadData.hasOwnProperty(field)) {
+//       // Map custom field names to fixed field names
+//       if (customFieldsMap.hasOwnProperty(field)) {
+//         columnNames.push(customFieldsMap[field]);
+//       } else {
+//         columnNames.push(field);
+//       }
+//       columnValues.push(`'${leadData[field]}'`);
+//     }
+//   }
 
-  // Add createdAt and updatedAt fields with current timestamp
-  columnNames.push('createdAt', 'updatedAt');
-  const currentDate = new Date().toISOString().slice(0, 19).replace('T', ' ');
-  columnValues.push(`'${currentDate}'`, `'${currentDate}'`);
+//   // Add createdAt and updatedAt fields with current timestamp
+//   columnNames.push('createdAt', 'updatedAt');
+//   const currentDate = new Date().toISOString().slice(0, 19).replace('T', ' ');
+//   columnValues.push(`'${currentDate}'`, `'${currentDate}'`);
 
-  columnNames.push('employee_id', 'loginEmail');
-  columnValues.push(`'${req.session.employee_id}'`, `'${req.session.email}'`);
+//   columnNames.push('employee_id', 'loginEmail');
+//   columnValues.push(`'${req.session.employee_id}'`, `'${req.session.email}'`);
 
-  insertQuery += columnNames.join(', ');
-  insertQuery += `) VALUES (`;
-  insertQuery += columnValues.join(', ');
-  insertQuery += `);`;
+//   insertQuery += columnNames.join(', ');
+//   insertQuery += `) VALUES (`;
+//   insertQuery += columnValues.join(', ');
+//   insertQuery += `);`;
 
-  // Execute the insert query
-  con.query(insertQuery, function (error, results) {
-    if (error) {
-      console.error(error);
-      return res.status(500).json({ success: false, error: "Database error" });
-    }
+//   // Execute the insert query
+//   con.query(insertQuery, function (error, results) {
+//     if (error) {
+//       console.error(error);
+//       return res.status(500).json({ success: false, error: "Database error" });
+//     }
 
-  });
-  res.status(200).json({ success: true, message: "Lead data inserted successfully" });
+//   });
+//   res.status(200).json({ success: true, message: "Lead data inserted successfully" });
 
-});
+// });
 
 
 // activity route
@@ -1740,16 +1791,16 @@ router.get('/activities/:lead_id', async (req, res) => {
   const lead_id = req.params.lead_id;
 
   try {
-      const activities = await ActivityModel.findAll({
-          where: {
-              lead_id: lead_id
-          }
-      });
+    const activities = await ActivityModel.findAll({
+      where: {
+        lead_id: lead_id
+      }
+    });
 
-      res.status(200).json(activities);
+    res.status(200).json(activities);
   } catch (err) {
-      console.error(err);
-      res.status(500).json({ message: 'Internal Server Error' });
+    console.error(err);
+    res.status(500).json({ message: 'Internal Server Error' });
   }
 });
 
@@ -1759,18 +1810,79 @@ router.post('/filter-contact', async (req, res) => {
   try {
     const alldata = await LeadData.findAll({
       where: {
-        ClientName: {
-          [Op.like]: `%${contact}%` 
+        companyName: {
+          [Op.like]: `%${contact}%`
         }
       }
     });
 
-    
+    const contactdata = await Contact.findAll({
+      where: {
+        name: {
+          [Op.like]: `%${contact}%`
+        }
+      }
+    });
 
-    return res.status(200).json({ success: true, alldata });
+    return res.status(200).json({ success: true, alldata, contactdata });
   } catch (error) {
     return res.status(500).json({ success: false, error });
   }
 });
+
+
+
+router.post('/contactData', async (req, res) => {
+  try {
+    const { name, email, mobile, address } = req.body;
+    const contactData = await Contact.create({ name, email, mobile, address });
+    res.status(201).json({ message: "Contact data created successfully", data: contactData });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: "Failed to create contact data" });
+  }
+});
+
+
+router.post('/leads', async (req, res) => {
+  try {
+    const {
+      companyName,
+      Stage,
+      Amount,
+      EndDate,
+      ContactNumber,
+      DealType,
+      StartDate,
+      Source,
+      target_status = 'New Lead',
+      responsible_person,
+      loginEmail = req.session.email,
+      employee_id = req.session.username
+    } = req.body;
+
+    const newLead = await LeadData.create({
+      companyName,
+      Stage,
+      Amount,
+      EndDate: EndDate || new Date(),
+      ContactNumber,
+      DealType,
+      StartDate: StartDate || new Date(),
+      Source,
+      target_status,
+      responsible_person,
+      loginEmail,
+      employee_id
+    });
+
+    res.status(201).json({ message: 'Lead data added successfully', lead: newLead });
+  } catch (err) {
+    console.error('Error while adding lead data:', err);
+    res.status(500).json({ error: 'Internal Server Error' });
+  }
+});
+
+
 
 module.exports = router;

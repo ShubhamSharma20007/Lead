@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <div class="w-full h-full p-4">
+        <div class="w-full mb-4 mt-2 d-flex justify-content-between align-content-center">
+          <h1>Update Lead</h1>
+          <div>
+            <i
+            class="ri-close-large-line ri-close-large-line-1 bg-black text-white close_side rounded-circle d-inline-block  h5 "></i>
+          </div>
+        </div>
+  
+        <div class="main_div">
+          <form id="myForm" class="w-50 p-0">
+            <div id="form1">
+              <div id="form-top">
+                <h6>About Deal &nbsp;<i class="ri-pencil-fill"></i></h6>
+                <p>cancel</p>
+              </div>
+              <div id="form-center">
+                <div class="elem">
+                  <label for="name">Company Name</label>
+                  <input type="text" placeholder="Company...." name="companyName" required>
+                </div>
+                <div class="elem">
+                  <label for="name">Stage</label>
+                  <select name="Stage" id="Stage" required>
+                    <option value="" disabled selected>Select Stage</option>
+                    <option value="Follow Up Lead">Follow Up Lead</option>
+                    <option value="In Progess">In Progess</option>
+                    <option value="Advance Stage">Advance Stage</option>
+                    <option value="Close Lead Won">Close Lead Won</option>
+  
+                  </select>
+                </div>
+                <div class="elem">
+                  <label for="name">Amount and currency</label>
+                  <div id="amount-currency">
+                    <input type="text" value="0.00" name="Amount" id="Amount" >
+                    <select>
+                      <option value="indian-rupee">Indian Rupee</option>
+                      <option value="us-dollar">US Dollar</option>
+  
+                    </select>
+  
+                  </div>
+                </div>
+                <div class="elem end-date">
+                  <label for="name">End date</label>
+                  <input type="date" name="EndDate" id="end-date">
+                </div>
+  
+                <div style="display: flex; margin-top: 40px;">
+                  <div id="client">
+                    <div class="client-details position-relative">
+                      <label for="">Contact</label>
+                      <div class="contact-input">
+                        <i class="ri-user-fill"></i>
+                      <input type="text" id="contact_input" name="ContactNumber" autocomplete="one-time-code"
+                          placeholder="Contact name,phone or email" required>
+                        <i class="ri-search-line"></i>
+                        <i class="ri-close-line"></i>
+  
+                        {{!-- dynamically contact data --}}
+                        <div class="position-absolute  lead_contact">
+  
+                        </div>
+  
+                      </div>
+  
+                    </div>
+  
+  
+                  </div>
+                </div>
+  
+              </div>
+            </div>
+  
+            <div id="form1" class="mt-3">
+  
+              <div id="form-center">
+                <div class="elem">
+                  <label for="name">Deal type</label>
+                  <select name="DealType" id="deal-type" required>
+                    <option value="" selected disabled>Select Deal Type..</option>
+                    <option value="Sales">Sales</option>
+                    <option value="Services">Services</option>
+                    <option value="After Sales Service">After Sales Service</option>
+                  </select>
+                </div>
+  
+                <div class="elem">
+                  <label for="name">Source</label>
+                  <select name="Source" id="Source" required>
+                    <option value="">Not selected</option>
+                    <option value="call">Call</option>
+                    <option value="email">E-Mail</option>
+                    <option value="website">Website</option>
+                    <option value="advertising">Advertising</option>
+                    <option value="existing-client">Existing Client</option>
+                    <option value="recommendation">By Recommendation</option>
+                    <option value="show-exhibition">Show/Exhibition</option>
+                    <option value="crm-form">CRM form</option>
+                    <option value="callback">Callback</option>
+                    <option value="sales-boost">Sales boost</option>
+                    <option value="online-store">Online Store</option>
+                    <option value="other">Other</option>
+  
+                  </select>
+                </div>
+  
+  
+  
+  
+  
+                <div style="display: flex; margin-top: 8px; position: relative;">
+                  <div id="Responsible">
+                    <div class="client-details-1">
+                      <label for="">Responsible</label>
+                      <div class="contact-input">
+                        <i class="ri-user-fill"></i>
+                        <input type="text" name="responsible_person" value="{{username}}">
+                        <i class="ri-search-line"></i>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+  
+  
+              </div>
+            </div>
+            <button type="submit" class="btn btn-primary" id="submit_btn">Submit</button>
+  
+          </form>
+          <div class="right-form ">
+            <div class="outter-section   rounded-2 position-relative ">
+              <i class="ri-chat-smile-2-fill positions position-absolute " style="font-size: 34px;"></i>
+              <div class="inner-section m-2 ">
+                <h5>Activity</h5>
+                <div class="mb-3">
+  
+                  <textarea class="form-control" id="exampleFormControlTextarea1" rows="3" cols="4"
+                    style="min-height: 100px;"></textarea>
+                </div>
+                <div class="calendar d-flex align-items-center gap-3">
+  
+                  <i class="ri-calendar-line"></i>
+                  <input type="datetime-local" value="" name="" id="datetime-local" class="w-50 " placeholder="enter">
+                </div>
+                <div class="btns_sec-2">
+                  <button class="sub_btn-2 text-capitalize ">
+                    Submit
+                  </button>
+                  <button type="reset" class="cen_btn-2  text-capitalize">
+                    Cancel
+                  </button>
+                </div>
+              </div>
+            </div>
+            {{!-- activity details card --}}
+            <div class="staright-line"></div>
+            <div class="activity-dets-section   rounded-2 position-relative ">
+              <i class="ri-checkbox-circle-fill positions  " style="font-size: 34px;"></i>
+              <div class="p-2 px-3 ">
+                <div class="times_sec d-flex justify-content-between align-items-center  mt-2  ">
+                  <div class="d-flex align-items-center gap-3">
+                    <p class="m-0">Activity completed</p>
+                    <p class="m-0">1:41 pm</p>
+                  </div>
+                  <i class="ri-account-circle-fill" style="font-size: 28px;"></i>
+                </div>
+                <div class="deadline_part d-flex align-items-center gap-4">
+                  <small>Deadline</small>
+                  <small>Tue, Apr 9, 11:00 am</small>
+                </div>
+                <div class="mb-3 mt-2">
+                  <textarea class="form-control" id="exampleFormControlTextarea1" rows="3" cols="4"
+                    style="min-height: 100px;"></textarea>
+                </div>
+                <div class="btns_sec-2">
+                  <button class="sub_btn-2 px-2  text-capitalize">
+                    Completed
+                  </button>
+                  <button type="reset" class="cen_btn-2 text-capitalize px-2 ">
+                    postpone
+                  </button>
+                </div>
+              </div>
+            </div>
+  
+          </div>
+  
+        </div>
+  
+  
+  
+  
+  
+      </div>
+</body>
+</html>

@@ -319,7 +319,7 @@
     crossorigin="anonymous"></script>
 
 <script>
-
+  
     function outputTime(totalTime){
         const totlaTime_cnt =  document.querySelector('.output_timer')
         let t_hour =totlaTime_cnt .querySelector('.hour')
@@ -382,6 +382,7 @@
     fetchAndDisplayData();
 
     async function updateField(e) {
+      
         const inputTask = document.getElementById(`text_${e}`);
         inputTask.removeAttribute('readonly')
 
@@ -531,8 +532,9 @@
     showData();
 </script>
 
-
+ 
 <script>
+ 
  async  function deleteField(removeid){
       const prompt = confirm("Are you sure you want to delete this task?");
     if(prompt){

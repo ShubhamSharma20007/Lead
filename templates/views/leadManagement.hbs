@@ -468,7 +468,7 @@
       color: rgb(156 163 175);
     }
 
-    .pref:focus {
+    . :focus {
       outline: 2px solid transparent;
       outline-offset: 2px;
     }
@@ -499,6 +499,15 @@
       transition: width 0.6s ease-in-out;
       width: 0%;
       display: none;
+
+    }
+
+    .details_container-2 {
+      transition: width 0.6s ease-in-out;
+      width: 0%;
+      display: none;
+      height: 100vh;
+      overflow-y: auto;
 
     }
 
@@ -558,7 +567,7 @@
       height: 110px;
       width: 250px;
       left: -20px;
-      top: -10px;
+      top: -30px;
       border-radius: 10px;
       position: relative;
       box-shadow: rgba(0, 0, 0, 0.15) 1.95px 1.95px 2.6px;
@@ -624,12 +633,36 @@
       gap: 10px;
     }
 
+    .btns_sec-2 {
+      margin-top: 12px;
+      width: 90%;
+      display: flex;
+      justify-items: start;
+      align-items: center;
+      gap: 10px;
+    }
+
     .sub_btn {
       font-weight: normal;
       color: white;
       border-radius: 2rem;
       cursor: pointer;
       width: 62.02px;
+      height: 30.66px;
+      border: none;
+      background-color: #3653f8;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-size: 0.7rem;
+    }
+
+    .sub_btn-2 {
+      font-weight: normal;
+      color: white;
+      border-radius: 2rem;
+      cursor: pointer;
+      min-width: 62.02px;
       height: 30.66px;
       border: none;
       background-color: #3653f8;
@@ -653,11 +686,26 @@
       font-size: 0.7rem;
     }
 
+    .cen_btn-2 {
+      font-weight: normal;
+      color: black;
+      border-radius: 2rem;
+      cursor: pointer;
+      width: 62.02px;
+      height: 30.66px;
+      border: 1px solid rgb(165, 164, 164);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-size: 0.7rem;
+    }
+
     .activity_data {
       overflow: auto;
       min-height: 120px;
       max-height: 140px;
-      width: 250px;
+      z-index: 50;
+      width: 220px;
       top: 50px;
       left: 100px;
       border-radius: 10px;
@@ -671,8 +719,8 @@
     .acti-name {
       white-space: nowrap;
       overflow-x: auto;
-     /* margin-bottom: 8px; */
-     /* padding: 8px 0; */
+      /* margin-bottom: 8px; */
+      /* padding: 8px 0; */
 
     }
 
@@ -688,182 +736,828 @@
       background-color: lightgray;
     }
   </style>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Open+Sans:ital,wght@0,300..800;1,300..800&display=swap');
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Open Sans', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    }
+
+    html,
+    body {
+      height: 100%;
+      width: 100%;
+    }
+
+    form {
+      padding: 10px 0;
+    }
+
+    #form1 {
+
+      width: 100%;
+      background-color: #FFFFFF;
+      padding: 20px;
+      box-shadow: rgba(100, 100, 111, 0.2) 0px 7px 29px 0px;
+
+      border-radius: 10px;
+    }
+
+    #form-top {
+      display: flex;
+      justify-content: space-between;
+      border-bottom: 1px solid #dcdada;
+      padding-bottom: 10px;
+    }
+
+    #form-top h6 {
+      font-size: 11px;
+      text-transform: uppercase;
+      color: #525c69;
+      font-weight: 600;
+    }
+
+    #form-top h6 i {
+      color: #c1c1c1;
+      font-size: 12px;
+    }
+
+    #form-top p {
+      font-size: 11px;
+      color: #525c69;
+    }
+
+    .elem {
+      padding: 5px 0px;
+    }
+
+    .elem label {
+      display: block;
+      font-size: 12px;
+      color: #c1c1c1;
+      padding: 3px 0px;
+    }
+
+    .elem input {
+      width: 100%;
+      padding: 10px 8px;
+      border: 1px solid #c1c1c1;
+      border-radius: 2px;
+    }
+
+    #name::placeholder {
+      color: #c1c1c1;
+    }
+
+    .ri-settings-5-line {
+      font-size: 15px;
+      color: #525c69;
+    }
+
+    #amount-currency {
+      display: flex;
+      align-items: center;
+
+    }
+
+    #amount-currency input {
+      width: 100%;
+      margin-right: 10px;
+    }
+
+    #amount-currency select {
+      width: 100%;
+      padding: 10px 8px;
+      border: 1px solid #c1c1c1;
+      border-radius: 2px;
+      margin-right: 10px;
+    }
+
+    #amount-currency option {
+      width: 40px;
+    }
+
+    #amount-currency i {
+      padding-right: 5px;
+    }
+
+    .end-date input {
+      width: 100%;
+    }
+
+    .end-date i {
+      float: right;
+      padding-right: 5px;
+      margin-top: 10px;
+    }
+
+    #client {
+      border: 1px solid #c1c1c1;
+      padding: 10px 20px;
+      width: 100%;
+      margin-right: 5px;
+    }
+
+    .client-details {
+      position: relative;
+    }
+
+    .client-details label {
+      display: block;
+      font-size: 12px;
+      color: #c1c1c1;
+      padding: 3px 0px;
+    }
+
+    .contact-input input {
+      width: 96%;
+      padding: 10px 36px;
+      border: 1px solid #c1c1c1;
+      border-radius: 2px;
+    }
+
+    .client-details-1 {
+      position: relative;
+    }
+
+    .client-details-1 label {
+      display: block;
+      font-size: 12px;
+      color: #c1c1c1;
+      padding: 3px 0px;
+    }
+
+    .contact-input-1 input {
+      width: 100%;
+      padding: 10px 36px;
+      border: 1px solid #c1c1c1;
+      border-radius: 2px;
+    }
+
+    .ri-user-fill {
+      background-color: #A6AAAF;
+      color: #FFFFFF;
+      padding: 7px;
+      border-radius: 50%;
+      font-size: 10px;
+      position: absolute;
+      left: 7px;
+      top: 30px;
+    }
+
+    .ri-search-line {
+      color: #A6AAAF;
+      padding: 7px;
+      border-radius: 50%;
+      font-size: 17px;
+      font-weight: 600;
+      position: absolute;
+      right: 25px;
+      top: 25px;
+    }
+
+    .ri-building-line {
+      background-color: #A6AAAF;
+      color: #FFFFFF;
+      padding: 7px;
+      border-radius: 50%;
+      font-size: 10px;
+      position: absolute;
+      left: 7px;
+      top: 30px;
+    }
+
+    #add {
+      margin-top: 25px;
+      margin-bottom: 15px;
+    }
+
+    .add-participant {
+      border: none;
+      background-color: transparent;
+      border-bottom: 1px dotted #c1c1c1;
+      font-size: 14px;
+      color: #c1c1c1;
+      padding: 3px 0px;
+    }
+
+    .ri-add-line {
+      font-size: 14px;
+      color: #c1c1c1;
+    }
+
+    .ri-close-line {
+      font-size: 14px;
+      color: #c1c1c1;
+      opacity: 0;
+    }
+
+    @media(max-width:600px) {
+      #form1 {
+        height: 70%;
+        width: 100%;
+        background-color: #FFFFFF;
+        padding: 10px;
+        box-shadow: rgba(100, 100, 111, 0.2) 0px 7px 29px 0px;
+      }
+
+      .elem input {
+        width: 100%;
+      }
+
+      textarea {
+        width: 100%;
+      }
+
+      .contact-input input {
+        width: 100%;
+      }
+
+      .settings-5 {
+        margin: 24px 3px !important;
+      }
+    }
+
+    @media(max-width:1000px) {
+      #form1 {
+        width: 70%;
+      }
+
+      textarea {
+        width: 100%;
+      }
+    }
+
+    .elem select {
+      width: 100%;
+      padding: 10px 8px;
+      border: 1px solid #c1c1c1;
+      border-radius: 2px;
+      margin-right: 7px;
+    }
+
+    .elem textarea {
+      border: 1px solid #c1c1c1;
+      border-radius: 2px;
+      margin-right: 8px;
+    }
+
+    .elem-checkbox {
+      display: flex;
+      justify-content: space-between;
+      margin-right: 4.8px;
+      margin-top: 30px;
+    }
+
+    .elem-checkbox label {
+      font-size: 12px;
+      color: #c1c1c1;
+      padding: 3px 0px;
+    }
+
+    #Responsible {
+      width: 100%;
+    }
+
+    .bxhtmled-top-bar-btn {
+      border-right: 1px solid #c1c1c1;
+      padding-right: 10px;
+    }
+
+    .ri-git-repository-private-fill {
+      position: absolute;
+      right: 10px;
+      top: 35px;
+      color: #2fc6f6;
+    }
+
+    .main_div {
+      display: flex;
+      justify-content: space-between;
+
+    }
+
+    .right-form {
+      width: 45%;
+    }
+
+    .outter-section {
+      width: 100%;
+      position: relative;
+      padding: 10px;
+    }
+
+    .inner-section {
+      background: white;
+      border-radius: 10px;
+    }
+
+    .inner-section h5 {
+      padding: 10px 0;
+      border-bottom: 1px solid lightgray;
+    }
+
+    #datetime-local {
+      outline: none;
+      border: none;
+    }
+
+    .calendar-icon {
+      background-color: #c1c1c1;
+      border-radius: 50%;
+      padding: 4px 8px;
+      font-size: 12px;
+      color: white;
+      left: -15px;
+      top: -15px;
+
+    }
+
+    .positions {
+      position: absolute;
+      color: #697A8D;
+      left: -15px;
+      top: -20px;
+    }
+
+    .outter-section,
+    .activity-dets-section {
+      border: 1px solid rgba(211, 211, 211, 0.416);
+    }
+
+    .staright-line {
+      width: 100%;
+      background: lightgray;
+      height: 1px;
+      margin: 3vw 0;
+    }
+
+    .ri-checkbox-circle-line {
+      font-size: 14px;
+    }
+
+    .lead_contact {
+      max-height: 150px;
+      width: 96%;
+      top: 100%;
+      left: 0;
+      background: white;
+      overflow-y: auto;
+      border-radius: 5px;
+    }
+
+
+
+
+
+    .c-button {
+
+      border-radius: 45px;
+      font-size: 12px;
+      margin: 10px;
+      padding: 11px 0px 11px 0px;
+      position: relative;
+      left: 50%;
+      transform: translateX(-52%);
+      cursor: pointer;
+    }
+
+    .c-button .c-main {
+      border-radius: 45px;
+      padding: 11px 25px 11px 2px;
+      transition: all 0.5s ease-in-out;
+      border: 1px solid transparent;
+    }
+
+    .c-ico .c-blur {
+      border-radius: 100%;
+      margin-left: 0;
+      padding: 8px 23px;
+      filter: blur(1px);
+      text-align: center;
+    }
+
+    .c-ico {
+      position: relative;
+      margin-right: 20px;
+    }
+
+    .c-ico .ico-text {
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      transform: translate(-50%, -50%);
+      font-size: 14px;
+    }
+  </style>
 </head>
 
 <body>
-  <div class="details_container position-absolute bg-white end-0 border" style="z-index: 1100;min-height: 120vh">
+  {{!-- activity side dialog --}}
+
+  <div class="details_container-2 position-absolute bg-white end-0 border" style="z-index: 1100;min-height: 120vh">
     <div class="w-full h-full p-4">
-      <div class="w-full mb-4 mt-2 d-flex justify-content-end align-content-center">
-        <i class="ri-close-large-line bg-black text-white close_side rounded-circle d-inline-block  h5 "></i>
-      </div>
-      <div class="row tabs align-content-center">
-        <div class="w-full d-flex align-items-center  gap-3 tabs_heading">
-          <h5 class="borderB cursor-pointer">General</h5>
-          <h5 class="cursor-pointer">Activity</h5>
-          <h5 class="cursor-pointer">Product</h5>
-          <h5 class="cursor-pointer">Listing</h5>
+      <div class="w-full mb-4 mt-2 d-flex justify-content-between align-content-center">
+        <h1>New Lead</h1>
+        <div>
+          <i
+          class="ri-close-large-line ri-close-large-line-2 bg-black text-white close_side rounded-circle d-inline-block  h5 "></i>
         </div>
-        <div class="data-container block mt-4  mh-100 overflow-auto w-full">
+      </div>
 
+      <div class="main_div">
+        <form id="myForm" class="w-50 p-0">
+          <div id="form1">
+            <div id="form-top">
+              <h6>About Deal &nbsp;<i class="ri-pencil-fill"></i></h6>
+              <p>cancel</p>
+            </div>
+            <div id="form-center">
+              <div class="elem">
+                <label for="name">Company Name</label>
+                <input type="text" placeholder="Company...." name="companyName" required>
+              </div>
+              <div class="elem">
+                <label for="name">Stage</label>
+                <select name="Stage" id="Stage" required>
+                  <option value="" disabled selected>Select Stage</option>
+                  <option value="Follow Up Lead">Follow Up Lead</option>
+                  <option value="In Progess">In Progess</option>
+                  <option value="Advance Stage">Advance Stage</option>
+                  <option value="Close Lead Won">Close Lead Won</option>
 
-          <div class="data-values">
-            <div class="row gy-4 gy-md-5 gy-lg-0 align-items-md-center">
-              <div class="col-12 col-lg-6">
-                <div class="border overflow-hidden rounded-2">
+                </select>
+              </div>
+              <div class="elem">
+                <label for="name">Amount and currency</label>
+                <div id="amount-currency">
+                  <input type="text" value="0.00" name="Amount" id="Amount" >
+                  <select>
+                    <option value="indian-rupee">Indian Rupee</option>
+                    <option value="us-dollar">US Dollar</option>
 
-                  <form action="#">
-                    <div class="row gy-4 gy-xl-5 p-4 p-xl-5">
-                      <div class="col-12 mt-4">
-                        <label for="leadname" class="form-label">Lead Name </label>
-                        <div class="input-group">
-                          <input type="text" class="form-control" id="leadname" name="leadname" value="" />
-                        </div>
-                      </div>
-                      <div class="col-12 mt-2 col-md-6">
-                        <label for="companyname" class="form-label">Company Name</label>
-                        <div class="input-group">
-
-                          <input type="text" class="form-control" id="companyname" name="companyname" value="" />
-                        </div>
-                      </div>
-                      <div class="col-12 mt-2 col-md-6">
-                        <label for="phone" class="form-label">Phone Number</label>
-                        <div class="input-group">
-
-                          <input type="number" class="form-control" id="phone" name="phone" value="" />
-                        </div>
-                      </div>
-
-                      <div class="col-12 mt-2 col-md-6">
-                        <label for="email" class="form-label">Email</label>
-                        <div class="input-group">
-
-                          <input type="email" class="form-control" id="email" name="email" value="" />
-                        </div>
-                      </div>
-                      <div class="col-12 mt-2 col-md-6">
-                        <label for="leadstatus" class="form-label">Lead Status</label>
-                        <div class="input-group">
-
-                          <input type="text" class="form-control" id="leadstatus" name="leadstatus" value="" />
-                        </div>
-                      </div>
-                      {{!--
-                      <div class="col-12 mt-2">
-                        <label for="message" class="form-label">Message</label>
-                        <textarea class="form-control" id="message" name="message" rows="3" required></textarea>
-                      </div> --}}
-                      <div class="col-12 mt-4">
-                        <button class="btn btn-primary btn-md" type="submit">Update Field</button>
-                      </div>
-                    </div>
-                  </form>
+                  </select>
 
                 </div>
               </div>
-              <div class="col-12 col-lg-6">
-                <div class="row justify-content-xl-center">
-                  <div class="col-12 col-xl-11">
-                    <div class="mb-4 mb-md-5">
-                      <div class="mb-3 text-primary">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" fill="currentColor"
-                          class="bi bi-geo" viewBox="0 0 16 16">
-                          <path fill-rule="evenodd"
-                            d="M8 1a3 3 0 1 0 0 6 3 3 0 0 0 0-6zM4 4a4 4 0 1 1 4.5 3.969V13.5a.5.5 0 0 1-1 0V7.97A4 4 0 0 1 4 3.999zm2.493 8.574a.5.5 0 0 1-.411.575c-.712.118-1.28.295-1.655.493a1.319 1.319 0 0 0-.37.265.301.301 0 0 0-.057.09V14l.002.008a.147.147 0 0 0 .016.033.617.617 0 0 0 .145.15c.165.13.435.27.813.395.751.25 1.82.414 3.024.414s2.273-.163 3.024-.414c.378-.126.648-.265.813-.395a.619.619 0 0 0 .146-.15.148.148 0 0 0 .015-.033L12 14v-.004a.301.301 0 0 0-.057-.09 1.318 1.318 0 0 0-.37-.264c-.376-.198-.943-.375-1.655-.493a.5.5 0 1 1 .164-.986c.77.127 1.452.328 1.957.594C12.5 13 13 13.4 13 14c0 .426-.26.752-.544.977-.29.228-.68.413-1.116.558-.878.293-2.059.465-3.34.465-1.281 0-2.462-.172-3.34-.465-.436-.145-.826-.33-1.116-.558C3.26 14.752 3 14.426 3 14c0-.599.5-1 .961-1.243.505-.266 1.187-.467 1.957-.594a.5.5 0 0 1 .575.411z" />
-                        </svg>
+              <div class="elem end-date">
+                <label for="name">End date</label>
+                <input type="date" name="EndDate" id="end-date">
+              </div>
+
+              <div style="display: flex; margin-top: 40px;">
+                <div id="client">
+                  <div class="client-details position-relative">
+                    <label for="">Contact</label>
+                    <div class="contact-input">
+                      <i class="ri-user-fill"></i>
+                    <input type="text" id="contact_input" name="ContactNumber" autocomplete="one-time-code"
+                        placeholder="Contact name,phone or email" required>
+                      <i class="ri-search-line"></i>
+                      <i class="ri-close-line"></i>
+
+                      {{!-- dynamically contact data --}}
+                      <div class="position-absolute  lead_contact">
+
                       </div>
-                      <div>
-                        <h4 class="mb-2">Office</h4>
-                        <p class="mb-2">Please visit us to have a discussion.</p>
-                        <hr class="w-50 mb-3 border-dark-subtle">
-                        <address class="m-0 text-secondary">8014 Edith Blvd NE, Albuquerque, New York, United States
-                        </address>
-                      </div>
+
                     </div>
-                    <div class="row mb-sm-4 mb-md-5">
-                      <div class="col-12 col-sm-6">
-                        <div class="mb-4 mb-sm-0">
-                          <div class="mb-3 text-primary">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" fill="currentColor"
-                              class="bi bi-telephone-outbound" viewBox="0 0 16 16">
-                              <path
-                                d="M3.654 1.328a.678.678 0 0 0-1.015-.063L1.605 2.3c-.483.484-.661 1.169-.45 1.77a17.568 17.568 0 0 0 4.168 6.608 17.569 17.569 0 0 0 6.608 4.168c.601.211 1.286.033 1.77-.45l1.034-1.034a.678.678 0 0 0-.063-1.015l-2.307-1.794a.678.678 0 0 0-.58-.122l-2.19.547a1.745 1.745 0 0 1-1.657-.459L5.482 8.062a1.745 1.745 0 0 1-.46-1.657l.548-2.19a.678.678 0 0 0-.122-.58L3.654 1.328zM1.884.511a1.745 1.745 0 0 1 2.612.163L6.29 2.98c.329.423.445.974.315 1.494l-.547 2.19a.678.678 0 0 0 .178.643l2.457 2.457a.678.678 0 0 0 .644.178l2.189-.547a1.745 1.745 0 0 1 1.494.315l2.306 1.794c.829.645.905 1.87.163 2.611l-1.034 1.034c-.74.74-1.846 1.065-2.877.702a18.634 18.634 0 0 1-7.01-4.42 18.634 18.634 0 0 1-4.42-7.009c-.362-1.03-.037-2.137.703-2.877L1.885.511zM11 .5a.5.5 0 0 1 .5-.5h4a.5.5 0 0 1 .5.5v4a.5.5 0 0 1-1 0V1.707l-4.146 4.147a.5.5 0 0 1-.708-.708L14.293 1H11.5a.5.5 0 0 1-.5-.5z" />
-                            </svg>
-                          </div>
-                          <div>
-                            <h4 class="mb-2">Phone</h4>
-                            <p class="mb-2">Please speak with us directly.</p>
-                            <hr class="w-75 mb-3 border-dark-subtle">
-                            <p class="mb-0">
-                              <a class="link-secondary text-decoration-none" href="tel:+15057922430">(505) 792-2430</a>
-                            </p>
-                          </div>
-                        </div>
-                      </div>
-                      <div class="col-12 col-sm-6">
-                        <div class="mb-4 mb-sm-0">
-                          <div class="mb-3 text-primary">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" fill="currentColor"
-                              class="bi bi-envelope-at" viewBox="0 0 16 16">
-                              <path
-                                d="M2 2a2 2 0 0 0-2 2v8.01A2 2 0 0 0 2 14h5.5a.5.5 0 0 0 0-1H2a1 1 0 0 1-.966-.741l5.64-3.471L8 9.583l7-4.2V8.5a.5.5 0 0 0 1 0V4a2 2 0 0 0-2-2H2Zm3.708 6.208L1 11.105V5.383l4.708 2.825ZM1 4.217V4a1 1 0 0 1 1-1h12a1 1 0 0 1 1 1v.217l-7 4.2-7-4.2Z" />
-                              <path
-                                d="M14.247 14.269c1.01 0 1.587-.857 1.587-2.025v-.21C15.834 10.43 14.64 9 12.52 9h-.035C10.42 9 9 10.36 9 12.432v.214C9 14.82 10.438 16 12.358 16h.044c.594 0 1.018-.074 1.237-.175v-.73c-.245.11-.673.18-1.18.18h-.044c-1.334 0-2.571-.788-2.571-2.655v-.157c0-1.657 1.058-2.724 2.64-2.724h.04c1.535 0 2.484 1.05 2.484 2.326v.118c0 .975-.324 1.39-.639 1.39-.232 0-.41-.148-.41-.42v-2.19h-.906v.569h-.03c-.084-.298-.368-.63-.954-.63-.778 0-1.259.555-1.259 1.4v.528c0 .892.49 1.434 1.26 1.434.471 0 .896-.227 1.014-.643h.043c.118.42.617.648 1.12.648Zm-2.453-1.588v-.227c0-.546.227-.791.573-.791.297 0 .572.192.572.708v.367c0 .573-.253.744-.564.744-.354 0-.581-.215-.581-.8Z" />
-                            </svg>
-                          </div>
-                          <div>
-                            <h4 class="mb-2">Email</h4>
-                            <p class="mb-2">Please write to us directly.</p>
-                            <hr class="w-75 mb-3 border-dark-subtle">
-                            <p class="mb-0">
-                              <a class="link-secondary text-decoration-none"
-                                href="mailto:demo@yourdomain.com">demo@yourdomain.com</a>
-                            </p>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                    <div>
-                      <div class="mb-3 text-primary">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" fill="currentColor"
-                          class="bi bi-alarm" viewBox="0 0 16 16">
-                          <path
-                            d="M8.5 5.5a.5.5 0 0 0-1 0v3.362l-1.429 2.38a.5.5 0 1 0 .858.515l1.5-2.5A.5.5 0 0 0 8.5 9V5.5z" />
-                          <path
-                            d="M6.5 0a.5.5 0 0 0 0 1H7v1.07a7.001 7.001 0 0 0-3.273 12.474l-.602.602a.5.5 0 0 0 .707.708l.746-.746A6.97 6.97 0 0 0 8 16a6.97 6.97 0 0 0 3.422-.892l.746.746a.5.5 0 0 0 .707-.708l-.601-.602A7.001 7.001 0 0 0 9 2.07V1h.5a.5.5 0 0 0 0-1h-3zm1.038 3.018a6.093 6.093 0 0 1 .924 0 6 6 0 1 1-.924 0zM0 3.5c0 .753.333 1.429.86 1.887A8.035 8.035 0 0 1 4.387 1.86 2.5 2.5 0 0 0 0 3.5zM13.5 1c-.753 0-1.429.333-1.887.86a8.035 8.035 0 0 1 3.527 3.527A2.5 2.5 0 0 0 13.5 1z" />
-                        </svg>
-                      </div>
-                      <div>
-                        <h4 class="mb-2">Opening Hours</h4>
-                        <p class="mb-2">Explore our business opening hours.</p>
-                        <hr class="w-50 mb-3 border-dark-subtle">
-                        <div class="d-flex mb-1">
-                          <p class="text-secondary fw-bold mb-0 me-5">Mon - Fri</p>
-                          <p class="text-secondary mb-0">9am - 5pm</p>
-                        </div>
-                        <div class="d-flex">
-                          <p class="text-secondary fw-bold mb-0 me-5">Sat - Sun</p>
-                          <p class="text-secondary mb-0">9am - 2pm</p>
-                        </div>
-                      </div>
+
+                  </div>
+
+
+                </div>
+              </div>
+
+            </div>
+          </div>
+
+          <div id="form1" class="mt-3">
+
+            <div id="form-center">
+              <div class="elem">
+                <label for="name">Deal type</label>
+                <select name="DealType" id="deal-type" required>
+                  <option value="" selected disabled>Select Deal Type..</option>
+                  <option value="Sales">Sales</option>
+                  <option value="Services">Services</option>
+                  <option value="After Sales Service">After Sales Service</option>
+                </select>
+              </div>
+
+              <div class="elem">
+                <label for="name">Source</label>
+                <select name="Source" id="Source" required>
+                  <option value="">Not selected</option>
+                  <option value="call">Call</option>
+                  <option value="email">E-Mail</option>
+                  <option value="website">Website</option>
+                  <option value="advertising">Advertising</option>
+                  <option value="existing-client">Existing Client</option>
+                  <option value="recommendation">By Recommendation</option>
+                  <option value="show-exhibition">Show/Exhibition</option>
+                  <option value="crm-form">CRM form</option>
+                  <option value="callback">Callback</option>
+                  <option value="sales-boost">Sales boost</option>
+                  <option value="online-store">Online Store</option>
+                  <option value="other">Other</option>
+
+                </select>
+              </div>
+
+
+
+
+
+              <div style="display: flex; margin-top: 8px; position: relative;">
+                <div id="Responsible">
+                  <div class="client-details-1">
+                    <label for="">Responsible</label>
+                    <div class="contact-input">
+                      <i class="ri-user-fill"></i>
+                      <input type="text" name="responsible_person" value="{{username}}">
+                      <i class="ri-search-line"></i>
                     </div>
                   </div>
                 </div>
+              </div>
+
+
+            </div>
+          </div>
+          <button type="submit" class="btn btn-primary" id="submit_btn">Submit</button>
+
+        </form>
+        <div class="right-form ">
+          <div class="outter-section   rounded-2 position-relative ">
+            <i class="ri-chat-smile-2-fill positions position-absolute " style="font-size: 34px;"></i>
+            <div class="inner-section m-2 ">
+              <h5>Activity</h5>
+              <div class="mb-3">
+
+                <textarea class="form-control" id="exampleFormControlTextarea1" rows="3" cols="4"
+                  style="min-height: 100px;"></textarea>
+              </div>
+              <div class="calendar d-flex align-items-center gap-3">
+
+                <i class="ri-calendar-line"></i>
+                <input type="datetime-local" value="" name="" id="datetime-local" class="w-50 " placeholder="enter">
+              </div>
+              <div class="btns_sec-2">
+                <button class="sub_btn-2 text-capitalize ">
+                  Submit
+                </button>
+                <button type="reset" class="cen_btn-2  text-capitalize">
+                  Cancel
+                </button>
+              </div>
+            </div>
+          </div>
+          {{!-- activity details card --}}
+          <div class="staright-line"></div>
+          <div class="activity-dets-section   rounded-2 position-relative ">
+            <i class="ri-checkbox-circle-fill positions  " style="font-size: 34px;"></i>
+            <div class="p-2 px-3 ">
+              <div class="times_sec d-flex justify-content-between align-items-center  mt-2  ">
+                <div class="d-flex align-items-center gap-3">
+                  <p class="m-0">Activity completed</p>
+                  <p class="m-0">1:41 pm</p>
+                </div>
+                <i class="ri-account-circle-fill" style="font-size: 28px;"></i>
+              </div>
+              <div class="deadline_part d-flex align-items-center gap-4">
+                <small>Deadline</small>
+                <small>Tue, Apr 9, 11:00 am</small>
+              </div>
+              <div class="mb-3 mt-2">
+                <textarea class="form-control" id="exampleFormControlTextarea1" rows="3" cols="4"
+                  style="min-height: 100px;"></textarea>
+              </div>
+              <div class="btns_sec-2">
+                <button class="sub_btn-2 px-2  text-capitalize">
+                  Completed
+                </button>
+                <button type="reset" class="cen_btn-2 text-capitalize px-2 ">
+                  postpone
+                </button>
               </div>
             </div>
           </div>
 
         </div>
-        <div class="data-container d-none mt-4 mh-100 overflow-auto w-full">
-          <h1>Container 2</h1>
-        </div>
-        <div class="data-container d-none mt-4 mh-100 overflow-auto w-full">
-          <h1>Container 3</h1>
-        </div>
-        <div class="data-container d-none mt-4 mh-100 overflow-auto w-full">
-          <h1>Container 4</h1>
+
+      </div>
+
+
+
+
+
+    </div>
+  </div>
+
+
+
+  <div class="details_container position-absolute bg-white end-0 border" style="z-index: 1100;min-height: 120vh">
+     <div class="w-full h-full p-4">
+      <div class="w-full mb-4 mt-2 d-flex justify-content-between align-content-center">
+        <h1>Update Lead</h1>
+        <div>
+          <i
+          class="ri-close-large-line ri-close-large-line-1 bg-black text-white close_side rounded-circle d-inline-block  h5 "></i>
         </div>
       </div>
+
+      <div class="main_div">
+        <form id="myForm" class="w-50 p-0">
+          <div id="form1">
+            <div id="form-top">
+              <h6>About Deal &nbsp;<i class="ri-pencil-fill"></i></h6>
+              <p>cancel</p>
+            </div>
+            <div id="form-center">
+              <div class="elem">
+                <label for="name">Company Name</label>
+                <input type="text" placeholder="Company...." name="companyName" required>
+              </div>
+              <div class="elem">
+                <label for="name">Stage</label>
+                <select name="Stage" id="Stage" required>
+                  <option value="" disabled selected>Select Stage</option>
+                  <option value="Follow Up Lead">Follow Up Lead</option>
+                  <option value="In Progess">In Progess</option>
+                  <option value="Advance Stage">Advance Stage</option>
+                  <option value="Close Lead Won">Close Lead Won</option>
+
+                </select>
+              </div>
+              <div class="elem">
+                <label for="name">Amount and currency</label>
+                <div id="amount-currency">
+                  <input type="text" value="0.00" name="Amount" id="Amount" >
+                  <select>
+                    <option value="indian-rupee">Indian Rupee</option>
+                    <option value="us-dollar">US Dollar</option>
+
+                  </select>
+
+                </div>
+              </div>
+              <div class="elem end-date">
+                <label for="name">End date</label>
+                <input type="date" name="EndDate" id="end-date">
+              </div>
+
+              <div style="display: flex; margin-top: 40px;">
+                <div id="client">
+                  <div class="client-details position-relative">
+                    <label for="">Contact</label>
+                    <div class="contact-input">
+                      <i class="ri-user-fill"></i>
+                    <input type="text" id="contact_input" name="ContactNumber" autocomplete="one-time-code"
+                        placeholder="Contact name,phone or email" required>
+                      <i class="ri-search-line"></i>
+                      <i class="ri-close-line"></i>
+
+                      {{!-- dynamically contact data --}}
+                      <div class="position-absolute  lead_contact">
+
+                      </div>
+
+                    </div>
+
+                  </div>
+
+
+                </div>
+              </div>
+
+            </div>
+          </div>
+
+          <div id="form1" class="mt-3">
+
+            <div id="form-center">
+              <div class="elem">
+                <label for="name">Deal type</label>
+                <select name="DealType" id="deal-type" required>
+                  <option value="" selected disabled>Select Deal Type..</option>
+                  <option value="Sales">Sales</option>
+                  <option value="Services">Services</option>
+                  <option value="After Sales Service">After Sales Service</option>
+                </select>
+              </div>
+
+              <div class="elem">
+                <label for="name">Source</label>
+                <select name="Source" id="Source" required>
+                  <option value="">Not selected</option>
+                  <option value="call">Call</option>
+                  <option value="email">E-Mail</option>
+                  <option value="website">Website</option>
+                  <option value="advertising">Advertising</option>
+                  <option value="existing-client">Existing Client</option>
+                  <option value="recommendation">By Recommendation</option>
+                  <option value="show-exhibition">Show/Exhibition</option>
+                  <option value="crm-form">CRM form</option>
+                  <option value="callback">Callback</option>
+                  <option value="sales-boost">Sales boost</option>
+                  <option value="online-store">Online Store</option>
+                  <option value="other">Other</option>
+
+                </select>
+              </div>
+
+
+
+
+
+              <div style="display: flex; margin-top: 8px; position: relative;">
+                <div id="Responsible">
+                  <div class="client-details-1">
+                    <label for="">Responsible</label>
+                    <div class="contact-input">
+                      <i class="ri-user-fill"></i>
+                      <input type="text" name="responsible_person" value="{{username}}">
+                      <i class="ri-search-line"></i>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+
+            </div>
+          </div>
+          <button type="submit" class="btn btn-primary" id="submit_btn">Submit</button>
+
+        </form>
+        <div class="right-form ">
+          <div class="outter-section   rounded-2 position-relative ">
+            <i class="ri-chat-smile-2-fill positions position-absolute " style="font-size: 34px;"></i>
+            <div class="inner-section m-2 ">
+              <h5>Activity</h5>
+              <div class="mb-3">
+
+                <textarea class="form-control" id="exampleFormControlTextarea1" rows="3" cols="4"
+                  style="min-height: 100px;"></textarea>
+              </div>
+              <div class="calendar d-flex align-items-center gap-3">
+
+                <i class="ri-calendar-line"></i>
+                <input type="datetime-local" value="" name="" id="datetime-local" class="w-50 " placeholder="enter">
+              </div>
+              <div class="btns_sec-2">
+                <button class="sub_btn-2 text-capitalize ">
+                  Submit
+                </button>
+                <button type="reset" class="cen_btn-2  text-capitalize">
+                  Cancel
+                </button>
+              </div>
+            </div>
+          </div>
+          {{!-- activity details card --}}
+          <div class="staright-line"></div>
+          <div class="activity-dets-section   rounded-2 position-relative ">
+            <i class="ri-checkbox-circle-fill positions  " style="font-size: 34px;"></i>
+            <div class="p-2 px-3 ">
+              <div class="times_sec d-flex justify-content-between align-items-center  mt-2  ">
+                <div class="d-flex align-items-center gap-3">
+                  <p class="m-0">Activity completed</p>
+                  <p class="m-0">1:41 pm</p>
+                </div>
+                <i class="ri-account-circle-fill" style="font-size: 28px;"></i>
+              </div>
+              <div class="deadline_part d-flex align-items-center gap-4">
+                <small>Deadline</small>
+                <small>Tue, Apr 9, 11:00 am</small>
+              </div>
+              <div class="mb-3 mt-2">
+                <textarea class="form-control" id="exampleFormControlTextarea1" rows="3" cols="4"
+                  style="min-height: 100px;"></textarea>
+              </div>
+              <div class="btns_sec-2">
+                <button class="sub_btn-2 px-2  text-capitalize">
+                  Completed
+                </button>
+                <button type="reset" class="cen_btn-2 text-capitalize px-2 ">
+                  postpone
+                </button>
+              </div>
+            </div>
+          </div>
+
+        </div>
+
+      </div>
+
+
+
+
+
+    </div>
     </div>
   </div>
 
@@ -908,7 +1602,7 @@
                     <div class="d-flex slide-container position-relative rounded-2"
                       style="overflow-x: auto; width:100%; height:100%;">
 
-                      
+
                     </div>
                   </div>
                 </div>
@@ -921,7 +1615,7 @@
           </div>
           <!-- / Content -->
           <!-- Footer -->
-          {{>footer}}
+          {{!-- {{>footer}} --}}
           <!-- / Footer -->
 
           <div class="content-backdrop fade"></div>
@@ -1011,10 +1705,47 @@
   });
 </script>
 
+<script>
+  /*side container 2 */
+  var flags = false
+  const sideopenbtn = document.querySelector('.cssbuttons-io-button')
+  sideopenbtn.addEventListener('click', () => {
+    const details_container = document.querySelector('.details_container-2');
+    if (flags) {
+      details_container.style.width = '0';
+      details_container.style.display = 'none';
+      flags = false
+    }
+    else {
+      details_container.style.width = '75%';
+      details_container.style.display = 'block';
+      flags = true
+    }
+
+  })
+
+  const close_large_btn2 = document.querySelector('.ri-close-large-line-2');
+  if (close_large_btn2) {
+    close_large_btn2.addEventListener('click', () => {
+      const details_container2 = document.querySelector('.details_container-2');
+      if (details_container2) {
+        details_container2.style.width = '0';
+        setTimeout(() => {
+          details_container2.style.display = 'none';
+        }, 550);
+      }
+    });
+  }
+
+
+</script>
+
 
 
 
 <script>
+
+
   document.addEventListener('click', (event) => {
     const target = event.target;
     if (target.matches('.cookie-card span')) {
@@ -1026,7 +1757,7 @@
     }
   });
 
-  const close_large_btn = document.querySelector('.ri-close-large-line');
+  const close_large_btn = document.querySelector('.ri-close-large-line-1');
   if (close_large_btn) {
     close_large_btn.addEventListener('click', () => {
       const details_container = document.querySelector('.details_container');
@@ -1107,74 +1838,303 @@
   })
 </script>
 
-/*activity container script */
+
+
+{{!--
 <script>
+  document.addEventListener('DOMContentLoaded', function () {
+    PostData();
+  });
 
-  function openActivity() {
-    const activity_container = document.querySelectorAll('.activity_sec')
-    const activity_btn = document.querySelectorAll('.pref')
+  function PostData() {
+    const sub_btn = document.querySelectorAll('.sub_btn');
+    sub_btn.forEach((ele, i) => {
+      ele.addEventListener('click', () => {
+        const activityInputs = document.querySelectorAll('.activity');
+        const leadIdInputs = document.querySelectorAll('[name="lead_id"]');
+        const postData = [];
 
-    activity_btn.forEach((item, index) => {
-      item.addEventListener('click', () => {
-        activity_container[index].classList.toggle("d-block")
+        activityInputs.forEach((input, index) => {
+          postData.push({
+            lead_id: leadIdInputs[index].value,
+            activity: input.value
+          });
+        });
 
-      })
-    })
+        fetch('/activity', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(postData)
+        })
+          .then(response => response.json())
+          .then(data => console.log(data))
+          .catch(error => console.error('Error:', error));
+      });
+    });
+  }
+</script> --}}
 
+
+<script>
+  function getDateTime() {
+    var now = new Date();
+    now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
+    document.getElementById('datetime-local').value = now.toISOString().slice(0, 16);
   }
 
+  window.onload = function () {
+    getDateTime();
+  };
+</script>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function () {
+    const addButton = document.querySelector('.add-participant');
+    const clientContainer = document.getElementById('client');
+
+    // Event listener for adding participant
+    addButton.addEventListener('click', function (event) {
+      event.preventDefault(); // Prevent default form submission behavior
+      const clone = clientContainer.querySelector('.client-details').cloneNode(true);
+      const closeIcon = clone.querySelector('.ri-close-line');
+      closeIcon.style.opacity = '1'; // Display close icon
+      clientContainer.insertBefore(clone, document.getElementById('add'));
+    });
+
+    // Event listener for removing participant
+    clientContainer.addEventListener('click', function (event) {
+      const target = event.target;
+      if (target && target.classList.contains('ri-close-line')) {
+        const participantToRemove = target.closest('.client-details');
+        participantToRemove.remove();
+      }
+    });
+  });
+</script>
+<script>
+  const contact_input = document.querySelector('#contact_input')
+  contact_input.addEventListener('input', async (e) => {
+    const storevalue = e.target.value;
+    if (!storevalue.trim()) { // Check if input value is empty or only contains whitespace
+      const lead_contact = document.querySelector('.lead_contact')
+      lead_contact.innerHTML = ` `;
+      return;
+    }
+    await appendingData(storevalue)
+  })
+
+  async function appendingData(value) {
+    try {
+      const res = await fetch('/filter-contact', {
+        method: "POST",
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          contact: value
+        })
+      });
+      const data = await res.json();
+      const lead_contact = document.querySelector('.lead_contact')
+      lead_contact.innerHTML = '';
+      if (data.success) {
+        if (data.alldata.length === 0 && data.contactdata.length === 0) {
+          const card = document.createElement('div');
+          card.classList.add('card');
+          card.innerHTML = `
+            <button type="button" class="c-button border-0 add-contact-btn">
+              <span class="c-main">
+                <span class="c-ico"><span class="c-blur"></span> <span class="ico-text">+</span></span>
+                Add to contact
+              </span>
+            </button>
+          `;
+          lead_contact.appendChild(card);
+
+          // Add event listener to handle click on "Add to contact" button
+          const addContactBtn = card.querySelector('.add-contact-btn');
+          addContactBtn.addEventListener('click', () => {
+            // Create the form
+            const form = document.createElement('form');
+            form.innerHTML = `
+              <input type="text" name="name" placeholder="Name">
+              <input type="email" name="email" placeholder="Email">
+              <input type="tel" name="mobile" placeholder="Mobile">
+              <input type="text" name="address" placeholder="address">
+              <button type="submit">Submit</button>
+            `;
+
+            // Append the form to the card
+            card.innerHTML = '';
+            card.appendChild(form);
+
+            // Add styling to the form
+            const style = document.createElement('style');
+            style.textContent = `
+              /* Form styles */
+              form {
+                display: flex;
+                flex-direction: column;
+                gap: 10px;
+                padding: 10px;
+                background-color: #f4f4f4;
+                border-radius: 5px;
+              }
+
+              input[type="text"],
+              input[type="email"],
+              input[type="tel"],
+              button {
+                padding: 8px;
+                border: 1px solid #ccc;
+                border-radius: 3px;
+                font-size: 14px;
+                outline: none;
+              }
+
+              input[type="text"],
+              input[type="email"],
+              input[type="tel"] {
+                width: 100%;
+              }
+
+              button {
+                background-color: #007bff;
+                color: #fff;
+                cursor: pointer;
+                transition: background-color 0.3s;
+              }
+
+              button:hover {
+                background-color: #0056b3;
+              }
+            `;
+            document.head.appendChild(style);
+
+            // Add event listener to handle form submission
+            form.addEventListener('submit', async (e) => {
+              e.preventDefault();
+              const formData = new FormData(form);
+              const formDataObj = Object.fromEntries(formData.entries());
+
+              try {
+                const res = await fetch('/contactData', {
+                  method: 'POST',
+                  headers: {
+                    'Content-Type': 'application/json',
+                  },
+                  body: JSON.stringify(formDataObj),
+                });
+                const data = await res.json();
+                console.log('Contact data response:', data);
+                form.reset();
+                toastr.success('Contact created successfully');
+
+                // You can update the UI or perform any other actions based on the server response
+              } catch (err) {
+                console.error(err);
+                // Handle any errors that occur during the fetch request
+                toastr.error('Failed to create contact data');
+
+              }
+            });
+          });
+        } else {
+          data.alldata.forEach(ele => {
+
+            const card = document.createElement('div');
+            card.classList.add('card');
+            card.innerHTML = `
+  <div class="wrapper d-flex gap-3 px-3 py-2 mx-auto my-1 border rounded-2 align-items-center" style="width: 80%" onclick='getcontactnum("${ele.ContactNumber}")'>
+    <div class="img-no">
+      <img class="rounded-circle" style="background-color: lightgray;" src="https://upload.wikimedia.org/wikipedia/commons/9/99/Sample_User_Icon.png" alt="" width="40" height="40">
+    </div>
+    <div class="div">
+      <small class="m-0 d-block">${ele.companyName}</small>
+      <small class="m-0 d-block">${ele.ContactNumber}</small>
+    </div>
+  </div>
+`;
+
+            lead_contact.appendChild(card);
+          });
+          data.contactdata.forEach(ele => {
+            const card = document.createElement('div');
+            card.classList.add('card');
+            card.innerHTML = `
+              <div class="wrapper d-flex gap-3 px-3 py-2 mx-auto my-1 border rounded-2 align-items-center" style="width: 80%;" onclick='getcontactnum("${ele.mobile}")'>
+                <div class="img-no">
+                  <img class="rounded-circle" style="background-color: lightgray;"
+                    src="https://upload.wikimedia.org/wikipedia/commons/9/99/Sample_User_Icon.png" alt=""
+                    width="40" height="40">
+                </div>
+                <div class="div">
+                  <small class="m-0 d-block">${ele.name}</small>
+                  <small class="m-0 d-block">${ele.mobile}</small>
+                </div>
+              </div>
+            `;
+            lead_contact.appendChild(card);
+          });
+        }
+      }
+
+
+
+    } catch (err) {
+      console.error(err);
+    }
+  }
+
+  function getcontactnum(number) {
+    document.querySelector('#contact_input').value = number
+    
+    
   
 
-  function openActivityData() {
-    const activity_data = document.querySelectorAll('.activity_data')
-    const info_btn = document.querySelectorAll('.ri-information-2-fill')
-    info_btn.forEach((ele, i) => {
-      ele.addEventListener('click', () => {
-        activity_data[i].classList.toggle("d-block")
-
-      })
-
-    })
   }
 
 
 
 
 </script>
-{{!-- <script>
-    document.addEventListener('DOMContentLoaded', function() {
-      PostData();
-    });
 
-    function PostData() {
-      const sub_btn = document.querySelectorAll('.sub_btn');
-      sub_btn.forEach((ele, i) => {
-        ele.addEventListener('click', () => {
-          const activityInputs = document.querySelectorAll('.activity');
-          const leadIdInputs = document.querySelectorAll('[name="lead_id"]');
-          const postData = [];
 
-          activityInputs.forEach((input, index) => {
-            postData.push({
-              lead_id: leadIdInputs[index].value,
-              activity: input.value
-            });
-          });
+<script>
+  document.getElementById('myForm').addEventListener('submit', async function (event) {
+    event.preventDefault();
+    const formData = new FormData(this);
+    const obj = Object.fromEntries(formData);
 
-          fetch('/activity', {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json'
-            },
-            body: JSON.stringify(postData)
-          })
-          .then(response => response.json())
-          .then(data => console.log(data))
-          .catch(error => console.error('Error:', error));
-        });
+    try {
+      const response = await fetch('/leads', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(obj)
       });
+
+      const data = await response.json();
+      console.log(data);
+
+      // Show toastr message
+      toastr.success('Lead data added successfully');
+
+      // Reset the form
+      this.reset();
+    } catch (error) {
+      console.error('Error:', error);
+      // Show toastr message for error
+      toastr.error('Failed to add lead data');
     }
-</script> --}}
+  });
+</script>
+
+
+
 
 <script src="scripts/leadmanagement.js"></script>
 <script src="/assets/js/main.js"></script>

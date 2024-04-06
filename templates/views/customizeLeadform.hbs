@@ -357,6 +357,7 @@
         const contactPerson = document.getElementById('contactNumber');
         contactPerson.addEventListener('input', async (e) => {
             const value = e.target.value.toLowerCase();
+        
             await getAllData(value);
         });
 
@@ -378,7 +379,7 @@
                     contactCnt.innerHTML = '';
 
                     data.alldata.forEach(contact => {
-                        console.log(contact)
+                       
                         const card = document.createElement('div');
                         card.classList.add('card');
                         card.innerHTML = `

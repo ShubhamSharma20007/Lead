@@ -116,8 +116,34 @@ async function renderContainers() {
         `;
         container.appendChild(newColumn);
 
-        // Counter for the number of cards in this container
-        let cardCount = 0;
+       // Counter for the number of cards in this container
+       let cardCount = 0;
+       const addField = async (fieldName, previousField) => {
+           const newFieldName = prompt('Enter field name:');
+           if (newFieldName !== null && newFieldName.trim() !== '') {
+               try {
+                   const response = await fetch('/customfield', {
+                       method: 'POST',
+                       headers: {
+                           'Content-Type': 'application/json'
+                       },
+                       body: JSON.stringify({ value: newFieldName, previousField })
+                   });
+                   const data = await response.json();
+                   console.log('Field added successfully:', data);
+                   location.reload();
+               } catch (error) {
+                   console.error('Error adding field:', error);
+               }
+           }
+       };
+
+       // Event listener for the "Add Field" button
+       newColumn.querySelector('.addFieldBtn').addEventListener('click', function() {
+           const fieldName = this.dataset.fieldName; // Get the corresponding field name
+           const previousField = this.closest('.board-column').querySelector('.board-column-header').dataset.targetStatus; // Get the previous field name
+           addField(fieldName, previousField);
+       });
 
         // Fetch data for the current containerData.fieldName from the server
         fetch(`/fetchDataForContainer/${encodeURIComponent(containerData.fieldName)}`)
@@ -139,8 +165,9 @@ async function renderContainers() {
                         card.innerHTML = `
                         <div class="activity_sec position-absolute  bg-white mt-1 border">
                         <div class="coolinput">
+                    
                         <input type="text" value='${item.Id}' hidden name='lead_id'>
-                        <input type="text" placeholder="Write here..." name="activity" class=" activity input">
+                        <input type="text" placeholder="Write here..." name="activity" class=" activity input" style="width: 100%;">
                         </div>
                         <div class="btns_sec">
                           <button class="sub_btn ">  
@@ -193,10 +220,12 @@ async function renderContainers() {
                         const newspan = document.createElement('span');
 
                         title.classList.add('d-block', 'title', 'text-capitalize');
-                        title.textContent = item.ClientName;
+                        title.textContent = item.companyName;
                         title.setAttribute('onclick', 'showLeadData(this)');
                         newspan.innerHTML = `<i class="ri-information-2-fill float-end"></i>`;
-                        newspan.setAttribute('onclick', 'openActivityData()');
+                        newspan.onclick = function(){
+                            openActivityData(card)
+                        }
                         title.appendChild(newspan);
 
                         const companyName = document.createElement('small');
@@ -213,7 +242,9 @@ async function renderContainers() {
 
                         activityButton.classList.add('pref');
                         activityButton.textContent = 'Activity';
-                        activityButton.setAttribute('onclick', 'openActivity(this)');
+                        activityButton.onclick = function() {
+                            openActivity(card);
+                        };
 
                         const icons = document.createElement('div');
                         icons.innerHTML = `
@@ -305,6 +336,21 @@ async function renderContainers() {
     });
 }
 
+
+
+function openActivity(value) {
+    const activity_container = value.querySelector(".activity_sec")
+    activity_container.classList.toggle("d-block")
+
+  }
+  function openActivityData(value) {
+    const activity_data = value.querySelector('.activity_data')
+    activity_data.classList.toggle("d-block")
+  
+  
+  }
+
+
 // Add event listener to submit button
 document.addEventListener('click', function (event) {
     if (event.target.classList.contains('sub_btn')) {
@@ -342,37 +388,43 @@ document.addEventListener('click', function (event) {
 
 
 
-// Function to add a new field
-async function addField() {
-    const value = prompt('Please Enter the field name', 'Ex. New Field');
-    try {
-        const res = await fetch('/customfield', {
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            method: "POST",
-            body: JSON.stringify({ value })
-        });
-        if (res.ok) {
-            await renderContainers();
-        } else {
-            throw new Error('Failed to add field');
-        }
-    } catch (error) {
-        console.error(error);
-    }
-}
 
-// Event listener to add a new field
-function AddField() {
-    const addFieldBtn = document.querySelector('.addFieldBtn');
-    addFieldBtn.addEventListener('click', addField);
-}
+
+
+
+
+
+// // Function to add a new field
+// async function addField() {
+//     const value = prompt('Please Enter the field name', 'Ex. New Field');
+//     try {
+//         const res = await fetch('/customfield', {
+//             headers: {
+//                 'Content-Type': 'application/json'
+//             },
+//             method: "POST",
+//             body: JSON.stringify({ value })
+//         });
+//         if (res.ok) {
+//             await renderContainers();
+//         } else {
+//             throw new Error('Failed to add field');
+//         }
+//     } catch (error) {
+//         console.error(error);
+//     }
+// }
+
+// // Event listener to add a new field
+// function AddField() {
+//     const addFieldBtn = document.querySelector('.addFieldBtn');
+//     addFieldBtn.addEventListener('click', addField);
+// }
 
 
 
 
 // Initial render
 renderContainers();
-AddField();
+// AddField();
 
