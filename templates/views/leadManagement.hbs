@@ -48,6 +48,8 @@
   <link rel="stylesheet" href="https://unpkg.com/bootstrap@5.3.2/dist/css/bootstrap.min.css" />
   <link rel="stylesheet"
     href="https://unpkg.com/bs-brain@2.0.3/components/contacts/contact-5/assets/css/contact-5.css" />
+  <link rel="stylesheet" href="https://cdn.datatables.net/2.0.3/css/dataTables.dataTables.css" />
+  <script src="https://cdn.datatables.net/2.0.3/js/dataTables.js"></script>
 
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Livvic:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,900&display=swap');
@@ -153,7 +155,7 @@
       height: 50px;
       line-height: 50px;
       overflow: hidden;
-      padding: 0 20px;
+      padding: 0 17px;
       text-align: justify;
       color: #121212e3;
       border-radius: 5px 5px 0 0;
@@ -184,7 +186,7 @@
     }
 
     .board-item {
-      position: relative;
+      /* position: relative; */
       width: calc(100% - 16px);
       margin: 8px;
 
@@ -419,6 +421,7 @@
       background-color: #fff;
       border-radius: 10px;
       box-shadow: rgba(149, 157, 165, 0.2) 0px 8px 24px;
+      position: relative;
     }
 
     .title {
@@ -567,9 +570,9 @@
       height: 110px;
       width: 250px;
       left: -20px;
-      top: -30px;
+      top: -29px;
       border-radius: 10px;
-      position: relative;
+      position: absolute;
       box-shadow: rgba(0, 0, 0, 0.15) 1.95px 1.95px 2.6px;
     }
 
@@ -1110,7 +1113,15 @@
     }
 
 
-
+    .responsible_person_container {
+      max-height: 150px;
+      width: 96%;
+      top: 100%;
+      left: 0;
+      background: white;
+      overflow-y: auto;
+      border-radius: 5px;
+    }
 
 
     .c-button {
@@ -1153,37 +1164,85 @@
       font-size: 14px;
     }
   </style>
+  <style>
+    .blur {
+      filter: blur(1.3px);
+      pointer-events: none;
+    }
+  </style>
+
+  <style>
+    .dialog-container {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .dialog-content {
+      background-color: white;
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+    }
+
+    .dialog-content h2 {
+      margin-top: 0;
+    }
+
+    .dialog-content input {
+      width: 100%;
+      padding: 10px;
+      margin-bottom: 10px;
+    }
+
+    .dialog-content button {
+      padding: 10px 20px;
+      background-color: #007bff;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+
+    .dialog-content button:hover {
+      background-color: #0056b3;
+    }
+  </style>
 </head>
 
 <body>
   {{!-- activity side dialog --}}
 
-  <div class="details_container-2 position-absolute bg-white end-0 border" style="z-index: 1100;min-height: 120vh">
+  <div class="details_container-2  position-fixed  bg-white end-0 border"
+    style="z-index: 1100;max-height: 100vh;height:100vh;overflow-y:auto">
     <div class="w-full h-full p-4">
       <div class="w-full mb-4 mt-2 d-flex justify-content-between align-content-center">
         <h1>New Lead</h1>
         <div>
           <i
-          class="ri-close-large-line ri-close-large-line-2 bg-black text-white close_side rounded-circle d-inline-block  h5 "></i>
+            class="ri-close-large-line ri-close-large-line-2 bg-black text-white close_side rounded-circle d-inline-block  h5 "></i>
         </div>
       </div>
 
       <div class="main_div">
         <form id="myForm" class="w-50 p-0">
           <div id="form1">
-            <div id="form-top">
-              <h6>About Deal &nbsp;<i class="ri-pencil-fill"></i></h6>
-              <p>cancel</p>
-            </div>
+
             <div id="form-center">
               <div class="elem">
                 <label for="name">Company Name</label>
-                <input type="text" placeholder="Company...." name="companyName" required>
+                <input type="text" placeholder="Company...." name="companyName">
               </div>
               <div class="elem">
                 <label for="name">Stage</label>
-                <select name="Stage" id="Stage" required>
+                <select name="Stage" id="Stage">
                   <option value="" disabled selected>Select Stage</option>
+                  <option value="New">New</option>
                   <option value="Follow Up Lead">Follow Up Lead</option>
                   <option value="In Progess">In Progess</option>
                   <option value="Advance Stage">Advance Stage</option>
@@ -1194,7 +1253,7 @@
               <div class="elem">
                 <label for="name">Amount and currency</label>
                 <div id="amount-currency">
-                  <input type="text" value="0.00" name="Amount" id="Amount" >
+                  <input type="text" value="0.00" name="Amount" id="Amount">
                   <select>
                     <option value="indian-rupee">Indian Rupee</option>
                     <option value="us-dollar">US Dollar</option>
@@ -1214,8 +1273,8 @@
                     <label for="">Contact</label>
                     <div class="contact-input">
                       <i class="ri-user-fill"></i>
-                    <input type="text" id="contact_input" name="ContactNumber" autocomplete="one-time-code"
-                        placeholder="Contact name,phone or email" required>
+                      <input type="text" id="contact_input" name="ContactNumber" autocomplete="one-time-code"
+                        placeholder="Contact name,phone or email">
                       <i class="ri-search-line"></i>
                       <i class="ri-close-line"></i>
 
@@ -1240,7 +1299,7 @@
             <div id="form-center">
               <div class="elem">
                 <label for="name">Deal type</label>
-                <select name="DealType" id="deal-type" required>
+                <select name="DealType" id="deal-type">
                   <option value="" selected disabled>Select Deal Type..</option>
                   <option value="Sales">Sales</option>
                   <option value="Services">Services</option>
@@ -1250,7 +1309,7 @@
 
               <div class="elem">
                 <label for="name">Source</label>
-                <select name="Source" id="Source" required>
+                <select name="Source" id="Source">
                   <option value="">Not selected</option>
                   <option value="call">Call</option>
                   <option value="email">E-Mail</option>
@@ -1266,11 +1325,8 @@
                   <option value="other">Other</option>
 
                 </select>
+
               </div>
-
-
-
-
 
               <div style="display: flex; margin-top: 8px; position: relative;">
                 <div id="Responsible">
@@ -1291,7 +1347,7 @@
           <button type="submit" class="btn btn-primary" id="submit_btn">Submit</button>
 
         </form>
-        <div class="right-form ">
+        <div class="right-form blur">
           <div class="outter-section   rounded-2 position-relative ">
             <i class="ri-chat-smile-2-fill positions position-absolute " style="font-size: 34px;"></i>
             <div class="inner-section m-2 ">
@@ -1360,99 +1416,87 @@
 
 
 
-  <div class="details_container position-absolute bg-white end-0 border" style="z-index: 1100;min-height: 120vh">
-     <div class="w-full h-full p-4">
+  <div class="details_container position-fixed bg-white end-0 border"
+    style="z-index: 1100;max-height: 100vh;height:100vh;overflow-y:auto">
+    <div class="w-full h-full p-4">
       <div class="w-full mb-4 mt-2 d-flex justify-content-between align-content-center">
         <h1>Update Lead</h1>
         <div>
           <i
-          class="ri-close-large-line ri-close-large-line-1 bg-black text-white close_side rounded-circle d-inline-block  h5 "></i>
+            class="ri-close-large-line ri-close-large-line-1 bg-black text-white close_side rounded-circle d-inline-block  h5 "></i>
         </div>
       </div>
 
       <div class="main_div">
-        <form id="myForm" class="w-50 p-0">
+        <form id="myFormUpdate" class="w-50 p-0">
           <div id="form1">
             <div id="form-top">
               <h6>About Deal &nbsp;<i class="ri-pencil-fill"></i></h6>
               <p>cancel</p>
             </div>
             <div id="form-center">
+              <input type="text" name="id" id="Id" value="" hidden>
               <div class="elem">
                 <label for="name">Company Name</label>
-                <input type="text" placeholder="Company...." name="companyName" required>
+                <input type="text" placeholder="Company...." name="companyName" id="companyName" required>
               </div>
               <div class="elem">
                 <label for="name">Stage</label>
-                <select name="Stage" id="Stage" required>
+                <select name="Stage" id="Stage-update" required>
                   <option value="" disabled selected>Select Stage</option>
+                  <option value="New">New</option>
                   <option value="Follow Up Lead">Follow Up Lead</option>
                   <option value="In Progess">In Progess</option>
                   <option value="Advance Stage">Advance Stage</option>
                   <option value="Close Lead Won">Close Lead Won</option>
-
                 </select>
               </div>
               <div class="elem">
                 <label for="name">Amount and currency</label>
                 <div id="amount-currency">
-                  <input type="text" value="0.00" name="Amount" id="Amount" >
-                  <select>
+                  <input type="text" name="Amount" id="Amount-update">
+                  <select id="currency">
                     <option value="indian-rupee">Indian Rupee</option>
                     <option value="us-dollar">US Dollar</option>
-
                   </select>
-
                 </div>
               </div>
               <div class="elem end-date">
                 <label for="name">End date</label>
-                <input type="date" name="EndDate" id="end-date">
+                <input type="date" name="EndDate" id="end-date-update">
               </div>
-
               <div style="display: flex; margin-top: 40px;">
                 <div id="client">
                   <div class="client-details position-relative">
                     <label for="">Contact</label>
                     <div class="contact-input">
                       <i class="ri-user-fill"></i>
-                    <input type="text" id="contact_input" name="ContactNumber" autocomplete="one-time-code"
+                      <input type="text" id="contact_input-update" name="ContactNumber" autocomplete="one-time-code"
                         placeholder="Contact name,phone or email" required>
                       <i class="ri-search-line"></i>
                       <i class="ri-close-line"></i>
-
                       {{!-- dynamically contact data --}}
-                      <div class="position-absolute  lead_contact">
-
-                      </div>
-
+                      <div class="position-absolute lead_contact"></div>
                     </div>
-
                   </div>
-
-
                 </div>
               </div>
-
             </div>
           </div>
-
-          <div id="form1" class="mt-3">
-
+          <div id="form2" class="mt-3">
             <div id="form-center">
               <div class="elem">
                 <label for="name">Deal type</label>
-                <select name="DealType" id="deal-type" required>
+                <select name="DealType" id="deal-type-update" required>
                   <option value="" selected disabled>Select Deal Type..</option>
                   <option value="Sales">Sales</option>
                   <option value="Services">Services</option>
                   <option value="After Sales Service">After Sales Service</option>
                 </select>
               </div>
-
               <div class="elem">
                 <label for="name">Source</label>
-                <select name="Source" id="Source" required>
+                <select name="Source" id="Source-update" required>
                   <option value="">Not selected</option>
                   <option value="call">Call</option>
                   <option value="email">E-Mail</option>
@@ -1466,88 +1510,62 @@
                   <option value="sales-boost">Sales boost</option>
                   <option value="online-store">Online Store</option>
                   <option value="other">Other</option>
-
                 </select>
               </div>
-
-
-
-
-
               <div style="display: flex; margin-top: 8px; position: relative;">
                 <div id="Responsible">
                   <div class="client-details-1">
                     <label for="">Responsible</label>
                     <div class="contact-input">
                       <i class="ri-user-fill"></i>
-                      <input type="text" name="responsible_person" value="{{username}}">
+                      <input type="text" name="responsible_person" id="responsible_person-update">
+                      <input type="text" class="d-none" name="loginEmail" id="loginEmail" autocomplete="one-time-code">
                       <i class="ri-search-line"></i>
+                      <div class="position-absolute responsible_person_container">
+                      </div>
+
                     </div>
                   </div>
                 </div>
               </div>
-
-
             </div>
           </div>
           <button type="submit" class="btn btn-primary" id="submit_btn">Submit</button>
-
         </form>
+
         <div class="right-form ">
           <div class="outter-section   rounded-2 position-relative ">
             <i class="ri-chat-smile-2-fill positions position-absolute " style="font-size: 34px;"></i>
             <div class="inner-section m-2 ">
               <h5>Activity</h5>
-              <div class="mb-3">
+              <form action="" method="post" id="myFormActivity">
+                <div class="mb-3">
+                  <input type="text" value="" name="lead_id" id="IdActivity" hidden>
 
-                <textarea class="form-control" id="exampleFormControlTextarea1" rows="3" cols="4"
-                  style="min-height: 100px;"></textarea>
-              </div>
-              <div class="calendar d-flex align-items-center gap-3">
+                  <textarea class="form-control" id="exampleFormControlTextarea1" rows="3" cols="4" name="activity"
+                    style="min-height: 100px;"></textarea>
+                </div>
+                <div class="calendar d-flex align-items-center gap-3">
 
-                <i class="ri-calendar-line"></i>
-                <input type="datetime-local" value="" name="" id="datetime-local" class="w-50 " placeholder="enter">
-              </div>
-              <div class="btns_sec-2">
-                <button class="sub_btn-2 text-capitalize ">
-                  Submit
-                </button>
-                <button type="reset" class="cen_btn-2  text-capitalize">
-                  Cancel
-                </button>
-              </div>
+                  <i class="ri-calendar-line"></i>
+                  <input type="datetime-local" value="" name="dateTime" id="datetime-local" class="w-50 "
+                    placeholder="enter">
+                </div>
+                <div class="btns_sec-2">
+                  <button class="sub_btn-2 text-capitalize ">
+                    Submit
+                  </button>
+                  <button type="reset" class="cen_btn-2  text-capitalize">
+                    Cancel
+                  </button>
+                </div>
+              </form>
             </div>
           </div>
           {{!-- activity details card --}}
           <div class="staright-line"></div>
-          <div class="activity-dets-section   rounded-2 position-relative ">
-            <i class="ri-checkbox-circle-fill positions  " style="font-size: 34px;"></i>
-            <div class="p-2 px-3 ">
-              <div class="times_sec d-flex justify-content-between align-items-center  mt-2  ">
-                <div class="d-flex align-items-center gap-3">
-                  <p class="m-0">Activity completed</p>
-                  <p class="m-0">1:41 pm</p>
-                </div>
-                <i class="ri-account-circle-fill" style="font-size: 28px;"></i>
-              </div>
-              <div class="deadline_part d-flex align-items-center gap-4">
-                <small>Deadline</small>
-                <small>Tue, Apr 9, 11:00 am</small>
-              </div>
-              <div class="mb-3 mt-2">
-                <textarea class="form-control" id="exampleFormControlTextarea1" rows="3" cols="4"
-                  style="min-height: 100px;"></textarea>
-              </div>
-              <div class="btns_sec-2">
-                <button class="sub_btn-2 px-2  text-capitalize">
-                  Completed
-                </button>
-                <button type="reset" class="cen_btn-2 text-capitalize px-2 ">
-                  postpone
-                </button>
-              </div>
-            </div>
-          </div>
+          <div id="activity-details-section"></div>
+
 
         </div>
 
@@ -1557,7 +1575,6 @@
 
 
 
-    </div>
     </div>
   </div>
 
@@ -1609,8 +1626,22 @@
 
               </div>
             </div>
-            <div class="row second_cnt d-none">
-              <h1>Container2</h1>
+            <div class="row second_cnt d-none" style="background-color: white;">
+              <table id="myTable1" class="display" style="width: 100%;">
+                <thead>
+                  <tr>
+                    <th class="text-center">Client Name</th>
+                    <th class="text-center">Contact Number</th>
+                    <th class="text-center">Stage</th>
+                    <th class="text-center">Amount</th>
+                    <th class="text-center">Responsible Person</th>
+                    <th class="text-center">Status</th>
+                  </tr>
+                </thead>
+                <tbody id="leads-table-body">
+
+                </tbody>
+              </table>
             </div>
           </div>
           <!-- / Content -->
@@ -1792,35 +1823,155 @@
   })
 </script>
 
+{{!--
 <script>
   function showLeadData(element) {
     const id = element.parentElement.parentElement.getAttribute('data-lead-id');
     fetch(`/lead-store-data/${id}`)
       .then(res => res.json())
       .then(data => {
-        appendDataToLeadForm(data.storeval)
+        console.log(data)
 
       })
       .catch(err => console.log(err))
-
   }
 
-  function appendDataToLeadForm(data) {
-    console.log(data)
-    const leadname = document.getElementById('leadname')
-    const companyname = document.getElementById('companyname')
-    const leademail = document.getElementById('email')
-    const leadphone = document.getElementById('phone')
-    const leadstatus = document.getElementById('leadstatus')
-    const leadmessage = document.getElementById('message')
-    leadname.value = data.ClientName
-    companyname.value = data.companyName
-    leademail.value = data.email
-    leadphone.value = data.contactNumber
-    leadstatus.value = data.DealType
 
+</script> --}}
+<style>
+  .activity-dets-section {
+    margin-bottom: 10px;
   }
+</style>
+
+<script>
+
+  function formatDate(dateString) {
+    const date = new Date(dateString);
+    const options = { weekday: 'short', month: 'short', day: 'numeric', year: 'numeric', hour: 'numeric', minute: 'numeric', hour12: true };
+    return date.toLocaleDateString(undefined, options);
+  }
+
+  function showDateTimePicker(element) {
+    const existingDateTimePicker = element.parentElement.querySelector('input[type="datetime-local"]');
+    if (existingDateTimePicker) {
+      return;
+    }
+
+    const dateTimePicker = document.createElement('input');
+    dateTimePicker.type = 'datetime-local';
+    dateTimePicker.classList.add('form-control');
+    dateTimePicker.style.width = '40%';
+    dateTimePicker.addEventListener('change', function () {
+      element.textContent = formatDate(this.value);
+      this.remove();
+    });
+    element.parentElement.appendChild(dateTimePicker);
+    dateTimePicker.focus();
+  }
+
+  function updateActivity(activityId, status) {
+    const activityData = {
+      activity: document.querySelector(`[data-activity-id="${activityId}"] textarea`).value,
+      dateTime: document.querySelector(`[data-activity-id="${activityId}"] #showDateTime`).textContent,
+      activityStatus: status
+    };
+
+    fetch(`/activitiesforLeads/${activityId}`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(activityData)
+    })
+      .then(res => res.json())
+      .then(data => {
+        console.log('Activity updated successfully:', data);
+      })
+      .catch(error => console.error('Error updating activity:', error));
+  }
+
+
+function showLeadData(element) {
+  const id = element.getAttribute('data-lead-id');
+  console.log(id, 128765);
+  fetch(`/lead-store-data/${id}`)
+    .then(res => res.json())
+    .then(data => {
+      console.log("Lead Store Data:", data);
+      const dateComponents = data.storeval.EndDate.split('T')[0].split('-');
+      const year = dateComponents[0];
+      const month = dateComponents[1];
+      const day = dateComponents[2];
+
+      const formattedDate = `${year}-${month}-${day}`;
+
+      document.getElementById('end-date-update').value = formattedDate;
+
+      document.getElementById('Id').value = data.storeval.Id;
+      document.getElementById('IdActivity').value = data.storeval.Id;
+      document.getElementById('companyName').value = data.storeval.companyName;
+      document.getElementById('Amount-update').value = data.storeval.Amount;
+      document.getElementById('contact_input-update').value = data.storeval.ContactNumber;
+      document.getElementById('deal-type-update').value = data.storeval.DealType;
+      document.getElementById('Source-update').value = data.storeval.Source;
+      document.getElementById('responsible_person-update').value = data.storeval.responsible_person;
+
+      const stageSelect = document.getElementById('Stage-update');
+      const options = stageSelect.options;
+      for (let i = 0; i < options.length; i++) {
+        if (options[i].value === data.storeval.Stage) {
+          options[i].selected = true;
+          break;
+        }
+      }
+
+      fetch(`/activity/${id}`)
+        .then(res => res.json())
+        .then(activities => {
+          const activityDetailsSection = document.getElementById('activity-details-section');
+          activities.forEach(activity => {
+            const existingActivityContainer = document.querySelector(`.activity-dets-section[data-activity-id="${activity.id}"]`);
+            if (existingActivityContainer) {
+              return; 
+            }
+
+            const activityCard = `
+              <div class="activity-dets-section rounded-2 position-relative" data-activity-id="${activity.id}">
+                <input type="text" name="id" value="${activity.id}" hidden />
+                <i class="ri-checkbox-circle-fill positions" style="font-size: 34px;"></i>
+                <div class="p-2 px-3">
+                  <div class="times_sec d-flex justify-content-between align-items-center mt-2">
+                    <div class="d-flex align-items-center gap-3">
+                      <p class="m-0">Activity ${activity.activityStatus}</p>
+                    </div>
+                    <i class="ri-account-circle-fill" style="font-size: 28px;"></i>
+                  </div>
+                  <div class="deadline_part d-flex align-items-center gap-4">
+                    <small>Deadline</small>
+                    <small id="showDateTime" onclick="showDateTimePicker(this)">${formatDate(activity.dateTime)}</small>
+                  </div>
+                  <div class="mb-3 mt-2">
+                    <textarea class="form-control" id="showActivity" rows="3" cols="4" style="min-height: 100px;">${activity.activity}</textarea>
+                  </div>
+                  <div class="btns_sec-2">
+                    ${activity.activityStatus !== 'Completed' ? `<button class="sub_btn-2 px-2 text-capitalize" onclick="updateActivity(${activity.id}, 'Completed')">Completed</button>
+                    <button type="reset" class="cen_btn-2 text-capitalize px-2" onclick="updateActivity(${activity.id}, 'Postpone')">Postpone</button>` : ''}
+                  </div>
+                </div>
+              </div>
+            `;
+            activityDetailsSection.insertAdjacentHTML('beforeend', activityCard);
+          });
+        })
+        .catch(err => console.log(err));
+    })
+    .catch(err => console.log(err))
+}
+
 </script>
+
+
 
 <script>
   /* pagination btn script*/
@@ -2089,16 +2240,14 @@
   }
 
   function getcontactnum(number) {
-    document.querySelector('#contact_input').value = number
-    
-    
-  
+    document.querySelector('#contact_input').value = number;
 
+
+    const lead_contact = document.querySelector('.lead_contact')
+    if (lead_contact) {
+      lead_contact.innerHTML = ''
+    }
   }
-
-
-
-
 </script>
 
 
@@ -2121,8 +2270,10 @@
       console.log(data);
 
       // Show toastr message
-      toastr.success('Lead data added successfully');
-
+      toastr.success('Lead added successfully');
+      setTimeout(() => {
+        location.reload();
+      }, "500");
       // Reset the form
       this.reset();
     } catch (error) {
@@ -2133,9 +2284,267 @@
   });
 </script>
 
+<script>
+  document.getElementById('myFormUpdate').addEventListener('submit', async function (event) {
+    event.preventDefault();
+    const formData = new FormData(this);
+    const obj = Object.fromEntries(formData);
+    const leadId = obj.id; // Assuming the ID is present in the form data
+
+    try {
+      const response = await fetch(`/leads/${leadId}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(obj)
+      });
+
+      if (!response.ok) {
+        const errorMessage = await response.json();
+        throw new Error(errorMessage.error || 'Failed to update lead data');
+      }
+
+      const updatedLead = await response.json();
+      console.log('Lead data updated successfully:', updatedLead);
+      toastr.success('Lead updated successfully');
+      setTimeout(() => {
+        location.reload();
+      }, "1000");
+    } catch (error) {
+      console.error('Error while updating lead data:', error.message);
+      toastr.success('Error while updating lead');
+      // Handle error, e.g., display an error message to the user
+    }
+  });
+</script>
+<style>
+  /* Adjust the size of the search input field */
+  .dt-input {
+    width: 36% !important;
+    /* You can adjust the width as needed */
+  }
+</style>
+
+<script>
+  document.getElementById('myFormActivity').addEventListener('submit', async function (event) {
+    event.preventDefault();
+    const formData = new FormData(this);
+    const obj = Object.fromEntries(formData);
+
+    try {
+      const response = await fetch('/activities', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(obj)
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        console.log('Activity created:', data);
+        toastr.success('Activity created successfully');
+
+      } else {
+        console.error('Failed to create activity');
+        toastr.error('Failed to create activity');
+      }
+    } catch (error) {
+      console.error('Error creating activity:', error);
+      toastr.error('Error creating activity');
+    }
+  });
+</script>
 
 
 
+{{!-- <noscript>Blur Background</noscript>
+
+
+<script>
+  const details_container_2 = document.querySelector('.details_container-2')
+  const myForm = document.getElementById('myForm')
+
+  window.onload = function () {
+
+    if (details_container_2.classList.contains('brightness-filter')) {
+      details_container_2.style.filter = "brightness(0.5)"
+    }
+    if (!myForm.classList.contains('brightness-filter')) {
+      myForm.style.filter = "brightness(100%)"
+    }
+
+
+
+  }
+
+
+  const submit_btn = document.getElementById('submit_btn');
+  submit_btn.addEventListener('click', () => {
+
+  })
+</script> --}}
+<script>
+  document.getElementById('submit_btn').addEventListener('click', function () {
+    document.querySelector('.right-form').classList.remove('blur');
+  });
+</script>
+<script>
+  async function fetchLeadsData() {
+    try {
+      const response = await fetch('/leadsDataForListView');
+      if (!response.ok) {
+        throw new Error('Failed to fetch leads data');
+      }
+      const leads = await response.json();
+      return leads;
+    } catch (error) {
+      console.error('Error fetching leads data:', error);
+      return [];
+    }
+  }
+
+  async function displayLeadsData() {
+    const leads = await fetchLeadsData();
+    const tbody = document.getElementById('leads-table-body');
+
+    leads.forEach(lead => {
+      const row = document.createElement('tr');
+      row.innerHTML = `
+                    <td  class="text-center">${lead.companyName}</td>
+                    <td class="text-center">${lead.ContactNumber}</td>
+                    <td class="text-center">${lead.Stage}</td>
+                    <td class="text-center">${lead.Amount}</td>
+                    <td class="text-center">${lead.responsible_person}</td>
+                    <td class="text-center">${lead.target_status}</td>
+                `;
+      tbody.appendChild(row);
+    });
+
+    // Initialize DataTable
+    $('#myTable1').DataTable({
+      language: {
+        aria: {
+          paginate: {
+            first: 'First',
+            last: 'Last',
+            next: 'Next',
+            previous: 'Previous'
+          }
+        },
+        search: 'Search:',
+        lengthMenu: 'Show _MENU_ Entries',
+        info: 'Showing _START_ to _END_ of _TOTAL_ entries',
+        infoEmpty: 'Showing 0 to 0 of 0 entries',
+        infoFiltered: '(filtered from _MAX_ total entries)',
+        infoPostFix: '',
+        loadingRecords: 'Loading...',
+        zeroRecords: 'No matching records found',
+        emptyTable: 'No data available in table',
+        thousands: ',',
+        decimal: '.',
+        aria: {
+          sortAscending: ': activate to sort column ascending',
+          sortDescending: ': activate to sort column descending'
+        },
+        select: {
+          rows: {
+            _: '%d rows selected',
+            0: 'Click to select',
+            1: '1 row selected'
+          }
+        }
+      }
+    });
+  }
+
+  window.onload = displayLeadsData;
+</script>
+<script>
+  const responsible_person_update = document.querySelector('#responsible_person-update');
+  const responsible_person_container = document.querySelector('.responsible_person_container');
+
+  responsible_person_update.addEventListener('input', async (e) => {
+    const storevalue = e.target.value.trim(); // Trim whitespace
+    if (!storevalue) {
+      responsible_person_container.innerHTML = ''; // Clear container
+      return;
+    }
+    await appendingDataForResponsiblePerson(storevalue);
+  });
+
+  async function appendingDataForResponsiblePerson(value) {
+    try {
+      const res = await fetch('/filter-responsible-person', {
+        method: "POST",
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          contact: value
+        })
+      });
+      const data = await res.json();
+      responsible_person_container.innerHTML = '';
+      if (data.success) {
+        if (data.alldataperson.length === 0) {
+          // No data found message
+          responsible_person_container.innerHTML = `
+            <div class="card">
+              <button type="button" class="c-button border-0 add-contact-btn">
+                <span class="c-main">
+                  <span class="c-ico"><span class="c-blur"></span> <span class="ico-text">+</span></span>
+                  Add to contact
+                </span>
+              </button>
+            </div>
+          `;
+        } else {
+          // Append data to container
+          const cardsHTML = data.alldataperson.map(ele => `
+            <div class="card">
+              <div class="wrapper d-flex gap-3 px-3 py-2 mx-auto my-1 border rounded-2 align-items-center" style="width: 80%" onclick='getResponsiblePerson("${ele.username}", "${ele.email}")'>
+                <div class="img-no">
+                  <img class="rounded-circle" style="background-color: lightgray;" src="https://upload.wikimedia.org/wikipedia/commons/9/99/Sample_User_Icon.png" alt="" width="40" height="40">
+                </div>
+                <div class="div">
+                  <small class="m-0 d-block">${ele.username}</small>
+                  <small class="m-0 d-block">${ele.email}</small>
+                </div>
+              </div>
+            </div>
+          `).join('');
+          responsible_person_container.innerHTML = cardsHTML;
+        }
+      }
+    } catch (err) {
+      console.error(err);
+      // Handle error: Provide user feedback if needed
+    }
+  }
+
+  function getResponsiblePerson(username, email) {
+    document.querySelector('#responsible_person-update').value = username;
+    const responsible_person_container = document.querySelector('.responsible_person_container');
+    if (responsible_person_container) {
+      responsible_person_container.innerHTML = '';
+    }
+
+    const loginEmailElement = document.querySelector('#loginEmail');
+    if (loginEmailElement) {
+      loginEmailElement.value = email;
+    }
+  }
+
+
+</script>
+<style>
+  input {
+    text-transform: capitalize;
+  }
+</style>
+<script src="https://cdn.datatables.net/2.0.3/js/dataTables.min.js"></script>
 <script src="scripts/leadmanagement.js"></script>
 <script src="/assets/js/main.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/js/toastr.min.js"></script>

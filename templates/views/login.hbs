@@ -326,6 +326,14 @@
       .then((response) => response.json())
       .then((data) => {
         if (data.success) {
+          // Storing session data in localStorage
+          localStorage.setItem('isLoggedIn', true);
+          localStorage.setItem('username', data.username);
+          localStorage.setItem('email', data.email);
+          localStorage.setItem('user_group', data.user_group);
+          localStorage.setItem('userImage', data.userImage);
+          localStorage.setItem('employee_id', data.employee_id);
+          
           Toastify({
             text: 'Login Successful !',
             className: 'success-toast',

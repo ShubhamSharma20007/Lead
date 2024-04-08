@@ -107,7 +107,7 @@ const LeadData = sequelize.define('leadData', {
     },
     ContactNumber: {
         type: DataTypes.STRING,
-        defaultValue: 0
+        defaultValue: '0' // String default value
     },
     DealType: {
         type: DataTypes.STRING,
@@ -135,6 +135,14 @@ const LeadData = sequelize.define('leadData', {
         type: DataTypes.STRING,
         allowNull: false
     },
+    isDeleted: {
+        type: DataTypes.BOOLEAN,
+        defaultValue: false // Default value is false (not deleted)
+    },
+    updatedTime: {
+        type: DataTypes.DATE,
+        defaultValue: DataTypes.NOW 
+    },
     createdAt: {
         type: DataTypes.DATE,
         defaultValue: DataTypes.NOW 
@@ -149,4 +157,5 @@ const LeadData = sequelize.define('leadData', {
 });
 
 module.exports = LeadData;
+
 

@@ -74,7 +74,6 @@ function findContainerId(element) {
 
 
 
-// custom field functionlity
 
 // Function to fetch containers
 async function fetchContainers() {
@@ -104,8 +103,16 @@ async function renderContainers() {
         newColumn.innerHTML = `
             <div class="board-column-container">
                <div class="d-flex align-items-center justify-content-evenly ">
-               <div class="board-column-header" data-target-status="${containerData.fieldName}">${containerData.fieldName}(0)</div>
+               <div class="board-column-header" data-target-status="${containerData.fieldName}" data-container-id="${containerData.Id}">${containerData.fieldName}(0)</div>
+               ${localStorage.getItem('user_group') === 'admin' ? `
                <i class="ri-add-circle-line  h5 addFieldBtn  m-0  text-dark" style="cursor: pointer;"></i>
+               <i class="ri-delete-bin-6-line text-dark" style="cursor: pointer;"></i>
+               <i class="ri-pencil-line text-dark" style="cursor: pointer;"></i>
+           ` : `
+           <i class="ri-add-circle-line  h5 addFieldBtn d-none  m-0  text-dark" style="cursor: pointer;"></i>
+               <i class="ri-delete-bin-6-line text-dark d-none" style="cursor: pointer;"></i>
+               <i class="ri-pencil-line text-dark d-none" style="cursor: pointer;"></i>
+           `   }
                </div>
                 <div class="board-column-content-wrapper">
                     <div class="board-column-content">
@@ -116,34 +123,129 @@ async function renderContainers() {
         `;
         container.appendChild(newColumn);
 
-       // Counter for the number of cards in this container
-       let cardCount = 0;
-       const addField = async (fieldName, previousField) => {
-           const newFieldName = prompt('Enter field name:');
-           if (newFieldName !== null && newFieldName.trim() !== '') {
-               try {
-                   const response = await fetch('/customfield', {
-                       method: 'POST',
-                       headers: {
-                           'Content-Type': 'application/json'
-                       },
-                       body: JSON.stringify({ value: newFieldName, previousField })
-                   });
-                   const data = await response.json();
-                   console.log('Field added successfully:', data);
-                   location.reload();
-               } catch (error) {
-                   console.error('Error adding field:', error);
-               }
-           }
-       };
+        // Counter for the number of cards in this container
+        let cardCount = 0;
 
-       // Event listener for the "Add Field" button
-       newColumn.querySelector('.addFieldBtn').addEventListener('click', function() {
-           const fieldName = this.dataset.fieldName; // Get the corresponding field name
-           const previousField = this.closest('.board-column').querySelector('.board-column-header').dataset.targetStatus; // Get the previous field name
-           addField(fieldName, previousField);
-       });
+        const addField = async (fieldName, previousField) => {
+            // Create a container div for the dialog box
+            const dialogContainer = document.createElement('div');
+            dialogContainer.classList.add('dialog-container');
+
+            // Create dialog box content
+            const dialogContent = document.createElement('div');
+            dialogContent.classList.add('dialog-content');
+            dialogContent.innerHTML = `
+            <h2>Enter Field Name</h2>
+            <input type="text" id="fieldInput" placeholder="Field Name">
+            <button id="confirmButton">Confirm</button>
+        `;
+            dialogContainer.appendChild(dialogContent);
+
+            // Append dialog box to the body
+            document.body.appendChild(dialogContainer);
+
+            // Function to handle confirmation
+            const confirmField = async () => {
+                const newFieldName = document.getElementById('fieldInput').value.trim();
+                if (newFieldName !== '') {
+                    try {
+                        const response = await fetch('/customfield', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json'
+                            },
+                            body: JSON.stringify({ value: newFieldName, previousField })
+                        });
+                        const data = await response.json();
+                        console.log('Field added successfully:', data);
+                        location.reload();
+                    } catch (error) {
+                        console.error('Error adding field:', error);
+                    }
+                }
+                // Remove dialog box after confirmation
+                document.body.removeChild(dialogContainer);
+            };
+
+            // Event listener for confirm button
+            document.getElementById('confirmButton').addEventListener('click', confirmField);
+        };
+
+
+        // Event listener for the "Delete Container" icon
+        newColumn.querySelector('.ri-delete-bin-6-line').addEventListener('click', async function () {
+            // Ask for confirmation before deleting
+            const confirmDelete = window.confirm("Are you sure you want to delete this container?");
+            if (!confirmDelete) {
+                return; // If user cancels, exit the function
+            }
+        
+            const containerId = this.parentElement.querySelector('.board-column-header').getAttribute('data-container-id'); // Get the container ID
+            try {
+                const response = await fetch(`/customfields/${containerId}`, {
+                    method: 'DELETE'
+                });
+                if (response.ok) {
+                    console.log('Container deleted successfully');
+                    location.reload();
+                } else {
+                    console.error('Failed to delete container');
+                }
+            } catch (error) {
+                console.error('Error deleting container:', error);
+            }
+        });
+        
+
+        newColumn.querySelector('.ri-pencil-line').addEventListener('click', function () {
+            const header = this.parentElement.querySelector('.board-column-header'); 
+            const containerId = header.getAttribute('data-container-id'); 
+            let oldValue = header.textContent.trim(); 
+            const regex = /\(\d+\)$/; 
+            oldValue = oldValue.replace(regex, '').trim();
+
+            const inputField = document.createElement('input');
+            inputField.classList.add('form-control');
+            inputField.value = oldValue;
+            inputField.addEventListener('blur', async function () {
+                const newValue = this.value.trim(); 
+                if (newValue !== oldValue) { 
+                    try {
+                        const response = await fetch(`/customfields/${containerId}`, {
+                            method: 'PUT',
+                            headers: {
+                                'Content-Type': 'application/json'
+                            },
+                            body: JSON.stringify({ fieldName: newValue }) 
+                        });
+                        if (response.ok) {
+                            console.log('Field name updated successfully');
+                            header.textContent = newValue; 
+                        } else {
+                            console.error('Failed to update field name');
+                        }
+                    } catch (error) {
+                        console.error('Error updating field name:', error);
+                    }
+                }
+                else {
+                    header.textContent = oldValue; 
+                }
+            });
+
+            header.innerHTML = ''; 
+            header.appendChild(inputField); 
+            inputField.focus(); 
+        });
+
+
+
+        // Event listener for the "Add Field" button
+        newColumn.querySelector('.addFieldBtn').addEventListener('click', function () {
+            const fieldName = this.dataset.fieldName; 
+            const previousField = this.closest('.board-column').querySelector('.board-column-header').dataset.targetStatus; // Get the previous field name
+            addField(fieldName, previousField);
+        });
 
         // Fetch data for the current containerData.fieldName from the server
         fetch(`/fetchDataForContainer/${encodeURIComponent(containerData.fieldName)}`)
@@ -163,7 +265,7 @@ async function renderContainers() {
                         card.dataset.leadId = item.Id;
 
                         card.innerHTML = `
-                        <div class="activity_sec position-absolute  bg-white mt-1 border">
+                        <div class="activity_sec   bg-white mt-1 border">
                         <div class="coolinput">
                     
                         <input type="text" value='${item.Id}' hidden name='lead_id'>
@@ -173,7 +275,7 @@ async function renderContainers() {
                           <button class="sub_btn ">  
                               Submit         
                           </button>
-                           <button type="reset" class="cen_btn ">
+                           <button type="reset" class="cen_btn" onclick="hideActivity(this.closest('.activity_sec'))" >
                               Cancel                                  
                           </button>
                         </div>
@@ -185,48 +287,85 @@ async function renderContainers() {
                     </div>
                         `
                         // Fetch activities for this lead ID and update the card
-                        fetch(`/activities/${item.Id}`)
-                            .then(response => response.json())
-                            .then(activities => {
-                                if (activities && activities.length > 0) {
-                                    activities.forEach(activity => {
-                                        const activityData = document.createElement('div');
-                                        activityData.classList.add('activity-data');
-                                        activityData.style.padding = '6px'
-                                        activityData.innerHTML = `
-                  <input type="text" value='${item.Id}' hidden class='fetchDataByLeadId' data-lead-id='${item.Id}'>
-                  <small class="created-at">${new Date(activity.createdAt).toLocaleString('en-US', {
-                                            year: 'numeric',
-                                            month: '2-digit',
-                                            day: '2-digit',
-                                            hour: '2-digit',
-                                            minute: '2-digit',
-                                            second: '2-digit'
-                                        })}</small>
-                  <div class="acti-name">
-                      <small class="activity">${activity.activity}</small>
-                  </div>
-                  <div class='line'></div>
-              `;
-                                        card.querySelector('.activity_data').appendChild(activityData);
-                                    });
-                                }
-                            })
-                            .catch(error => console.error(`Error fetching activities for lead ID ${item.Id}:`, error));
+fetch(`/activity/${item.Id}`)
+    .then(response => response.json())
+    .then(activities => {
+        if (activities && activities.length > 0) {
+            activities.forEach(activity => {
+                const activityData = document.createElement('div');
+                activityData.classList.add('activity-data');
+                activityData.style.padding = '6px';
+                activityData.innerHTML = `
+                    <input type="text" value='${item.Id}' hidden class='fetchDataByLeadId' data-lead-id='${item.Id}'>
+                    <small class="created-at">${new Date(activity.dateTime).toLocaleString('en-US', {
+                        year: 'numeric',
+                        month: '2-digit',
+                        day: '2-digit',
+                        hour: '2-digit',
+                        minute: '2-digit',
+                        second: '2-digit'
+                    })}</small>
+                    <div class="acti-name">
+                        <small class="activity">${activity.activity}</small>
+                    </div>
+                    <div class='line'></div>
+                `;
+                card.querySelector('.activity_data').appendChild(activityData);
+            });
+        } else {
+            const noActivityMessage = document.createElement('div');
+            noActivityMessage.classList.add('p-4');
+            noActivityMessage.textContent = 'No activity for this lead';
+            card.querySelector('.activity_data').appendChild(noActivityMessage);
+        }
+    })
+    .catch(error => console.error(`Error fetching activities for lead ID ${item.Id}:`, error));
 
                         // Create card content
 
                         const title = document.createElement('span');
                         const newspan = document.createElement('span');
+                        const deleteSpan = document.createElement('span');
 
                         title.classList.add('d-block', 'title', 'text-capitalize');
                         title.textContent = item.companyName;
-                        title.setAttribute('onclick', 'showLeadData(this)');
+                        title.setAttribute('onclick', 'showLeadData(this.closest(".cookie-card"))');
                         newspan.innerHTML = `<i class="ri-information-2-fill float-end"></i>`;
-                        newspan.onclick = function(){
+                        deleteSpan.setAttribute('data-delete-id', item.Id);
+                        deleteSpan.innerHTML = `<i class="ri-delete-bin-2-fill float-end"></i>`;
+                        // Event listener for delete span
+                        deleteSpan.addEventListener('click', async function() {
+                            // Show confirmation dialog
+                            const confirmDelete = confirm('Are you sure you want to delete this lead data?');
+                        
+                            // If user confirms deletion
+                            if (confirmDelete) {
+                                const leadIdToDelete = this.getAttribute('data-delete-id');
+                                try {
+                                    const response = await fetch(`/leads/${leadIdToDelete}`, {
+                                        method: 'DELETE'
+                                    });
+                                    if (response.ok) {
+                                        console.log('Lead data deleted successfully');
+                                        location.reload(); // Reload the page after successful deletion
+                                    } else {
+                                        console.error('Failed to delete lead data');
+                                    }
+                                } catch (error) {
+                                    console.error('Error deleting lead data:', error);
+                                }
+                            } else {
+                                // Do nothing if user cancels deletion
+                                console.log('Deletion canceled by user');
+                            }
+                        });
+                        
+
+                        newspan.onclick = function () {
                             openActivityData(card)
                         }
                         title.appendChild(newspan);
+                        title.appendChild(deleteSpan);
 
                         const companyName = document.createElement('small');
                         companyName.textContent = item.companyName;
@@ -242,24 +381,24 @@ async function renderContainers() {
 
                         activityButton.classList.add('pref');
                         activityButton.textContent = 'Activity';
-                        activityButton.onclick = function() {
+                        activityButton.onclick = function () {
                             openActivity(card);
                         };
 
                         const icons = document.createElement('div');
                         icons.innerHTML = `
                             <button class="accept">
-                            <a style="text-decoration: noen; color:white" href="mailto:${item.email}">
+                            <a style="text-decoration: noen; color:white" href="mailto:">
                             <i class="ri-mail-line"></i>
                         </a>
                                 </button>
                             <button class="accept">
-                            <a style="text-decoration: noen; color:white"  href="tel:${item.contactNumber}">
+                            <a style="text-decoration: noen; color:white"  href="tel:${item.ContactNumber}">
                             <i class="ri-phone-line"></i>
                         </a>
                                 </button>
                             <button class="accept call_icon">
-                            <a style="text-decoration: none; color:white" href="https://wa.me/${item.contactNumber}" >
+                            <a style="text-decoration: none; color:white" href="https://wa.me/${item.ContactNumber}" >
                             <i class="ri-chat-3-fill"></i>
                         </a>                            </button>
                         `;
@@ -342,13 +481,20 @@ function openActivity(value) {
     const activity_container = value.querySelector(".activity_sec")
     activity_container.classList.toggle("d-block")
 
-  }
-  function openActivityData(value) {
+}
+
+
+function openActivityData(value) {
     const activity_data = value.querySelector('.activity_data')
     activity_data.classList.toggle("d-block")
-  
-  
-  }
+
+
+}
+
+function hideActivity(container) {
+    console.log(container);
+    container.classList.toggle("d-block")
+}
 
 
 // Add event listener to submit button
@@ -359,6 +505,9 @@ document.addEventListener('click', function (event) {
         const activityInput = cardElement.querySelector('.activity');
         const activity = activityInput.value.trim();
 
+        // Get current date and time
+        const currentDateTime = new Date().toISOString();
+
         // Send AJAX request to server
         fetch('/activity', {
             method: 'POST',
@@ -367,7 +516,8 @@ document.addEventListener('click', function (event) {
             },
             body: JSON.stringify({
                 lead_id: leadId,
-                activity: activity
+                activity: activity,
+                dateTime: currentDateTime // Adding dateTime field
             })
         })
             .then(response => response.json())
@@ -388,43 +538,5 @@ document.addEventListener('click', function (event) {
 
 
 
-
-
-
-
-
-
-// // Function to add a new field
-// async function addField() {
-//     const value = prompt('Please Enter the field name', 'Ex. New Field');
-//     try {
-//         const res = await fetch('/customfield', {
-//             headers: {
-//                 'Content-Type': 'application/json'
-//             },
-//             method: "POST",
-//             body: JSON.stringify({ value })
-//         });
-//         if (res.ok) {
-//             await renderContainers();
-//         } else {
-//             throw new Error('Failed to add field');
-//         }
-//     } catch (error) {
-//         console.error(error);
-//     }
-// }
-
-// // Event listener to add a new field
-// function AddField() {
-//     const addFieldBtn = document.querySelector('.addFieldBtn');
-//     addFieldBtn.addEventListener('click', addField);
-// }
-
-
-
-
-// Initial render
 renderContainers();
-// AddField();
 

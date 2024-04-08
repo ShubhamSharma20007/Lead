@@ -24,6 +24,7 @@ const fileUpload = require("express-fileupload");
 const path = require('path');
 const hbs = require('hbs');
 const ActivityModel = require('../models/Activity')
+const Activities = require("../models/Activities")
 const fs = require('fs');
 const { google } = require('googleapis');
 const passport = require('passport');
@@ -651,7 +652,15 @@ router.post("/login", async (req, res) => {
     req.session.userImage = findUser.userImage
     req.session.employee_id = findUser.employee_id
 
-    res.status(200).json({ success: true, message: "Login successful" });
+    res.status(200).json({
+      success: true,
+      message: "Login successful",
+      username: findUser.username,
+      email: findUser.email,
+      user_group: findUser.user_group,
+      userImage: findUser.userImage,
+      employee_id: findUser.employee_id
+    });
 
   } catch (error) {
     return res.status(400).json({ success: false, error: error.message })
@@ -674,7 +683,9 @@ router.get('/leadManagement', isAuth, async function (req, res, next) {
     let username = req.session.username;
     console.log(userGroup);
     let isAdmin = userGroup === "admin";
-    let leadFilter = {}; // Initialize an empty filter object
+    let leadFilter = {
+      isDeleted: false
+    }; // Initialize an empty filter object
     // if (!isAdmin) {
     //   // If user is not admin, filter by their email
     //   leadFilter = { loginEmail: userEmail };
@@ -726,10 +737,12 @@ router.get('/fetchDataForContainer/:fieldName', isAuth, async (req, res) => {
   const userEmail = req.session.email; // Assuming email is stored in session
 
   try {
-    let leadFilter = {};
+    let leadFilter = {
+      isDeleted: false
+    };
 
     if (userGroup !== "admin" && userEmail) {
-      leadFilter = { loginEmail: userEmail };
+      leadFilter.loginEmail = userEmail;
     }
 
     // Fetch data from LeadData table based on target_status and user's email
@@ -768,6 +781,7 @@ router.get('/fetchDataForContainer/:fieldName', isAuth, async (req, res) => {
     res.status(500).json({ error: 'Internal server error' });
   }
 });
+
 
 router.get("/lead-store-data/:id", async (req, res) => {
   try {
@@ -1773,12 +1787,27 @@ router.get('/get-events', async (req, res) => {
 
 // activity route
 
+// router.post("/activity", async (req, res) => {
+//   try {
+//     const { lead_id, activity } = req.body;
+//     const newActivity = await ActivityModel.create({
+//       lead_id: lead_id,
+//       activity: activity
+//     });
+//     res.status(201).json({ message: "Activity created successfully", data: newActivity });
+//   } catch (error) {
+//     console.error("Error creating activity:", error);
+//     res.status(500).json({ message: "Failed to create activity" });
+//   }
+// });
+
 router.post("/activity", async (req, res) => {
   try {
-    const { lead_id, activity } = req.body;
-    const newActivity = await ActivityModel.create({
+    const { lead_id, activity, dateTime } = req.body; 
+    const newActivity = await Activities.create({
       lead_id: lead_id,
-      activity: activity
+      activity: activity,
+      dateTime: dateTime // Storing dateTime in the database
     });
     res.status(201).json({ message: "Activity created successfully", data: newActivity });
   } catch (error) {
@@ -1884,5 +1913,249 @@ router.post('/leads', async (req, res) => {
 });
 
 
+router.put('/leads/:id', async (req, res) => {
+  try {
+    const leadId = req.params.id;
+    const {
+      companyName,
+      Stage,
+      Amount,
+      EndDate,
+      ContactNumber,
+      DealType,
+      StartDate,
+      Source,
+      target_status,
+      responsible_person,
+      loginEmail,
+      employee_id
+    } = req.body;
+
+    const leadToUpdate = await LeadData.findByPk(leadId);
+
+    if (!leadToUpdate) {
+      return res.status(404).json({ error: 'Lead not found' });
+    }
+
+    // Update lead data with provided values, if provided
+    if (companyName) leadToUpdate.companyName = companyName;
+    if (Stage) leadToUpdate.Stage = Stage;
+    if (Amount) leadToUpdate.Amount = Amount;
+    if (EndDate) leadToUpdate.EndDate = EndDate;
+    if (ContactNumber) leadToUpdate.ContactNumber = ContactNumber;
+    if (DealType) leadToUpdate.DealType = DealType;
+    if (StartDate) leadToUpdate.StartDate = StartDate;
+    if (Source) leadToUpdate.Source = Source;
+    if (target_status) leadToUpdate.target_status = target_status;
+    if (responsible_person) leadToUpdate.responsible_person = responsible_person;
+    if (loginEmail) leadToUpdate.loginEmail = loginEmail;
+    if (employee_id) leadToUpdate.employee_id = employee_id;
+
+    await leadToUpdate.save();
+
+    res.status(200).json({ message: 'Lead data updated successfully', lead: leadToUpdate });
+  } catch (err) {
+    console.error('Error while updating lead data:', err);
+    res.status(500).json({ error: 'Internal Server Error' });
+  }
+});
+
+
+router.post('/activities', async (req, res) => {
+  try {
+    const { lead_id, activity, dateTime, activityStatus } = req.body;
+
+    const newActivity = await Activities.create({
+      lead_id,
+      activity,
+      dateTime,
+      activityStatus: "Planned"
+    });
+
+    res.status(201).json(newActivity);
+  } catch (error) {
+    // If an error occurs, send an error response
+    console.error('Error creating activity:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+
+// Define a route to fetch data based on lead_id
+router.get('/activity/:lead_id', async (req, res) => {
+  const { lead_id } = req.params;
+
+  try {
+    const activities = await Activities.findAll({
+      where: {
+        lead_id: lead_id
+      }
+    });
+
+    if (activities) {
+      res.status(200).json(activities);
+    } else {
+      res.status(404).json({ message: 'No activities found for the given lead_id' });
+    }
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+});
+
+router.put('/activities/:id/update-status', async (req, res) => {
+  const { id } = req.params;
+  const { activityStatus } = req.body;
+
+  try {
+    const activity = await Activities.findByPk(id);
+
+    if (!activity) {
+      return res.status(404).json({ error: 'Activity not found' });
+    }
+
+    activity.activityStatus = activityStatus;
+    await activity.save();
+
+    return res.status(200).json({ message: 'Activity status updated successfully', activity });
+  } catch (error) {
+    console.error('Error updating activity status:', error);
+    return res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+router.get('/leadsDataForListView', async (req, res) => {
+  try {
+    let userGroup = req.session.user_group;
+    let userEmail = req.session.email; // Assuming email is stored in session
+    let isAdmin = userGroup === "admin";
+
+    if (isAdmin) {
+      const leads = await LeadData.findAll();
+      res.json(leads);
+    } else {
+      const leads = await LeadData.findAll({
+        where: {
+          loginEmail: userEmail
+        }
+      });
+      res.json(leads);
+    }
+  } catch (error) {
+    console.error('Error fetching leads:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+router.delete('/customfields/:id', async (req, res) => {
+  try {
+    const id = req.params.id;
+
+    // Find the custom field by Id
+    const customField = await DashboardFieldModal.findByPk(id);
+
+    if (!customField) {
+      return res.status(404).json({ message: 'Custom field not found' });
+    }
+
+    // Delete the custom field
+    await customField.destroy();
+
+    return res.status(200).json({ message: 'Custom field deleted successfully' });
+  } catch (error) {
+    console.error('Error deleting custom field:', error);
+    return res.status(500).json({ message: 'Internal Server Error' });
+  }
+});
+
+router.put('/customfields/:id', async (req, res) => {
+  try {
+    const id = req.params.id;
+    const { fieldName } = req.body;
+
+    let customField = await DashboardFieldModal.findByPk(id);
+
+    if (!customField) {
+      return res.status(404).json({ message: 'Custom field not found' });
+    }
+
+    const oldFieldName = customField.fieldName;
+
+    customField = await customField.update(req.body);
+
+    await LeadData.update(
+      { target_status: fieldName },
+      { where: { target_status: oldFieldName } }
+    );
+
+    return res.status(200).json({ message: 'Custom field updated successfully', customField });
+  } catch (error) {
+    console.error('Error updating custom field:', error);
+    return res.status(500).json({ message: 'Internal Server Error' });
+  }
+});
+
+
+router.delete('/leads/:id', async (req, res) => {
+  const id = req.params.id;
+
+  try {
+    const lead = await LeadData.findByPk(id);
+
+    if (!lead) {
+      return res.status(404).json({ message: 'Lead not found' });
+    }
+
+    await lead.update({ isDeleted: true });
+
+    return res.status(200).json({ message: 'Lead marked as deleted successfully' });
+  } catch (error) {
+    console.error('Error marking lead as deleted:', error);
+    return res.status(500).json({ message: 'Internal server error' });
+  }
+});
+
+router.post('/filter-responsible-person', async (req, res) => {
+  const { contact } = req.body;
+  try {
+    const alldataperson = await userModel.findAll({
+      where: {
+        username: {
+          [Op.like]: `%${contact}%`
+        }
+      }
+    });
+
+    return res.status(200).json({ success: true, alldataperson });
+  } catch (error) {
+    return res.status(500).json({ success: false, error });
+  }
+});
+
+
+router.put('/activitiesforLeads/:id', async (req, res) => {
+  const { id } = req.params;
+  const { activity, dateTime, activityStatus } = req.body;
+
+  try {
+      const activityToUpdate = await Activities.findByPk(id);
+
+      if (!activityToUpdate) {
+          return res.status(404).json({ error: 'Activity not found' });
+      }
+
+      // Update the activity attributes, excluding lead_id
+      activityToUpdate.activity = activity;
+      activityToUpdate.dateTime = dateTime;
+      activityToUpdate.activityStatus = activityStatus;
+
+      // Save the updated activity
+      await activityToUpdate.save();
+
+      return res.status(200).json(activityToUpdate);
+  } catch (error) {
+      console.error('Error updating activity:', error);
+      return res.status(500).json({ error: 'Internal Server Error' });
+  }
+});
 
 module.exports = router;
