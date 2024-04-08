@@ -26,6 +26,7 @@ const hbs = require('hbs');
 const ActivityModel = require('../models/Activity')
 const Activities = require("../models/Activities")
 const fs = require('fs');
+const ProductModel = require("../models/Product")
 const { google } = require('googleapis');
 const passport = require('passport');
 const GoogleStrategy = require('passport-google-oauth20').Strategy;
@@ -2133,6 +2134,7 @@ router.post('/filter-responsible-person', async (req, res) => {
 
 
 router.put('/activitiesforLeads/:id', async (req, res) => {
+
   const { id } = req.params;
   const { activity, dateTime, activityStatus } = req.body;
 
@@ -2157,5 +2159,40 @@ router.put('/activitiesforLeads/:id', async (req, res) => {
       return res.status(500).json({ error: 'Internal Server Error' });
   }
 });
+
+
+// Product table product
+router.post('/product-add', async (req, res) => {
+  try {
+    const { products } = req.body;
+    const userId = req.session.employee_id;
+    const productNames = products.map(({ productName }) => ({ productName, userId }));
+    const product_table = await ProductModel.bulkCreate(productNames);
+    return res.status(200).json({ success: true, message: "Product added successfully", product_table });
+  } catch (error) {
+    console.error(error);
+    return res.status(400).json({ success: false, message: "Failed to add product" });
+  }
+});
+
+router.post("/product-list",async(req,res)=>{
+
+  try {
+    const {productName} = req.body;
+    const allPro = await ProductModel.findAll({
+      where:{
+        productName:{
+          [Op.like] : `%${productName}%`
+        }
+      }
+    });
+    return res.status(200).json({ success: true, message: "Product list", allPro });
+  } catch (error) {
+    return res.status(400).json({ success: false, message: "Failed to get product list" });
+  }
+})
+
+
+
 
 module.exports = router;

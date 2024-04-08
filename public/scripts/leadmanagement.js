@@ -173,7 +173,7 @@ async function renderContainers() {
 
 
         // Event listener for the "Delete Container" icon
-        newColumn.querySelector('.ri-delete-bin-6-line').addEventListener('click', async function () {
+        newColumn.querySelector('.ri-delete-bin-6-line ').addEventListener('click', async function () {
             // Ask for confirmation before deleting
             const confirmDelete = window.confirm("Are you sure you want to delete this container?");
             if (!confirmDelete) {
@@ -255,7 +255,6 @@ async function renderContainers() {
                 if (data && Array.isArray(data)) {
                     const boardItem = newColumn.querySelector('.board-item'); // Select the board-item div
                     data.forEach(item => {
-
                         const card = document.createElement('div');
 
                         card.classList.add('cookie-card');
@@ -327,12 +326,12 @@ fetch(`/activity/${item.Id}`)
                         const newspan = document.createElement('span');
                         const deleteSpan = document.createElement('span');
 
-                        title.classList.add('d-block', 'title', 'text-capitalize');
+                        title.classList.add('d-block', 'title', 'text-capitalize' );
                         title.textContent = item.companyName;
                         title.setAttribute('onclick', 'showLeadData(this.closest(".cookie-card"))');
-                        newspan.innerHTML = `<i class="ri-information-2-fill float-end"></i>`;
+                        newspan.innerHTML = `<i class="ri-information-2-fill float-end cursor-pointer"></i>`;
                         deleteSpan.setAttribute('data-delete-id', item.Id);
-                        deleteSpan.innerHTML = `<i class="ri-delete-bin-2-fill float-end"></i>`;
+                        deleteSpan.innerHTML = `<i class="ri-close-circle-fill float-end cursor-pointer"></i>`;
                         // Event listener for delete span
                         deleteSpan.addEventListener('click', async function() {
                             // Show confirmation dialog
@@ -371,7 +370,11 @@ fetch(`/activity/${item.Id}`)
                         companyName.textContent = item.companyName;
 
                         const leadStatus = document.createElement('small');
-                        leadStatus.textContent = item.Amount;
+                        leadStatus.textContent = Number(item.Amount).toLocaleString('en-IN',{
+                            style:'currency',
+                            currency:'INR',
+                            minimumFractionDigits:0
+                        });
 
                         const actions = document.createElement('div');
 
@@ -539,4 +542,9 @@ document.addEventListener('click', function (event) {
 
 
 renderContainers();
+
+
+
+
+// product javascript
 
