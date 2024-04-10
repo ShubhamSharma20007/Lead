@@ -143,6 +143,10 @@ const LeadData = sequelize.define('leadData', {
         type: DataTypes.DATE,
         defaultValue: DataTypes.NOW 
     },
+    contactId:{
+        type: DataTypes.STRING,
+        defaultValue :0
+    },
     createdAt: {
         type: DataTypes.DATE,
         defaultValue: DataTypes.NOW 

@@ -325,9 +325,12 @@ fetch(`/activity/${item.Id}`)
                         const title = document.createElement('span');
                         const newspan = document.createElement('span');
                         const deleteSpan = document.createElement('span');
+        
+                        title.classList.add('d-block', 'title','company_heading', 'text-capitalize'  );
+                        title.textContent = item.companyName.length > 30 ? item.companyName.substring(0, 30) + "..." : item.companyName;
 
-                        title.classList.add('d-block', 'title', 'text-capitalize' );
-                        title.textContent = item.companyName;
+            
+
                         title.setAttribute('onclick', 'showLeadData(this.closest(".cookie-card"))');
                         newspan.innerHTML = `<i class="ri-information-2-fill float-end cursor-pointer"></i>`;
                         deleteSpan.setAttribute('data-delete-id', item.Id);
@@ -338,6 +341,7 @@ fetch(`/activity/${item.Id}`)
                             const confirmDelete = confirm('Are you sure you want to delete this lead data?');
                         
                             // If user confirms deletion
+                            
                             if (confirmDelete) {
                                 const leadIdToDelete = this.getAttribute('data-delete-id');
                                 try {
@@ -358,16 +362,17 @@ fetch(`/activity/${item.Id}`)
                                 console.log('Deletion canceled by user');
                             }
                         });
-                        
 
+       
                         newspan.onclick = function () {
                             openActivityData(card)
                         }
                         title.appendChild(newspan);
                         title.appendChild(deleteSpan);
+                    
 
-                        const companyName = document.createElement('small');
-                        companyName.textContent = item.companyName;
+                        // const companyName = document.createElement('small');
+                        // companyName.textContent = item.companyName;
 
                         const leadStatus = document.createElement('small');
                         leadStatus.textContent = Number(item.Amount).toLocaleString('en-IN',{
@@ -412,12 +417,17 @@ fetch(`/activity/${item.Id}`)
 
 
                         card.appendChild(title);
-                        card.appendChild(companyName);
+                        // card.appendChild(companyName);
                         card.appendChild(leadStatus);
                         card.appendChild(actions);
 
 
                         boardItem.appendChild(card); // Append card to the board-item
+
+                        // document.addEventListener('DOMContentLoaded',()=>{
+                        //     const titles = document.querySelectorAll('.company_heading')
+                        //     console.log(titles,121212)
+                        //     })
                         const createdAt = document.createElement('small');
                         const createdAtDate = new Date(item.createdAt);
                         const now = new Date();
@@ -470,12 +480,14 @@ fetch(`/activity/${item.Id}`)
                         </div>
                     `;
                     newColumn.querySelector('.board-column-content').appendChild(contactCard);
+                  
                 } else {
                     console.error(`Data for ${containerData.fieldName} is not valid.`);
                 }
             })
             .catch(error => console.error(`Error fetching data for ${containerData.fieldName}:`, error));
     });
+    
 }
 
 
@@ -544,7 +556,6 @@ document.addEventListener('click', function (event) {
 renderContainers();
 
 
-
-
-// product javascript
-
+// title.forEach(element=>{
+//    console.log(element.textContent,1212)
+// })

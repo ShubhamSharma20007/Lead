@@ -150,6 +150,18 @@
       width: 235px !important;
     }
 
+    #submit_btn {
+      margin: 20px 0;
+    }
+
+    #form2{
+      width: 100%;
+    background-color: #FFFFFF;
+    padding: 20px;
+    box-shadow: rgba(100, 100, 111, 0.2) 0px 7px 29px 0px;
+    border-radius: 10px;
+}
+    
     .board-column-header {
       position: relative;
       height: 50px;
@@ -738,6 +750,12 @@
       margin-top: 9px;
       background-color: lightgray;
     }
+    .customInput{
+      width: 100%;
+    padding: 10px 36px;
+    border: 1px solid #c1c1c1;
+    border-radius: 2px;
+    }
   </style>
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Open+Sans:ital,wght@0,300..800;1,300..800&display=swap');
@@ -813,12 +831,7 @@
       padding: 3px 0px;
     }
 
-    .elem input {
-      width: 100%;
-      padding: 10px 8px;
-      border: 1px solid #c1c1c1;
-      border-radius: 2px;
-    }
+
 
     #name::placeholder {
       color: #c1c1c1;
@@ -885,7 +898,7 @@
     }
 
     .contact-input input {
-      width: 96%;
+      width: 100%;
       padding: 10px 36px;
       border: 1px solid #c1c1c1;
       border-radius: 2px;
@@ -915,6 +928,13 @@
       padding: 7px;
       border-radius: 50%;
       font-size: 10px;
+      position: absolute;
+      left: 7px;
+      top: 30px;
+    }
+
+    .contact_contact {
+      font-size: 25px;
       position: absolute;
       left: 7px;
       top: 30px;
@@ -1118,7 +1138,8 @@
     }
 
     .lead_contact {
-      max-height: 150px;
+      max-height: 200px;
+      z-index: 99;
       width: 96%;
       top: 100%;
       left: 0;
@@ -1229,7 +1250,7 @@
       width: 38%;
       top: -40px;
       overflow-y: auto;
-      max-height: 90px;
+      max-height: 82px;
       background: white;
     }
   </style>
@@ -1241,6 +1262,27 @@
   </style>
 
   <style>
+    input[name="clientName"]{
+      width: 100%;
+    padding: 10px 36px ;
+    border: 1px solid #c1c1c1;
+    border-radius: 2px;
+    }
+
+   
+     input[name="clientEmail"]{
+      width: 100%;
+    padding: 10px 36px ;
+    border: 1px solid #c1c1c1;
+    border-radius: 2px;
+    }
+      input[name="clientLocation"]{
+      width: 100%;
+    padding: 10px 36px ;
+    border: 1px solid #c1c1c1;
+    border-radius: 2px;
+    }
+    
     .dialog-container {
       position: fixed;
       top: 0;
@@ -1343,7 +1385,8 @@
                   <div class="client-details position-relative">
                     <label for="">Contact</label>
                     <div class="contact-input">
-                      <i class="ri-user-fill"></i>
+                      <i class="contact_contact ri-account-circle-fill"></i>
+                     <input type="text" name="contactId" id="contactId" hidden>
                       <input type="text" id="contact_input" name="ContactNumber" autocomplete="one-time-code"
                         placeholder="Contact name,phone or email">
                       <i class="ri-search-line"></i>
@@ -1386,11 +1429,11 @@
 
               </div>
               <div>
-                <button class="button-8 d-none" role="button"  type="button" id="save-btn">Save</button>
+                <button class="button-8 d-none" role="button" type="button" id="save-btn">Save</button>
               </div>
               <div class="price_sec d-flex align-items-center gap-2">
                 <small>Grand Total</small>
-                <p class="m-0">213454</p>
+                <p class="m-0" id="grand-total">0</p>
               </div>
             </div>
           </div>
@@ -1434,7 +1477,7 @@
                   <div class="client-details-1">
                     <label for="">Responsible</label>
                     <div class="contact-input">
-                      <i class="ri-user-fill"></i>
+                      <i class="contact_contact ri-account-circle-fill"></i>
                       <input type="text" name="responsible_person" value="{{username}}">
                       <i class="ri-search-line"></i>
                     </div>
@@ -1568,13 +1611,29 @@
               </div>
               <div style="display: flex; margin-top: 40px;">
                 <div id="client">
+                  <div class="elem position-relative">
+                <label for="name">Client Name</label>
+                      <i class="contact_contact ri-user-line" style="margin-top: 2px;"></i>
+                <input type="text" placeholder="Name...." name="clientName" id="clientName"  class="contact-input" >
+              </div>
+                <div class="elem" style="position: relative;">
+                <label for="name">Email</label>
+                      <i class="contact_contact ri-mail-send-line" style="margin-top: 2px;"></i>
+                <input type="text" placeholder="Email...." name="clientEmail" id="clientEmail" class="contact-input" >
+              </div>
+              <div class="elem position-relative">
+                <label for="name">Location</label>
+                      <i class="contact_contact ri-map-pin-line" style="margin-top: 2px;"></i>
+
+                <input type="text" placeholder="Location...." name="clientLocation" id="clientLocation" class="contact-input" >
+              </div>
                   <div class="client-details position-relative">
                     <label for="">Contact</label>
                     <div class="contact-input">
-                      <i class="ri-user-fill"></i>
+                      <i class="contact_contact ri-account-circle-fill"></i>
                       <input type="text" id="contact_input-update" name="ContactNumber" autocomplete="one-time-code"
                         placeholder="Contact name,phone or email" required>
-                      <i class="ri-search-line"></i>
+           
                       <i class="ri-close-line"></i>
                       {{!-- dynamically contact data --}}
                       <div class="position-absolute lead_contact"></div>
@@ -1618,7 +1677,7 @@
                   <div class="client-details-1">
                     <label for="">Responsible</label>
                     <div class="contact-input">
-                      <i class="ri-user-fill"></i>
+                      <i class="contact_contact ri-account-circle-fill"></i>
                       <input type="text" name="responsible_person" id="responsible_person-update">
                       <input type="text" class="d-none" name="loginEmail" id="loginEmail" autocomplete="one-time-code">
                       <i class="ri-search-line"></i>
@@ -1995,7 +2054,6 @@
 
   function showLeadData(element) {
     const id = element.getAttribute('data-lead-id');
-    console.log(id, 128765);
     fetch(`/lead-store-data/${id}`)
       .then(res => res.json())
       .then(data => {
@@ -2014,6 +2072,11 @@
         document.getElementById('companyName').value = data.storeval.companyName;
         document.getElementById('Amount-update').value = data.storeval.Amount;
         document.getElementById('contact_input-update').value = data.storeval.ContactNumber;
+   
+       document.querySelector("#clientName").value =  data?.userIdDetail?.name;
+        document.querySelector('#clientEmail').value =  data?.userIdDetail?.email;
+        document.querySelector("#clientLocation").value = data?.userIdDetail?.address ;
+
         document.getElementById('deal-type-update').value = data.storeval.DealType;
         document.getElementById('Source-update').value = data.storeval.Source;
         document.getElementById('responsible_person-update').value = data.storeval.responsible_person;
@@ -2031,12 +2094,12 @@
           .then(res => res.json())
           .then(activities => {
             const activityDetailsSection = document.getElementById('activity-details-section');
+            activityDetailsSection.innerHTML = '';
             activities.forEach(activity => {
               const existingActivityContainer = document.querySelector(`.activity-dets-section[data-activity-id="${activity.id}"]`);
               if (existingActivityContainer) {
                 return;
               }
-
               const activityCard = `
               <div class="activity-dets-section rounded-2 position-relative" data-activity-id="${activity.id}">
                 <input type="text" name="id" value="${activity.id}" hidden />
@@ -2129,17 +2192,7 @@
 </script> --}}
 
 
-<script>
-  function getDateTime() {
-    var now = new Date();
-    now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
-    document.getElementById('datetime-local').value = now.toISOString().slice(0, 16);
-  }
 
-  window.onload = function () {
-    getDateTime();
-  };
-</script>
 
 <script>
   document.addEventListener('DOMContentLoaded', function () {
@@ -2167,6 +2220,7 @@
 </script>
 <script>
   const contact_input = document.querySelector('#contact_input')
+
   contact_input.addEventListener('input', async (e) => {
     const storevalue = e.target.value;
     if (!storevalue.trim()) { // Check if input value is empty or only contains whitespace
@@ -2177,7 +2231,10 @@
     await appendingData(storevalue)
   })
 
+  
+
   async function appendingData(value) {
+  
     try {
       const res = await fetch('/filter-contact', {
         method: "POST",
@@ -2192,6 +2249,7 @@
       const lead_contact = document.querySelector('.lead_contact')
       lead_contact.innerHTML = '';
       if (data.success) {
+
         if (data.alldata.length === 0 && data.contactdata.length === 0) {
           const card = document.createElement('div');
           card.classList.add('card');
@@ -2211,9 +2269,9 @@
             // Create the form
             const form = document.createElement('form');
             form.innerHTML = `
-              <input type="text" name="name" placeholder="Name">
+              <input type="text" name="name" placeholder="Name" onvalid="this.setCustomValidity('')"   oninvalid="this.setCustomValidity('Name is required')" required="required">
               <input type="email" name="email" placeholder="Email">
-              <input type="tel" name="mobile" placeholder="Mobile">
+              <input type="tel" name="mobile" placeholder="Mobile" onvalid="this.setCustomValidity('')"   oninvalid="this.setCustomValidity('Name is required')" required="required">
               <input type="text" name="address" placeholder="address">
               <button type="submit">Submit</button>
             `;
@@ -2269,6 +2327,7 @@
             form.addEventListener('submit', async (e) => {
               e.preventDefault();
               const formData = new FormData(form);
+               
               const formDataObj = Object.fromEntries(formData.entries());
 
               try {
@@ -2280,9 +2339,13 @@
                   body: JSON.stringify(formDataObj),
                 });
                 const data = await res.json();
+                
                 console.log('Contact data response:', data);
                 form.reset();
                 toastr.success('Contact created successfully');
+                setTimeout(()=>{
+                  document.querySelector('.lead_contact').innerHTML = ''
+                })
 
                 // You can update the UI or perform any other actions based on the server response
               } catch (err) {
@@ -2299,12 +2362,14 @@
             const card = document.createElement('div');
             card.classList.add('card');
             card.innerHTML = `
-  <div class="wrapper d-flex gap-3 px-3 py-2 mx-auto my-1 border rounded-2 align-items-center" style="width: 80%" onclick='getcontactnum("${ele.ContactNumber}")'>
+<div class="wrapper d-flex gap-3 px-3 py-2 mx-auto my-1 border rounded-2 align-items-center" style="width: 80%;" onclick='getcontactnum("${ele.name}", "${ele.id}")'>
+    
     <div class="img-no">
       <img class="rounded-circle" style="background-color: lightgray;" src="https://upload.wikimedia.org/wikipedia/commons/9/99/Sample_User_Icon.png" alt="" width="40" height="40">
     </div>
     <div class="div">
-      <small class="m-0 d-block">${ele.companyName}</small>
+    
+      <small class="m-0 d-block" >${ele.companyName}</small>
       <small class="m-0 d-block">${ele.ContactNumber}</small>
     </div>
   </div>
@@ -2316,7 +2381,7 @@
             const card = document.createElement('div');
             card.classList.add('card');
             card.innerHTML = `
-              <div class="wrapper d-flex gap-3 px-3 py-2 mx-auto my-1 border rounded-2 align-items-center" style="width: 80%;" onclick='getcontactnum("${ele.mobile}")'>
+<div class="wrapper d-flex gap-3 px-3 py-2 mx-auto my-1 border rounded-2 align-items-center" style="width: 80%;" onclick='getcontactnum("${ele.name}", "${ele.id}")'>
                 <div class="img-no">
                   <img class="rounded-circle" style="background-color: lightgray;"
                     src="https://upload.wikimedia.org/wikipedia/commons/9/99/Sample_User_Icon.png" alt=""
@@ -2340,20 +2405,22 @@
     }
   }
 
-  function getcontactnum(number) {
+function getcontactnum(number, id) {
     document.querySelector('#contact_input').value = number;
+    document.querySelector('#contactId').value = id;
 
-
-    const lead_contact = document.querySelector('.lead_contact')
+    const lead_contact = document.querySelector('.lead_contact');
     if (lead_contact) {
-      lead_contact.innerHTML = ''
+        lead_contact.innerHTML = '';
     }
-  }
+}
+
 </script>
 
 
 <script>
   document.getElementById('myForm').addEventListener('submit', async function (event) {
+
     event.preventDefault();
     const formData = new FormData(this);
     const obj = Object.fromEntries(formData);
@@ -2613,8 +2680,6 @@
 
 </script>
 
-
-
 <script>
   function productAppending() {
     const appendingContainer = document.querySelector('.dynamic-product');
@@ -2632,9 +2697,9 @@
       incre++;
       const newProduct = `
     <div class="mt-2 d-flex align-items-center per-product-sec" data-incre="${incre}">
-      <input style="width: 60%;" class="mb-1" placeholder="Product..." />
-      <input class="text-center mb-1" style="width: 20%;" placeholder="Qty" />
-      <input class="text-center mb-1" style="width: 20%;" placeholder="Price" />
+      <input type="text" name="productName" style="width: 60%;" class="mb-1" placeholder="Product..." />
+      <input type="number" name="Qty" class="text-center mb-1" style="width: 20%;" placeholder="Qty" />
+      <input type="number" name="Price" class="text-center mb-1" style="width: 20%;" placeholder="Price" />
     </div>
   `;
 
@@ -2668,18 +2733,20 @@
             console.log(output)
             if (output.success) {
               let product_filter = document.querySelector('.product-filter');
-                 if (output.allPro.length === 0) {
-         
-                   save_btn.classList.remove('d-none')
-                  
-                 } 
-                 else{
-                  save_btn.classList.add('d-none')
-                 }
-                 
+          if (output.allPro.length === 0) {
+
+                save_btn.classList.remove('d-none')
+
+              }
+              else {
+                save_btn.classList.add('d-none')
+              } 
+
               product_filter.innerHTML = '';
               output.allPro.forEach(({ productName }, index) => {
                 const newdiv = document.createElement('div');
+                newdiv.style.margin = "5px 0"
+
                 if (productName.length > 0) {
                   newdiv.innerHTML = `<small class='cursor-pointer' onclick="setInputValue('${productName}', ${incre})">${productName}</small>`;
                   product_filter.appendChild(newdiv);
@@ -2692,6 +2759,7 @@
 
           }
 
+          calculateTotal();
         });
       });
     });
@@ -2716,14 +2784,30 @@
         });
 
         const data = await response.json();
-        console.log(data)
+          if(data.success){
+            document.querySelector('.dynamic-product').innerHTML =''
+            document.getElementById('save-btn').classList.add('d-none')
+            document.getElementById('grand-total').innerText = '0'
+          }
 
       } catch (error) {
         console.error('Error:', error);
       }
     });
 
-
+    function calculateTotal() {
+      let total = 0;
+      document.querySelectorAll('.per-product-sec').forEach((product) => {
+        const qtyInput = product.querySelector('input[type="number"][name="Qty"]');
+        const priceInput = product.querySelector('input[type="number"][name="Price"]');
+        if (priceInput && qtyInput) {
+          const price = parseFloat(priceInput.value) || 0;
+          const qty = parseInt(qtyInput.value) || 0;
+          total += price * qty;
+        }
+      });
+      document.getElementById('grand-total').innerText = total.toFixed(0);
+    }
   }
 
   productAppending();
@@ -2731,12 +2815,12 @@
 
   function setInputValue(productName, incre) {
     const productSet = document.querySelector(`.per-product-sec[data-incre="${incre}"]`);
-  
+
     if (productSet) {
       const inputs = productSet.querySelectorAll('input');
-      inputs[0].value = productName; 
-       document.querySelector('.product-filter').innerHTML = '';
-    
+      inputs[0].value = productName;
+      document.querySelector('.product-filter').innerHTML = '';
+
     }
   }
 
@@ -2746,6 +2830,17 @@
 
 
 
+
+<script>
+  window.onload = function () {
+    var now = new Date();
+    now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
+    document.querySelectorAll("#datetime-local")[0].value = now.toISOString().slice(0, 16);
+    document.querySelectorAll("#datetime-local")[1].value = now.toISOString().slice(0, 16);
+
+  }
+
+</script>
 
 
 
