@@ -791,14 +791,16 @@ router.get("/lead-store-data/:id", async (req, res) => {
       return res.status(404).json({ error: "lead not found" })
     }
     // for contactPerson condition
-    if(storeval){
-      const userIdDetail = await Contact.findOne({ where: { 
-        id : storeval.contactId
-      } })
-      return res.status(200).json({ success: true, storeval,userIdDetail })
+    if (storeval) {
+      const userIdDetail = await Contact.findOne({
+        where: {
+          id: storeval.contactId
+        }
+      })
+      return res.status(200).json({ success: true, storeval, userIdDetail })
     }
-   
-    
+
+
   } catch (error) {
     return res.status(400).json({ success: false, error: error.message })
   }
@@ -1812,7 +1814,7 @@ router.get('/get-events', async (req, res) => {
 
 router.post("/activity", async (req, res) => {
   try {
-    const { lead_id, activity, dateTime } = req.body; 
+    const { lead_id, activity, dateTime } = req.body;
     const newActivity = await Activities.create({
       lead_id: lead_id,
       activity: activity,
@@ -1874,16 +1876,16 @@ router.post('/contactData', async (req, res) => {
   try {
     const { name, email, mobile, address } = req.body;
     const contactData = await Contact.create({ name, email, mobile, address });
-    res.status(201).json({ success:true ,message: "Contact data created successfully", data: contactData });
+    res.status(201).json({ success: true, message: "Contact data created successfully", data: contactData });
   } catch (err) {
     console.error(err);
-    res.status(500).json({ success:false, message: "Failed to create contact data" });
+    res.status(500).json({ success: false, message: "Failed to create contact data" });
   }
 });
 
 
 router.post('/leads', async (req, res) => {
- 
+
   try {
     const {
       companyName,
@@ -1895,7 +1897,7 @@ router.post('/leads', async (req, res) => {
       DealType,
       StartDate,
       Source,
-      target_status = 'New Lead',
+      target_status,
       responsible_person,
       loginEmail = req.session.email,
       employee_id = req.session.username
@@ -1911,7 +1913,7 @@ router.post('/leads', async (req, res) => {
       StartDate: StartDate || new Date(),
       Source,
       contactId,
-      target_status,
+      target_status : Stage || 'New Lead',
       responsible_person,
       loginEmail,
       employee_id
@@ -1954,8 +1956,10 @@ router.put('/leads/:id', async (req, res) => {
 
     // Update lead data with provided values, if provided
     if (companyName) leadToUpdate.companyName = companyName;
-    if (Stage) leadToUpdate.Stage = Stage;
-    if (Amount) leadToUpdate.Amount = Amount;
+    if (Stage) {
+      leadToUpdate.Stage = Stage;
+      leadToUpdate.target_status = Stage;
+    } if (Amount) leadToUpdate.Amount = Amount;
     if (EndDate) leadToUpdate.EndDate = EndDate;
     if (ContactNumber) leadToUpdate.ContactNumber = ContactNumber;
     if (clientEmail) leadToUpdate.clientEmail = clientEmail;
@@ -1964,7 +1968,7 @@ router.put('/leads/:id', async (req, res) => {
     if (DealType) leadToUpdate.DealType = DealType;
     if (StartDate) leadToUpdate.StartDate = StartDate;
     if (Source) leadToUpdate.Source = Source;
-    if (target_status) leadToUpdate.target_status = target_status;
+    // if (target_status) leadToUpdate.targetStatus = Stage;
     if (responsible_person) leadToUpdate.responsible_person = responsible_person;
     if (loginEmail) leadToUpdate.loginEmail = loginEmail;
     if (employee_id) leadToUpdate.employee_id = employee_id;
@@ -2167,24 +2171,24 @@ router.put('/activitiesforLeads/:id', async (req, res) => {
   const { activity, dateTime, activityStatus } = req.body;
 
   try {
-      const activityToUpdate = await Activities.findByPk(id);
+    const activityToUpdate = await Activities.findByPk(id);
 
-      if (!activityToUpdate) {
-          return res.status(404).json({ error: 'Activity not found' });
-      }
+    if (!activityToUpdate) {
+      return res.status(404).json({ error: 'Activity not found' });
+    }
 
-      // Update the activity attributes, excluding lead_id
-      activityToUpdate.activity = activity;
-      activityToUpdate.dateTime = dateTime;
-      activityToUpdate.activityStatus = activityStatus;
+    // Update the activity attributes, excluding lead_id
+    activityToUpdate.activity = activity;
+    activityToUpdate.dateTime = dateTime;
+    activityToUpdate.activityStatus = activityStatus;
 
-      // Save the updated activity
-      await activityToUpdate.save();
+    // Save the updated activity
+    await activityToUpdate.save();
 
-      return res.status(200).json(activityToUpdate);
+    return res.status(200).json(activityToUpdate);
   } catch (error) {
-      console.error('Error updating activity:', error);
-      return res.status(500).json({ error: 'Internal Server Error' });
+    console.error('Error updating activity:', error);
+    return res.status(500).json({ error: 'Internal Server Error' });
   }
 });
 
@@ -2195,16 +2199,16 @@ router.post('/product-add', async (req, res) => {
     const { products } = req.body;
     const userId = req.session.employee_id;
     const uniqueProductNames = new Set(products.map(({ productName }) => productName));
-    [...uniqueProductNames].forEach(async(item)=>{
+    [...uniqueProductNames].forEach(async (item) => {
       const exist = await ProductModel.findOne({
         where: {
           productName: item,
-      },
-    })
-      if(exist){
+        },
+      })
+      if (exist) {
         return console.log('value exist')
-    }
-  })
+      }
+    })
     const uniqueProductObjects = [...uniqueProductNames].map(productName => ({ productName, userId }));
     // return console.log(uniqueProductObjects)
     const product_table = await ProductModel.bulkCreate(uniqueProductObjects);
@@ -2226,16 +2230,16 @@ router.post("/product-list", async (req, res) => {
         }
       }
     });
-    
+
     const uniqueProductNames = [];
     const productNameSet = new Set();
-    allPro.forEach(product=>{
-      if(!productNameSet.has(product.productName)){
+    allPro.forEach(product => {
+      if (!productNameSet.has(product.productName)) {
         productNameSet.add(product.productName)
         uniqueProductNames.push(product)
       }
     })
-    return res.status(200).json({ success: true, message: "Product list", allPro :uniqueProductNames });
+    return res.status(200).json({ success: true, message: "Product list", allPro: uniqueProductNames });
   } catch (error) {
     return res.status(400).json({ success: false, message: "Failed to get product list" });
   }

@@ -556,6 +556,37 @@ document.addEventListener('click', function (event) {
 renderContainers();
 
 
-// title.forEach(element=>{
-//    console.log(element.textContent,1212)
-// })
+// data appending in dropdown
+
+async function fetchCustomFieldName(){
+    try {
+        const res =  await fetch('/fetchcontainers')
+        const {containers} = await res.json()
+         await appendDataInDropdown(containers)
+         await appendDataInDropdownUpdate(containers)
+    } catch (error) {
+        console.log(error)
+    }
+}
+fetchCustomFieldName()
+
+function appendDataInDropdown(data){
+    const Stage = document.getElementById('Stage')
+    data.forEach(item=>{
+        const option = document.createElement('option')
+        option.value = item.fieldName
+        option.textContent = item.fieldName
+        Stage.appendChild(option)
+    })
+}
+
+function appendDataInDropdownUpdate(data){
+    const Stage = document.getElementById('Stage-update')
+    data.forEach(item=>{
+        const option = document.createElement('option')
+        option.value = item.fieldName
+        option.textContent = item.fieldName
+        Stage.appendChild(option)
+    })
+}
+
